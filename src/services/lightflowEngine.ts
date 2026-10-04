@@ -90,13 +90,13 @@ export function parseReportSections(
   };
 
   const sections = [
-    { key: 'lichtfunke', regex: /###\s*1\.\s*LICHTFUNKE([\s\S]*?)(?=###\s*2\.|\Z)/i },
-    { key: 'klarblick', regex: /###\s*2\.\s*KLARBLICK([\s\S]*?)(?=###\s*3\.|\Z)/i },
-    { key: 'tagwerk', regex: /###\s*3\.\s*TAGWERK([\s\S]*?)(?=###\s*4\.|\Z)/i },
-    { key: 'freiraum', regex: /###\s*4\.\s*FREIRAUM([\s\S]*?)(?=###\s*5\.|\Z)/i },
-    { key: 'standpunkt', regex: /###\s*5\.\s*STANDPUNKT([\s\S]*?)(?=###\s*6\.|\Z)/i },
-    { key: 'spiegel', regex: /###\s*6\.\s*SPIEGEL([\s\S]*?)(?=###\s*7\.|\Z)/i },
-    { key: 'leuchtkraft', regex: /###\s*7\.\s*LEUCHTKRAFT([\s\S]*?)$/i },
+    { key: 'lichtfunke', regex: /###\s*\[?1\.\s*LICHTFUNKE\]?([\s\S]*?)(?=###\s*\[?2\.|\Z)/i },
+    { key: 'klarblick', regex: /###\s*\[?2\.\s*KLARBLICK\]?([\s\S]*?)(?=###\s*\[?3\.|\Z)/i },
+    { key: 'tagwerk', regex: /###\s*\[?3\.\s*TAGWERK\]?([\s\S]*?)(?=###\s*\[?4\.|\Z)/i },
+    { key: 'freiraum', regex: /###\s*\[?4\.\s*(?:FREIRAUM|FEIERABEND)\]?([\s\S]*?)(?=###\s*\[?5\.|\Z)/i },
+    { key: 'standpunkt', regex: /###\s*\[?5\.\s*STANDPUNKT\]?([\s\S]*?)(?=###\s*\[?6\.|\Z)/i },
+    { key: 'spiegel', regex: /###\s*\[?6\.\s*SPIEGEL\]?([\s\S]*?)(?=###\s*\[?7\.|\Z)/i },
+    { key: 'leuchtkraft', regex: /###\s*\[?7\.\s*LEUCHTKRAFT\]?([\s\S]*?)$/i },
   ] as const;
 
   for (const s of sections) {
