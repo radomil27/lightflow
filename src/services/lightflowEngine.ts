@@ -12,41 +12,42 @@ import { UserProfile, LightflowReport, AppSettings } from '../types';
 export function buildSystemPrompt(profile: UserProfile, passage: string, mood?: string): string {
   const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
 
-  return `Du bist der Kern von "Lightflow" – eine warme, weise und bodenständige Stimme, die Gottes Wort wie eine Sauerstoffleitung direkt in den Alltag des Menschen fließen lässt.
+  return `Du bist die theologische und lebenspraktische KI-Engine von "Lightflow – Angeschlossen an die Quelle".
+Deine Aufgabe ist es, einen biblischen Text so zu übersetzen, dass er VOLLSTÄNDIG und IN JEDEM EINZELNEN DER 6 BEREICHE auf das persönliche Profil des Nutzers abgestimmt ist.
 
-DEINE NUTZER-DATEN:
-- Beruf / Fachmetaphern: ${profile.profession}
-- Denkweise: ${profile.mindset} (z.B. technisch hinterfragend, lösungsorientiert)
-- Lebenssituation: ${profile.relationshipStatus}
-- Heutige Verfassung: ${currentMood}
+NUTZER-PROFIL (DAS VERBINDUNGSPROFIL):
+- 1. Beruf & Handwerkswelt: "${profile.profession}" (Verwende konkretes Fachvokabular, Werkzeuge, Abläufe, Reale Herausforderungen aus genau diesem Beruf!)
+- 2. Denkweise & Kognitiver Stil: "${profile.mindset}" (z. B. lösungsorientiert & analytisch -> logische Kausalitäten; bildhaft -> plastische Vergleiche; systemisch -> Fehlerdiagnose & Architektur)
+- 3. Lebenssituation & Beziehungsstatus: "${profile.relationshipStatus}" (z. B. Single/Alleinlebend -> Feierabend allein, Stille, Selbstfürsorge; Familie -> Trubel, Partner, Kinder, Verantwortung)
+- 4. Glaubensphase: "${profile.faithStage || 'Auf der Suche'}" (z. B. hinterfragend/kritisch -> keine frommen Klischees, ehrlich und logisch; ausgelaugt -> sanft, kein neuer Leistungsdruck)
+- 5. Heutige Tagesverfassung / Stimmung: "${currentMood}"
 
-BIBELTEXT:
+BIBELTEXT / PASSAGE:
 ${passage}
 
-LEITLINIEN FÜR DEINE SPRACHE:
-1. Sei absolut bodenständig, warmherzig und frei von religiösem Fachchinesisch.
-2. Nutze treffende Metaphern aus "${profile.profession}", damit die Zusammenhänge sofort logisch einleuchten.
-3. Begegne dem Nutzer nicht von oben herab, sondern wie ein erfahrener Meister an der Werkbank.
-4. Schaffe im Bereich "Garten im Herzen" einen Raum der tiefen Ruhe – Gnade statt Zwang.
+STRIKTE LEITLINIEN FÜR ALLE 6 BEREICHE:
+- Kein allgemeines "Kirchen-Deutsch", keine Phrasen wie "Glaube einfach fest".
+- Jeder Bereich muss die Lebenswelt des Nutzers widerspiegeln!
 
-AUSGABE-FORMAT:
+STRUKTUR DER 6 BEREICHE:
+
 ### [1. DIE KERNLEITUNG]
-(1-2 glasklare, kraftvolle Sätze als Hauptimpuls)
+(1-2 glasklare, kraftvolle Sätze als Hauptimpuls. Formuliert so, dass es direkt den Kern der aktuellen Tagesverfassung "${currentMood}" und die Denkweise "${profile.mindset}" trifft.)
 
 ### [2. DIE WERKBANK - DEINE ALLTAGSANALOGIE]
-(Übertragung auf ${profile.profession} und den Denkstil ${profile.mindset})
+(Vollständig auf den Beruf "${profile.profession}" zugeschnitten! Ziehe eine tiefgreifende, praktische Analogie mit echten Fachbegriffen und typischen Situationen aus diesem Beruf. Warum verhält sich der geistliche Grundsatz aus der Bibelstelle exakt wie ein physikalisches oder fachliches Gesetz in diesem Gewerk?)
 
 ### [3. DAS SYSTEM ENTSCHLÜSSELT]
-(Fehlerdiagnose der menschlichen Religion vs. göttliches Funktionsprinzip. Ursache, Wirkung, Lösungsansatz)
+(Auf die Denkweise "${profile.mindset}" abgestimmt. Analytische Fehlerdiagnose: Wo liegt der menschliche Systemfehler / Denkfehler (z. B. Kontrollzwang, Gesetzeskrampf, Leistungsdruck), und wie sieht das göttliche Funktionsprinzip aus? Ursache -> Auswirkung -> Befreiende Lösung.)
 
 ### [4. FREIRAUM IM ALLTAG]
-(Bedeutung für Feierabend, Lebenssituation: ${profile.relationshipStatus}, eigene Ansprüche)
+(Direkt abgestimmt auf die Lebenssituation "${profile.relationshipStatus}" und den Feierabend nach der Arbeit als ${profile.profession}. Wie sieht praktische Freiheit heute Abend konkret aus? Welchen Druck darf der Nutzer jetzt vor der Haustür ablegen?)
 
 ### [5. DER GARTEN IM HERZEN]
-(Auftanken an der Quelle, Leistungsdruck ablegen, Zuwendung spüren)
+(Ein geschützter Raum des Auftankens, zugeschnitten auf die Glaubensphase "${profile.faithStage || 'Ehrlich'}" und die heutige Stimmung "${currentMood}". Keine To-Do-Liste für den Glauben, sondern pure Gnade, bedingungslose Annahme und Erholung an der Quelle.)
 
 ### [6. DIE SAUERSTOFFMASKE - DEIN GEBET]
-(Ehrliches, erdnahes, unfrommes Herzensgebet, das frei atmen lässt)`;
+(Ein ehrliches, unfrommes Herzensgebet in der Ich-Form. Es greift den heutigen Tag, den Beruf (${profile.profession}) und die Verfassung (${currentMood}) auf. Wie eine Sauerstoffmaske, die tiefes Aufatmen schenkt.)`;
 }
 
 /**
@@ -172,10 +173,10 @@ Jesus begegnet der verdorrten Hand genau so: Leben und Schmerzlinderung haben ab
       workBench: workbenchText,
       systemDecoded: `FEHLERDIAGNOSE: Die menschliche Religion verwechselt Werkzeug und Ziel. Sie macht aus dem Geschenk der Pause ein Kontrollinstrument mit 39 Unterverboten.
 GÖTTLICHES FUNKTIONSPRINZIP: Ursache: Gott will deine Erholung und Wiederherstellung. Wirkung: Wo Not ist, schafft Gnade Raum zum Handeln. Lösung: Prüfe jede Regel daran, ob sie Leben fördert oder Leben erdrückt.`,
-      dailyFreedom: `Wenn du nach Hause kommst (${profile.relationshipStatus}), lass den inneren Buchhalter vor der Tür. Du musst dir deine Existenzberechtigung nicht durch Perfektion im Haushalt oder permanente Verfügbarkeit verdienen. Der Feierabend ist dir geschenkt – atme durch, ohne Rechenschaft ablegen zu müssen.`,
-      heartGarden: `Lass das Werkzeug sinken. Mitten in deiner heutigen Verfassung (${mood}) schaut Gott nicht darauf, wie viele Punkte du auf deiner To-Do-Liste abgehakt hast. Er sieht deine müden Hände – und sagt: "Komm zur Ruhe, ich trage das Fundament."`,
-      oxygenMask: `Gott, ich sitze hier und merke, wie fest ich mich oft in meinen eigenen Vorschriften und Erwartungen verbeiße. Vergib mir, wo ich mir selbst und anderen die Luft abgeschnürt habe.
-Schalte meinen Kopf frei von diesem ständigen Rechtfertigungsdruck. Ich nehme deinen Frieden jetzt an wie einen tiefen Zug frischen Sauerstoff. Amen.`,
+    dailyFreedom: `Wenn du nach Hause kommst (${profile.relationshipStatus}): Lass den inneren Kontrollzwang und die berufliche Anspannung als ${profession} vor der Haustür. Du musst dir deine Existenzberechtigung nicht durch Perfektion oder permanente Verfügbarkeit verdienen. Der Feierabend ist dir bedingungslos geschenkt – atme durch, ohne Rechenschaft ablegen zu müssen.`,
+      heartGarden: `Lass das Werkzeug sinken. Mitten in deiner heutigen Verfassung (${mood}) und deiner Glaubensphase (${profile.faithStage || 'Auf der Suche'}) schaut Gott nicht darauf, wie viele Punkte du auf deiner To-Do-Liste abgehakt hast oder wie fromm du dich fühlst. Er sieht deine müden Hände – und sagt: "Komm zur Ruhe, ich trage das Fundament."`,
+      oxygenMask: `Gott, ich sitze hier und spüre meine Verfassung (${mood}). Ich merke, wie fest ich mich oft in meinen eigenen Vorschriften und Erwartungen als ${profession} verbeiße.
+Schalte meinen Kopf (${profile.mindset}) frei von diesem ständigen Rechtfertigungsdruck. Ich nehme deinen Frieden jetzt an wie einen tiefen Zug frischen Sauerstoff. Amen.`,
       favorite: false,
     };
   }
@@ -188,13 +189,13 @@ Schalte meinen Kopf frei von diesem ständigen Rechtfertigungsdruck. Ich nehme d
       timestamp: Date.now(),
       profileSnapshot: { ...profile },
       mood,
-      coreConduit: 'Du musst den Karren nicht alleine aus dem Dreck ziehen. Das Joch Jesu ist keine Zusatzlast, sondern eine passgenaue Führungsstange, die das Gewicht von deinen Schultern nimmt.',
+      coreConduit: `Du musst den Karren nicht alleine aus dem Dreck ziehen. Das Joch Jesu ist keine Zusatzlast, sondern eine passgenaue Führungsstange, die das Gewicht von deinen Schultern nimmt (${profile.mindset}).`,
       workBench: `In deinem Bereich (${profession}) weißt du: Falsch eingestelltes Hebewerkzeug oder ein schiefer Schwerpunkt ruiniert dir auf Dauer das Kreuz. Jesus bietet dir an, sich mit dir in dasselbe Geschirr zu spannen – er übernimmt die Zugkraft, du führst nur die Richtung.`,
-      systemDecoded: `FEHLERDIAGNOSE: Leistungsdenken suggeriert: "Wenn du zusammenbrichst, hast du dich nur nicht genug angestrengt."
+      systemDecoded: `FEHLERDIAGNOSE: Dein Denkstil (${profile.mindset}) oder das Leistungsdenken suggeriert: "Wenn du zusammenbrichst, hast du dich nur nicht genug angestrengt."
 GÖTTLICHES FUNKTIONSPRINZIP: Reale Stärke beginnt beim Anerkennen von Belastungsgrenzen. Gnade ist keine Belohnung nach Feierabend, sondern die Antriebskraft während der Schicht.`,
-      dailyFreedom: `Für deine Situation (${profile.relationshipStatus}): Erlaube dir heute Abend, unerledigte Dinge stehen zu lassen. Der Tag war lang genug. Schlaf ist ein geistlicher Akt des Vertrauens.`,
-      heartGarden: `Hier im Garten musst du nichts beweisen. Keine Qualitätskontrolle, kein Chef, kein Urteil. Nur reines Licht, das deine verbrauchten Reserven lautlos auffüllt.`,
-      oxygenMask: `Herr, meine Batterien sind leer. Ich lege die Last meiner eigenen Ansprüche vor dir ab. Zieh du mit mir an einem Strang. Ich atme deine Ruhe ein. Amen.`,
+      dailyFreedom: `Für deine Lebenssituation (${profile.relationshipStatus}): Erlaube dir heute Abend, unerledigte Dinge stehen zu lassen. Nach einem anstrengenden Tag als ${profession} war es genug. Schlaf und Loslassen sind ein geistlicher Akt des Vertrauens.`,
+      heartGarden: `Hier im Garten musst du nichts beweisen. Keine Qualitätskontrolle, kein Chef, keine religiösen Forderungen (${profile.faithStage || 'Frei von Zwang'}). Nur reines Licht, das deine Reserven mitten in der Verfassung "${mood}" lautlos auffüllt.`,
+      oxygenMask: `Herr, meine Batterien sind leer und ich bin ${mood}. Ich lege die Last meiner eigenen Ansprüche vor dir ab. Zieh du mit mir an einem Strang in meinem Alltag als ${profession}. Ich atme deine Ruhe ein. Amen.`,
       favorite: false,
     };
   }
@@ -207,13 +208,13 @@ GÖTTLICHES FUNKTIONSPRINZIP: Reale Stärke beginnt beim Anerkennen von Belastun
       timestamp: Date.now(),
       profileSnapshot: { ...profile },
       mood,
-      coreConduit: 'Ein Ast strengt sich nicht an, Weintrauben herauszupressen. Er bleibt einfach angeschlossen an den Stamm, und der Saftstrom erledigt das Wachstum von selbst.',
-      workBench: `Als ${profession} weißt du: Wenn die Druckluftleitung oder der Stromanschluss gekappt ist, nützt die beste Maschine nichts mehr. Sobald die Zuleitung steht, fließt die Energie mühelos. So verhält es sich mit deiner geistigen Quelle.`,
-      systemDecoded: `FEHLERDIAGNOSE: Religiöser Krampf: "Ich muss mehr Früchte produzieren!" (Fokus auf Output statt Input).
+      coreConduit: `Ein Ast strengt sich nicht krampfhaft an, Weintrauben herauszupressen. Er bleibt einfach angeschlossen an den Stamm, und der Saftstrom erledigt das Wachstum ganz natürlich (${profile.mindset}).`,
+      workBench: `Als ${profession} weißt du: Wenn die Druckluftleitung oder der Stromanschluss gekappt ist, nützt die beste Maschine nichts mehr. Sobald die Zuleitung steht, fließt die Energie mühelos. So verhält es sich mit deiner geistigen Quelle im Alltag.`,
+      systemDecoded: `FEHLERDIAGNOSE: Religiöser Krampf: "Ich muss mehr Leistung und Früchte produzieren!" (Fokus auf Output statt Input – ein typischer Fehler bei "${profile.mindset}").
 GÖTTLICHES FUNKTIONSPRINZIP: Verbundenheit erzeugt Frucht. Wer angeschlossen bleibt, produziert automatisch Leben, ohne innerlich auszubrennen.`,
-      dailyFreedom: `In deinem Alltag (${profile.relationshipStatus}): Hör auf, alles mit reiner Willenskraft erzwingen zu wollen. Nimm dir heute Zeit für das, was dich nährt, nicht nur für das, was von dir fordert.`,
-      heartGarden: `Spüre den Durchfluss. Wie ein frischer Tau am Morgen bringt Gottes Gegenwart deine inneren Wurzeln zur Ruhe. Du bist tief eingepflanzt.`,
-      oxygenMask: `Gott, ich will aufhören zu strampeln. Ich stöpsle mich wieder direkt an deine Versorgungsleitung an. Lass deinen Frieden durch mich fließen. Amen.`,
+      dailyFreedom: `In deinem Alltag (${profile.relationshipStatus}): Hör auf, alles mit reiner Willenskraft erzwingen zu wollen. Nimm dir heute nach der Arbeit Zeit für das, was dich nährt, nicht nur für das, was von dir fordert.`,
+      heartGarden: `Spüre den Durchfluss. Wie ein frischer Tau am Morgen bringt Gottes Gegenwart deine inneren Wurzeln zur Ruhe (${profile.faithStage || 'Geborgen'}). Du bist tief eingepflanzt, egal wie stürmisch der Arbeitstag war.`,
+      oxygenMask: `Gott, ich will aufhören zu strampeln. Ich stöpsle mich wieder direkt an deine Versorgungsleitung an. Mitten in meiner heutigen Verfassung (${mood}) lass deinen Frieden durch mich fließen. Amen.`,
       favorite: false,
     };
   }
@@ -226,13 +227,13 @@ GÖTTLICHES FUNKTIONSPRINZIP: Verbundenheit erzeugt Frucht. Wer angeschlossen bl
     timestamp: Date.now(),
     profileSnapshot: { ...profile },
     mood,
-    coreConduit: `Mitten in deiner heutigen Anspannung gilt: Gott begegnet dir nicht in abstrakten Phrasen, sondern dort, wo die Späne fallen und dein Kopf Klarheit sucht.`,
-    workBench: `In deinem Berufsalltag als ${profession} (${profile.mindset}) brauchst du Verlässlichkeit und saubere Schnittstellen. Genau das ist diese Bibelstelle für dich: Sie ist keine theoretische Abhandlung, sondern eine praktische Schablone, um die Dinge wieder ins Lot zu bringen.`,
-    systemDecoded: `FEHLERDIAGNOSE: Wenn wir unter Druck stehen (${mood}), suchen wir oft nach schnellen Pflastern oder verurteilen uns für Fehler.
-GÖTTLICHES PRINZIP: Gott fängt immer bei der Wiederherstellung der Beziehung an. Er repariert das Fundament, bevor er Wände hochzieht.`,
-    dailyFreedom: `Für deine Lebenslage (${profile.relationshipStatus}): Nimm den Druck raus. Du musst heute Abend nicht die ganze Welt retten. Es reicht, einen Schritt in Ruhe zu gehen.`,
-    heartGarden: `Ein geschützter Raum mitten in der Brandung. Lass den Sauerstoff tief in die Lungen strömen. Du bist gesehen, gewollt und bedingungslos angenommen.`,
-    oxygenMask: `Herr, danke dass du meinen Arbeitsalltag verstehst. Ich öffne mein Herz für deine Ruhe und deinen klaren Blick. Lass mich heute tief durchatmen. Amen.`,
+    coreConduit: `Mitten in deiner heutigen Verfassung (${mood}) gilt: Gott begegnet dir nicht in abgehobenen Floskeln, sondern passgenau dort, wo du als ${profession} denkst und handelst.`,
+    workBench: `In deinem Berufsalltag als ${profession} (${profile.mindset}) brauchst du Verlässlichkeit, echte Passgenauigkeit und saubere Schnittstellen. Genau das ist diese Bibelstelle für dich: Sie ist kein weltfremdes Dogma, sondern eine praktische Schablone, um die Dinge in deinem Gewerk wieder ins Lot zu bringen.`,
+    systemDecoded: `FEHLERDIAGNOSE: Wenn wir als ${profession} unter Druck stehen (${mood}), suchen wir oft mit unserem Denkstil (${profile.mindset}) nach hektischen Notlösungen oder verurteilen uns für Schwächen.
+GÖTTLICHES PRINZIP: Gott fängt immer bei der Wiederherstellung der Verbindung an. Er richtet das Fundament aus, bevor Lasten aufgesetzt werden.`,
+    dailyFreedom: `Für deine Lebenslage (${profile.relationshipStatus}): Nimm den Druck raus. Nach getaner Arbeit als ${profession} musst du heute Abend nicht die ganze Welt schultern. Es reicht, einen Schritt in Ruhe zu gehen.`,
+    heartGarden: `Ein geschützter Raum fernab von Leistungsdruck und Erwartungen (${profile.faithStage || 'Auf der Suche'}). Lass den Sauerstoff tief in die Lungen strömen. Du bist gesehen, gewollt und bedingungslos angenommen.`,
+    oxygenMask: `Herr, danke dass du meinen Arbeitsalltag als ${profession} genau kennst. Ich bin ${mood} und öffne mein Herz für deine Ruhe und deinen klaren Blick. Lass mich heute tief durchatmen. Amen.`,
     favorite: false,
   };
 }
