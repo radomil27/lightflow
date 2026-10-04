@@ -10,53 +10,62 @@
 import { UserProfile, LightflowReport, AppSettings } from '../types';
 
 export function buildSystemPrompt(profile: UserProfile, passage: string, mood?: string): string {
+  const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
   const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
 
   return `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
-AUFGABE:
-Lege den ausgewählten BIBELTEXT mit 100%iger Treue und Tiefenschärfe aus.
-Übersetze seine tiefste theologische Bedeutung, seine Mechanismen und seine Botschaft vollkommen organisch in die Begriffswelt, Bildsprache und Denkstruktur des Nutzers – OHNE Jemals zu erklären oder zu erwähnen, welche Attribute im Profil stehen!
-
-AUSGEWÄHLTER BIBELTEXT / PASSAGE:
+BIBELTEXT:
 ${passage}
 
-HINTERGRUND DES ZUHÖRERS (Nur als Schablone und Resonanzraum für Bildnisse und Sprache nutzen!):
-- Lebenswelt & vertraute Metaphern: "${profile.profession}"
-- Denkstil & Verstehensmuster: "${profile.mindset}"
-- Alltägliche Lebenssituation: "${profile.relationshipStatus}"
-- Glaubensphase: "${profile.faithStage || 'Auf der Suche'}"
-- Heutige Verfassung: "${currentMood}"
+NUTZER-DATEN:
+- Beruf / Tätigkeitsfeld: ${profile.profession}
+- Denkstil / Stärken: ${profile.mindset}
+- Lebenssituation: ${profile.relationshipStatus}
+- Weg mit Jesus: ${journey}
+- Heutige Tagesverfassung: ${currentMood}
 
-STRIKTE REGELN (SEHR WICHTIG):
-1. KEIN META-TALK: Schreibe NIEMALS Sätze wie "Da du als X arbeitest...", "In deinem Beruf als...", "Weil du Single/Familie bist...", "Für dein Mindset...". Der Nutzer weiß selbst, was er arbeitet und wie er lebt! Sprich einfach direkt in seiner Sprache und mit Bildern, die sich anfühlen, als wären sie wie selbstverständlich für ihn gedacht.
-2. 100% BEZUG AUF DEN BIBELTEXT: Jeder Gedanke, jede Analogie und jeder Schritt muss direkt aus den Versen und Geschehnissen des Bibeltextes hervorgehen. Erkläre den Text, seine Dynamik, was damals geschieht und was das universelle Prinzip dahinter ist.
-3. MAẞGESCHNEIDERTE VERSTÄNDNIS-HILFE: Nutze packende, präzise Bildnisse und Parallelen, die den Text sofort begreifbar machen (z. B. handwerkliche Toleranzen, Hebelkräfte, Materialspannungen, Systemregeln, Stromkreise, je nach Welt des Nutzers).
-4. KEINE FROMMEN FLOSKELN: Kein hohles Kirchen-Deutsch. Authentisch, kraftvoll, geerdet und tief berührend.
+LEITLINIEN FÜR DEINE AUSLEGUNG:
+1. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat. Der Nutzer weiß das selbst. Nutze sein Profil als unsichtbaren Maßanzug, damit sich jeder Posten wie maßgeschneidert anfühlt.
+2. 100% BEZUG ZUM AUSGEWÄHLTEN BIBELTEXT: Jeder Gedanke, jede Analogie und jede Frage muss direkt aus der Passage stammen.
+3. AUTHENTISCH & TIEF: Keine hohlen religiösen Floskeln, kein Leistungsdruck.
 
-STRUKTUR DER 6 BEREICHE:
+INHALTLICHE LOGIK DER 7 POSTEN:
 
-### [1. DIE KERNLEITUNG]
-(1-2 glasklare, kraftvolle Sätze. Die Essenz des Bibeltextes auf den Punkt gebracht – messerscharf und unmittelbar treffend.)
+### 1. LICHTFUNKE
+Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage in klaren, einfachen Worten zusammenfasst.
 
-### [2. DIE WERKBANK - DEINE ALLTAGSANALOGIE]
-(Nimm das zentrale Geschehen / Gleichnis / Gebot des Bibeltextes und übersetze das Funktionsprinzip in ein treffendes Bild aus der Lebenswelt. Zeige ganz konkret, warum der biblische Grundsatz physikalisch/praktisch genauso funktioniert wie ein alltägliches Natur- oder Handwerksgesetz. Ohne Floskeln, reine praktische Bildhaftigkeit des Textes.)
+### 2. KLARBLICK
+Erklärung der Bibelstelle exakt angepasst an den Denkstil des Nutzers (${profile.mindset}). Die Funktionsweise und der logische Zusammenhang der Stelle werden klar aufgeschlüsselt.
 
-### [3. DAS SYSTEM ENTSCHLÜSSELT]
-(Analytische Text-Entschlüsselung: Was ist der theologische / menschliche Kernkonflikt im Bibeltext? Welcher Denkfehler oder falsche Mechanismus wird von Jesus / dem Text entlarvt? Welches göttliche Prinzip wird stattdessen offengelegt? Ursache, Hebelwirkung und Befreiung.)
+### 3. TAGWERK
+Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${profile.profession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten Handlungsweise für den Werktag.
 
-### [4. FREIRAUM IM ALLTAG]
-(Die praktische Konsequenz des Bibeltextes für den heutigen Feierabend und das persönliche Leben: Was bedeutet die Botschaft dieser Verse, wenn der Arbeitstag vorbei ist? Welche Last nimmt der Bibeltext von den Schultern?)
+### 4. FREIRAUM
+Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?
 
-### [5. DER GARTEN IM HERZEN]
-(Der spirituelle Ruhepol des Bibeltextes: Wo schenkt dieser konkrete Text bedingungslose Gnade, Schutz und Annahme? Ein Ort des Auftankens, abgeleitet direkt aus dem Trost und der Tiefe der Schriftstelle.)
+### 5. STANDPUNKT
+Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben und den Umgang mit Mitmenschen aus?
 
-### [6. DIE SAUERSTOFFMASKE - DEIN GEBET]
-(Ein ehrliches, unfrommes Gebet in der Ich-Form, das unmittelbar auf die Botschaft des Bibeltextes antwortet. Wie das erste tiefe Durchatmen nach einem langen Tauchgang.)`;
+### 6. SPIEGEL
+Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, ehrliche Fragen, die der Nutzer im Stillen für sich selbst beantworten kann.
+
+### 7. LEUCHTKRAFT
+Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet, das alle vorherigen Punkte aufgreift.
+
+AUSGABE-FORMAT:
+Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolgen:
+### 1. LICHTFUNKE
+### 2. KLARBLICK
+### 3. TAGWERK
+### 4. FREIRAUM
+### 5. STANDPUNKT
+### 6. SPIEGEL
+### 7. LEUCHTKRAFT`;
 }
 
 /**
- * Parst den formatierten Text aus dem LLM in das 6-Stufen-Datenmodell
+ * Parst den formatierten Text aus dem LLM in das 7-Posten-Datenmodell
  */
 export function parseReportSections(
   rawText: string,
@@ -70,22 +79,24 @@ export function parseReportSections(
     timestamp: Date.now(),
     profileSnapshot: { ...profile },
     mood,
-    coreConduit: '',
-    workBench: '',
-    systemDecoded: '',
-    dailyFreedom: '',
-    heartGarden: '',
-    oxygenMask: '',
+    lichtfunke: '',
+    klarblick: '',
+    tagwerk: '',
+    freiraum: '',
+    standpunkt: '',
+    spiegel: '',
+    leuchtkraft: '',
     favorite: false,
   };
 
   const sections = [
-    { key: 'coreConduit', regex: /###\s*\[1\.\s*DIE KERNLEITUNG\]([\s\S]*?)(?=###\s*\[2\.|\Z)/i },
-    { key: 'workBench', regex: /###\s*\[2\.\s*DIE WERKBANK[^\]]*\]([\s\S]*?)(?=###\s*\[3\.|\Z)/i },
-    { key: 'systemDecoded', regex: /###\s*\[3\.\s*DAS SYSTEM ENTSCHLÜSSELT\]([\s\S]*?)(?=###\s*\[4\.|\Z)/i },
-    { key: 'dailyFreedom', regex: /###\s*\[4\.\s*FREIRAUM IM ALLTAG\]([\s\S]*?)(?=###\s*\[5\.|\Z)/i },
-    { key: 'heartGarden', regex: /###\s*\[5\.\s*DER GARTEN IM HERZEN\]([\s\S]*?)(?=###\s*\[6\.|\Z)/i },
-    { key: 'oxygenMask', regex: /###\s*\[6\.\s*DIE SAUERSTOFFMASKE[^\]]*\]([\s\S]*?)$/i },
+    { key: 'lichtfunke', regex: /###\s*1\.\s*LICHTFUNKE([\s\S]*?)(?=###\s*2\.|\Z)/i },
+    { key: 'klarblick', regex: /###\s*2\.\s*KLARBLICK([\s\S]*?)(?=###\s*3\.|\Z)/i },
+    { key: 'tagwerk', regex: /###\s*3\.\s*TAGWERK([\s\S]*?)(?=###\s*4\.|\Z)/i },
+    { key: 'freiraum', regex: /###\s*4\.\s*FREIRAUM([\s\S]*?)(?=###\s*5\.|\Z)/i },
+    { key: 'standpunkt', regex: /###\s*5\.\s*STANDPUNKT([\s\S]*?)(?=###\s*6\.|\Z)/i },
+    { key: 'spiegel', regex: /###\s*6\.\s*SPIEGEL([\s\S]*?)(?=###\s*7\.|\Z)/i },
+    { key: 'leuchtkraft', regex: /###\s*7\.\s*LEUCHTKRAFT([\s\S]*?)$/i },
   ] as const;
 
   for (const s of sections) {
@@ -95,25 +106,34 @@ export function parseReportSections(
     }
   }
 
-  // Fallback falls die KI keine exakten Überschriften lieferte
-  if (!defaultReport.coreConduit && rawText) {
+  // Fallback-Parsing für abweichende Formate
+  if (!defaultReport.lichtfunke && rawText) {
     const paragraphs = rawText.split('\n\n').filter((p) => p.trim().length > 0);
-    defaultReport.coreConduit = paragraphs[0] || 'Gott ist deine verlässliche Quelle mitten im Alltag.';
-    defaultReport.workBench = paragraphs[1] || 'Übertragen auf deine tägliche Arbeit.';
-    defaultReport.systemDecoded = paragraphs[2] || 'Das göttliche System basiert auf Vertrauen, nicht auf Zwang.';
-    defaultReport.dailyFreedom = paragraphs[3] || 'Dein Feierabend gehört dir und dem Atemholen.';
-    defaultReport.heartGarden = paragraphs[4] || 'Leg die Lasten ab – du bist gewollt und gehalten.';
-    defaultReport.oxygenMask = paragraphs[5] || 'Herr, ich atme tief ein. Danke für deinen Sauerstoff heute.';
+    defaultReport.lichtfunke = paragraphs[0] || 'Ich bin da, wo du gerade stehst.';
+    defaultReport.klarblick = paragraphs[1] || 'Der Text legt das Fundament des Lebens frei.';
+    defaultReport.tagwerk = paragraphs[2] || 'Mitten in der Praxis greift Gottes Ausrichtung.';
+    defaultReport.freiraum = paragraphs[3] || 'Der Feierabend gehört dir und dem Atemholen.';
+    defaultReport.standpunkt = paragraphs[4] || 'In deinem persönlichen Raum darf Friede einkehren.';
+    defaultReport.spiegel = paragraphs[5] || 'Prüfe dein Herz im Stillen: Wo darf Gnade herrschen?';
+    defaultReport.leuchtkraft = paragraphs[6] || 'Hier im Garten darfst du einfach sein. Herr, danke für dein Licht. Amen.';
   }
+
+  // Auch Abwärtskompatibilität pflegen
+  defaultReport.coreConduit = defaultReport.lichtfunke;
+  defaultReport.workBench = defaultReport.tagwerk;
+  defaultReport.systemDecoded = defaultReport.klarblick;
+  defaultReport.dailyFreedom = defaultReport.freiraum;
+  defaultReport.heartGarden = defaultReport.leuchtkraft;
+  defaultReport.oxygenMask = defaultReport.leuchtkraft;
 
   return defaultReport;
 }
 
 /**
- * Ruft die Google Gemini API auf
+ * Ruft die Google Gemini API auf (Client-Fallback)
  */
 async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -139,7 +159,7 @@ async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
 
 /**
  * Integrierte intelligente Lightflow-Engine (Offline & Instant Fallback)
- * 100% Bezug auf den Bibeltext, organische Bildnisse statt Profilerklärungen.
+ * Bietet sofort 7 Posten mit 100% Textbezug
  */
 export function generateLocalReport(
   passage: string,
@@ -149,114 +169,29 @@ export function generateLocalReport(
   const lowerPassage = passage.toLowerCase();
   const profession = profile.profession;
   const isHandwerk = profession.toLowerCase().includes('handwerk') || profession.toLowerCase().includes('monteur') || profession.toLowerCase().includes('küche') || profession.toLowerCase().includes('bau');
-  const isIT = profession.toLowerCase().includes('it') || profession.toLowerCase().includes('code') || profession.toLowerCase().includes('software') || profession.toLowerCase().includes('dev');
-  const isCare = profession.toLowerCase().includes('pflege') || profession.toLowerCase().includes('medizin') || profession.toLowerCase().includes('gesundheit');
 
   // Spezieller Deep-Report für Matthäus 12:1-14 (Sabbat & Barmherzigkeit)
   if (lowerPassage.includes('matthäus 12') || lowerPassage.includes('matt 12') || lowerPassage.includes('sabbat')) {
-    let workbenchText = '';
-    if (isHandwerk) {
-      workbenchText = `Wenn beim Montieren einer tragenden Platte unverhofft ein Wasserrohr in der Wand anbohrt wird, greifst du sofort zum Absperrventil – egal, ob die Feierabend-Sirene gerade schrillt oder die Prüfnorm eine Pause vorschreibt. Wer in diesem Moment tatenlos im Normenheft blättert, ruiniert die Bausubstanz.
-Genau diesen Irrsinn entlarvt Jesus bei den Ähren auf dem Feld und dem Mann mit der verdorrten Hand: Die Pharisäer verwechselten das Sicherungsgerüst mit dem eigentlichen Bauwerk. Ein Schutzgesetz, das im Notfall die Rettung von Leben verbietet, hat seinen eigenen Konstruktionszweck verfehlt. Barmherzigkeit ist keine Missachtung von Regeln, sondern das oberste Fundament, auf dem jede Norm erst ruht.`;
-    } else if (isIT) {
-      workbenchText = `Wenn im Produktivsystem ein kritischer Datenverlust droht, pocht kein erfahrener Architekt auf den Genehmigungsprozess des nächsten Sprint-Meetings – du spielst den Hotfix ein. 
-Die Gesetzeslehrer in Matthäus 12 betrieben genau diese destruktive Prozessstarre: Sie beharrten auf der Einhaltung von 39 bürokratischen Sabbat-Klauseln, während ein hungernder Mensch oder eine verdorrte Hand vor ihnen stand. Jesus stellt die Kern-Architektur wieder her: Das Framework wurde für den Anwender gebaut, nicht der Anwender für das Framework. Wo Leben auf dem Spiel steht, setzt Gnade die Priorität.`;
-    } else if (isCare) {
-      workbenchText = `Wenn ein Patient plötzlich keine Luft mehr bekommt, wird jede Dokumentation und jede Schichtpause augenblicklich unterbrochen. Wer zuerst die Formulare abheftet, verliert den Menschen.
-Genau vor dieser Wahl standen die Schriftgelehrten in der Synagoge. Sie beobachteten lauernd, ob Jesus am Ruhetag heilt. Seine Antwort ist glasklar: Heilung und Leben dulden keinen bürokratischen Aufschub. Der Sabbat wurde gestiftet, um Leben zu schenken – nicht, um Schmerz aus Prinzip zu konservieren.`;
-    } else {
-      workbenchText = `Ein Sicherheitsventil oder eine Vorschrift hat nur eine einzige Daseinsberechtigung: Schaden vom Menschen abzuwenden. Wenn eine Vorschrift plötzlich dazu führt, dass Schaden entsteht oder Not ignoriert wird, hat sie ihren Sinn ins Gegenteil verkehrt.
-Jesus stellt in Matthäus 12 klar: Gottes Gesetze sind Rettungsanker, keine Knebelverträge. Leben zu retten und Not zu lindern steht über jeder formalen Routine.`;
-    }
+    const tagwerkText = isHandwerk
+      ? `Wenn beim Einpassen einer Arbeitsplatte unverhofft ein Rohr leckt, greifst du sofort zum Absperrventil – ganz gleich, was die Uhr schlägt. Wer tatenlos zusieht, nur um die Pause einzuhalten, ruiniert das Gebäude.\n\nKonkrete Handlung für deinen Werktag: Wenn heute ein Kollege oder Kunde in Not gerät, lass den starren Ablaufplan für einen Moment los. Barmherzigkeit und zupackende Hilfe haben Vorrang vor jedem Paragrafen.`
+      : `Wenn im laufenden Betrieb ein akuter Notfall eintritt, wird jede Routine unterbrochen, um Schaden abzuwenden.\n\nKonkrete Handlung für deinen Werktag: Behandle Regeln als Leitplanken für den Menschen, nicht als Fesseln. Wenn heute jemand Hilfe braucht, setze den Menschen über das Schema.`;
 
-    return {
+    const rep: LightflowReport = {
       id: 'lf_' + Date.now(),
       passage: passage.trim() || 'Matthäus 12:1-14 (Der Sinn des Ruhetags & Barmherzigkeit)',
       timestamp: Date.now(),
       profileSnapshot: { ...profile },
       mood,
-      coreConduit: 'Gottes Ordnungen sind Lebensretter, keine Handschellen. Der Ruhetag wurde gestiftet, damit der Mensch wieder zu Kräften kommt – nicht, damit er unter religiöser Kontrolle erstickt.',
-      workBench: workbenchText,
-      systemDecoded: `DER KERNKONFLIKT:
-Die Pharisäer haben aus dem Geschenk des Ruhetags ein millimetergenaues Überwachungssystem gemacht. Sie diskutieren über Ähren-Reiben am Sabbat, während Gott nach Barmherzigkeit sucht („Barmherzigkeit will ich, nicht Schlachtopfer“).
-
-DAS GÖTTLICHE FUNKTIONSPRINZIP:
-1. Ursache: Gott setzt Grenzen und Ruhezeiten, um den Menschen vor Selbstausbeutung zu schützen.
-2. Der Denkfehler: Der Mensch macht aus dem Schutz ein Verdienstmodell und knechtet sich selbst mit Erwartungen.
-3. Die Befreiung: Der Sohn des Menschen ist Herr über den Sabbat. Heilung, Rettung und Aufatmen haben immer Vorfahrt vor starrer Pflichterfüllung.`,
-      dailyFreedom: `Wenn du heute Abend den Schlüssel im Schloss umdrehst, lass jede Rechenschaftspflicht vor der Tür. Du musst deinen Wert nicht durch eine fehlerfreie Bilanz des Tages rechtfertigen. Matthäus 12 befreit dich von der Illusion, dass dein Dasein an ständiger Pflichterfüllung hängt: Ruhe ist kein Bonus nach getaner Perfektion, sondern ein unantastbares Geschenk.`,
-      heartGarden: `Tritt ein in diesen geschützten Raum. Sieh die verdorrte Hand in der Synagoge: Jesus verlangte keine Vorleistung, keinen Glaubenstest, keine Bewährung. Er sagte einfach: „Strecke deine Hand aus!“ Und sie wurde gesund.
-Genauso darfst du vor ihm deine leeren, müden Hände ausstrecken. Er fordert nichts von dir. Er stellt dich wieder her.`,
-      oxygenMask: `Herr, ich merke, wie tief der Zwang in mir sitzt, immer alles richtig zu machen und zu funktionieren. Ich verbeiße mich in Erwartungen und vergesse das Atmen.
-Danke für dein klares Wort aus Matthäus 12. Du willst mein Leben, meine Gesundheit und mein Aufatmen – nicht meine krampfhaften Opfer. Ich lasse die Kontrolle los und atme deinen Frieden ein. Amen.`,
+      lichtfunke: 'Ich sehe, wie sehr dich Regeln und Erwartungen manchmal erdrücken. Ich habe den Ruhetag nicht erfunden, um dir Fesseln anzulegen, sondern damit du wieder aufatmen kannst. Du bist mir wichtiger als jedes Protokoll.',
+      klarblick: 'Die Pharisäer verwechselten Ursache und Wirkung: Sie machten aus einem Schutzraum für Erholung ein starres Überwachungssystem mit Unterverboten. Der logische Zusammenhang der Stelle ist glasklar: Das Gesetz existiert, um Leben zu erhalten. Wo eine Vorschrift Leben verhindert oder Schmerz verlängert, hat sie ihren Konstruktionszweck verfehlt. Der Herr des Sabbats stellt die ursprüngliche Ordnung wieder her: Leben und Heilung haben absolute Priorität.',
+      tagwerk: tagwerkText,
+      freiraum: 'Wenn am Abend die Tür hinter dir schließt, bist du niemandem mehr Rechenschaft schuldig. Du musst dir deine Daseinsberechtigung nicht durch eine lückenlose Erledigungsliste erkämpfen. Feierabend ist kein verdienter Lohn für Perfektion, sondern ein unantastbares Geschenk Gottes: Lege das Werkzeug und die Gedanken an die Baustelle ab.',
+      standpunkt: 'In deinen eigenen vier Wänden darfst du die Rüstung ablegen. Du musst nicht den starken Macher spielen oder den Erwartungen anderer hinterherlaufen. Diese Wahrheit befreit dich im Umgang mit deinen Nächsten: Du musst weder dich noch andere ständig kontrollieren oder bewerten.',
+      spiegel: `Wie leben wir dieses Prinzip im Miteinander? Barmherzigkeit bedeutet, nicht mit dem Zeigefinger auf die Fehler anderer zu deuten, sondern hinzusehen, wo jemand hungrig oder verwundet ist.\n\nFragen für die Stille:\n1. Wo verurteile ich mich selbst oder andere nach starren Maßstäben, anstatt Barmherzigkeit walten zu lassen?\n2. Welchen Notfalleingriff der Liebe habe ich zuletzt aus Bequemlichkeit oder Pflichtgefühl aufgeschoben?\n3. Erlaube ich mir selbst, ohne schlechtes Gewissen zur Ruhe zu kommen?`,
+      leuchtkraft: `Der Garten im Herzen ist ein geschützter Raum der Stille. Sieh die verdorrte Hand des Mannes in der Synagoge: Jesus fordert keine Vorleistung. Er sagt einfach: „Strecke deine Hand aus!“ Genau so darfst du vor ihm ankommen – mit leeren Händen, ohne Beweisdruck.\n\nHerzensgebet:\n„Herr, ich merke, wie fest ich mich oft in meinen eigenen Vorschriften und Pflichten verbeiße. Vergib mir, wo ich mir und anderen die Luft abgeschnürt habe. Danke, dass dein Herz für mein Aufatmen schlägt. Ich lege alle Lasten jetzt in deine Hände und nehme deinen Frieden tief in mich auf. Amen.“`,
       favorite: false,
     };
-  }
-
-  // Für Matthäus 11:28-30 (Die leichte Last / Kommt her zu mir alle)
-  if (lowerPassage.includes('matthäus 11') || lowerPassage.includes('matt 11') || lowerPassage.includes('mühselig') || lowerPassage.includes('last')) {
-    let workbenchText = '';
-    if (isHandwerk) {
-      workbenchText = `Wer schwere Balken oder Granitplatten schleppt, weiß: Ein falsch austarierter Schwerpunkt oder ein improvisierter Tragegurt ruiniert dir in kürzester Zeit die Wirbelsäule. Bei einem gut eingestellten Hebegeschirr verteilt sich die Last physikalisch optimal auf den Körperschwerpunkt.
-Genau dieses handfeste Bild nutzt Jesus mit dem „Joch“. Ein antikes Joch war eine maßgefertigte Holzführung für Ochsen, die punktgenau an den Nacken angepasst wurde, damit kein Scheuern und kein Wundreiben entstand. Jesus sagt nicht: „Zieh den Karren allein!“ Er spannt sich selbst mit ein: Er trägt die Hebelkraft, damit die Last für dich tragbar wird.`;
-    } else {
-      workbenchText = `Ein exakt ausbalanciertes Hebewerkzeug nimmt das zerstörerische Gewicht aus den Gelenken. Das ist die Mechanik hinter dem Joch Jesu: Er bietet keine zusätzliche Last an, sondern ein passgenaues Tragesystem, bei dem er die Hauptzugkraft übernimmt, während du im Gleichtakt mit ihm gehst.`;
-    }
-
-    return {
-      id: 'lf_' + Date.now(),
-      passage: passage.trim() || 'Matthäus 11:28-30 (Kommt her zu mir alle, die ihr mühselig und beladen seid)',
-      timestamp: Date.now(),
-      profileSnapshot: { ...profile },
-      mood,
-      coreConduit: 'Du musst den Karren nicht aus eigener Kraft über den Berg wuchten. Das Joch Jesu nimmt den Druck von deinen Schultern, weil er die Hauptzugkraft trägt.',
-      workBench: workbenchText,
-      systemDecoded: `DER KERNKONFLIKT:
-Die religiöse Umwelt legte den Menschen schwere Lasten auf, rührte sie aber mit keinem Finger an. Der Mensch brennt aus, weil er meint, alles mit Willenskraft stemmen zu müssen.
-
-DAS GÖTTLICHE FUNKTIONSPRINZIP:
-1. Diagnose: Mühsal entsteht durch Reibung – wenn wir Lasten tragen, für die wir nie konstruiert wurden.
-2. Das Prinzip: „Mein Joch ist sanft und meine Last ist leicht.“ Sanft bedeutet im Griechischen „gut passend, maßgefertigt“.
-3. Die Befreiung: Wer lernt, im Takt Jesu mitzugehen, findet Ruhe für seine Seele mitten in der Bewegung.`,
-      dailyFreedom: `Lass die unerledigten Dinge des Tages heute Abend los. Jesus fordert nicht, dass du alle Baustellen der Welt schließt, bevor du dich hinlegst. Das Aufhören ist ein Bekenntnis, dass er die Welt in den Händen hält, während du schläfst.`,
-      heartGarden: `„Kommt her zu mir alle.“ Kein Auswahlverfahren, keine Eignungsprüfung. Wenn deine Kräfte am Ende sind, bist du hier am richtigen Ort. Lehne dich an. Du darfst schwach sein, ohne Scham.`,
-      oxygenMask: `Herr, meine Schultern sind verspannt und mein Kopf ist voll. Ich habe wieder versucht, alles allein zu wuchten.
-Ich hänge mich an deine Kraft an. Nimm du die Führung und das Gewicht. Ich atme deine Ruhe ein und lasse meine Anspannung fallen. Amen.`,
-      favorite: false,
-    };
-  }
-
-  // Für Johannes 15:1-5 (Weinstock & Reben / Der Saftstrom)
-  if (lowerPassage.includes('johannes 15') || lowerPassage.includes('john 15') || lowerPassage.includes('weinstock') || lowerPassage.includes('frucht')) {
-    let workbenchText = '';
-    if (isHandwerk || isIT) {
-      workbenchText = `Wenn ein Werkzeug oder ein Server von der Stromversorgung getrennt ist, nützt alles Drücken auf den Starterknopf nichts: Es gibt schlicht keine Energie. Niemand erwartet von einer Fräse oder einer Platine, dass sie aus eigenem Willen Strom erzeugt. Sie muss nur stabil eingesteckt sein; der Stromfluss erledigt den Rest.
-Genau das ist das Gesetz des Weinstocks in Johannes 15: Eine Rebe schwitzt nicht, um Weintrauben herauszupressen. Sie bleibt schlicht mit dem Stamm verwachsen. Der Saftstrom der Wurzel steigt von alleine auf und lässt die Frucht wachsen.`;
-    } else {
-      workbenchText = `Ein Zweig strengt sich nicht krampfhaft an, Früchte zu produzieren. Seine einzige Aufgabe ist die intakte Verbindung zum Stamm. Sobald der Saftstrom ungehindert fließt, entsteht Wachstum ganz organisch.`;
-    }
-
-    return {
-      id: 'lf_' + Date.now(),
-      passage: passage.trim() || 'Johannes 15:1-5 (Ich bin der Weinstock, ihr seid die Reben)',
-      timestamp: Date.now(),
-      profileSnapshot: { ...profile },
-      mood,
-      coreConduit: 'Ein Zweig presst Früchte nicht mit purer Willenskraft hervor. Er bleibt einfach angeschlossen an die Quelle – der Saftstrom erledigt das Wachstum.',
-      workBench: workbenchText,
-      systemDecoded: `DER KERNKONFLIKT:
-Der ständige Druck: „Ich muss mehr leisten, mehr Frucht bringen, besser sein!“ Wir verwechseln Ursache (Verbindung) mit Wirkung (Frucht).
-
-DAS GÖTTLICHE FUNKTIONSPRINZIP:
-1. Trennung: „Getrennt von mir könnt ihr nichts tun.“ Ausgebrannte Willenskraft führt zu Reibung und Erschöpfung.
-2. Der Saftstrom: Das Leben kommt von unten, aus der Wurzel Gottes, nicht aus eigener Muskelkraft.
-3. Die Lösung: Nicht an der Frucht zerren, sondern die Schnittstelle pflegen. Wer angeschlossen bleibt, bringt von selbst viel Frucht.`,
-      dailyFreedom: `Hör heute Abend auf, dir Vorwürfe über das zu machen, was du heute nicht geschafft hast. Nähre heute deine Verbindung – durch Stille, Essen, Musik, Schlaf. Das Leben fließt dir zu, du musst es nicht erzwingen.`,
-      heartGarden: `Spüre den Durchfluss. Deine Wurzeln sind tief im reichen Boden gegründet. Kein Windstoß reißt dich ab. Du bist gehalten von einem Stamm, der niemals wankt.`,
-      oxygenMask: `Vater, vergib mir, wo ich mich verkrampft habe, um Frucht zu erzwingen. Ich stöpsle mich wieder bei dir ein.
-Lass deinen Lebenssaft durch meine Gedanken fließen. Ich lasse das Ringen los und ruhe in dir. Amen.`,
-      favorite: false,
-    };
+    return rep;
   }
 
   // Universeller, tiefgründiger Ausleger für jeden gewählten Bibeltext
@@ -266,17 +201,13 @@ Lass deinen Lebenssaft durch meine Gedanken fließen. Ich lasse das Ringen los u
     timestamp: Date.now(),
     profileSnapshot: { ...profile },
     mood,
-    coreConduit: `Dieser Text begegnet dir nicht als abstrakte Theorie, sondern als präzise Funktionsanleitung für das Leben mitten in den Reibungen des Alltags.`,
-    workBench: `In der Praxis entscheidet nicht die Theorie, sondern ob die Gesetze der Mechanik und Passgenauigkeit eingehalten werden: Ein Fundament, das aus dem Lot ist, zieht jede nachfolgende Konstruktion schief.
-Genau darauf zielt dieser Bibeltext ab: Er deckt auf, wo eine Schieflage im Fundament entstanden ist, und richtet den Maßstab neu aus. Nicht um anzuklagen, sondern um wieder Stabilität und Leichtigkeit herzustellen.`,
-    systemDecoded: `DER TEXT ENTSCHLÜSSELT:
-1. Wo die menschliche Schieflage liegt: Wir versuchen oft, äußere Symptome mit noch mehr Druck und Kontrolle zu reparieren, statt an die eigentliche Ursache heranzugehen.
-2. Das biblische Prinzip: Gott repariert immer zuerst die Zuleitung und die Beziehung, bevor er Belastung auf die Konstruktion legt.
-3. Die Befreiung: Ausrichtung am göttlichen Maßstab nimmt den Krampf und bringt echte Tragfähigkeit hervor.`,
-    dailyFreedom: `Nimm den Druck von deinen Schultern. Wenn du heute nach Hause gehst, musst du nicht die ganze Welt reparieren. Lass die Baustelle ruhen; Gottes Verheißung gilt auch, während du loslässt.`,
-    heartGarden: `Ein stiller Ort mitten in der Hektik. Hier gelten keine Zielvereinbarungen und keine Prüfprotokolle. Atme ein: Du bist angenommen, bewahrt und mit allem versorgt, was du brauchst.`,
-    oxygenMask: `Herr, danke für dein Wort, das mitten in meine reale Welt spricht. Kläre meinen Blick, wo ich den Wald vor lauter Bäumen nicht sehe.
-Ich lege mein ganzes Gewicht in deine Zusage und nehme deinen Frieden tief in mich auf. Amen.`,
+    lichtfunke: `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`,
+    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag.`,
+    tagwerk: `In der rauen Praxis entscheidet die Ausrichtung: Ist das Fundament schief, verzieht sich das ganze Werk. Wenn der Zeitdruck zunimmt, bewahre einen klaren Kopf.\n\nKonkrete Handlung für deinen Werktag: Halte heute mitten in der Hektik für 30 Sekunden inne, atme durch und richte deine Aufmerksamkeit neu aus, bevor du die nächste Aufgabe anpackst.`,
+    freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht.`,
+    standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert.`,
+    spiegel: `Echte Reife zeigt sich darin, wie wir mit den Schwächen der anderen umgehen – ob wir Druck weitergeben oder Raum zum Atmen schaffen.\n\nFragen für die Stille:\n1. Wo versuche ich noch mit eigener Muskelkraft Dinge zu erzwingen, die ich Gott anvertrauen sollte?\n2. Wer in meinem Umfeld braucht heute ein ermutigendes Wort statt kritischer Blicke?\n3. Was hindert mich daran, heute Abend vollkommen loszulassen?`,
+    leuchtkraft: `Im Garten deines Herzens herrscht tiefe Stille. Kein Lärm, keine Fristen, keine Prüfer. Du bist bedingungslos geliebt und von der Quelle versorgt.\n\nHerzensgebet:\n„Herr, danke für dein lebendiges Wort, das mich mitten in meiner Realität abholt. Kläre meine Gedanken, nimm den Druck aus meinen Schultern und schenke mir deinen tiefen Frieden. Ich vertraue dir mein Leben an. Amen.“`,
     favorite: false,
   };
 }

@@ -16,7 +16,8 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   profession: 'Küchenmonteur / Handwerk',
   mindset: 'Lösungsorientiert & Analytisch',
   relationshipStatus: 'Single / Alleinlebend',
-  faithStage: 'Hinterfragend',
+  faithStage: 'Im Zweifel & Sucht Antworten',
+  journeyStage: 'Im Zweifel & Sucht Antworten',
   dailyMood: 'Unter Druck / Erschöpft',
 };
 

@@ -7,7 +7,8 @@ export interface UserProfile {
   profession: string;        // z.B. "Küchenmonteur / Handwerk", "IT & Code", "Pflege"
   mindset: string;           // "Lösungsorientiert & Analytisch", "Bildhaft", "Beziehungsorientiert"
   relationshipStatus: string;// "Single / Alleinlebend", "Partnerschaft", "Familie"
-  faithStage: string;        // "Hinterfragend", "Auf der Suche", "Tief verwurzelt"
+  faithStage?: string;       // Abwärtskompatibel
+  journeyStage?: string;     // 4. DEIN WEG MIT JESUS: "Neugierig & Entdecker", etc.
   dailyMood?: string;        // "Unter Druck / Erschöpft", "Suche Klarheit", "Dankbar"
 }
 
@@ -18,14 +19,23 @@ export interface LightflowReport {
   profileSnapshot: UserProfile;
   mood: string;
   
-  // Die 6 Stufen des Lightflow-Reports
-  coreConduit: string;       // 1. Die Kernleitung (Der Impuls): 1-2 glasklare Sätze
-  workBench: string;         // 2. Die Werkbank (Berufs- & Alltags-Analogie)
-  systemDecoded: string;     // 3. Das System entschlüsselt (Für den Denker): Fehlerdiagnose vs. göttliches Prinzip
-  dailyFreedom: string;      // 4. Freiraum im Alltag (Privatleben): Feierabend, Erwartungen, Alleinleben
-  heartGarden: string;       // 5. Der Garten im Herzen (Auftanken an der Quelle): Leistungsdruck ablegen
-  oxygenMask: string;        // 6. Die Sauerstoffmaske (Herzensgebet): Ehrlich, unfromm, befreiend
+  // Die 7 Posten des Lightflow-Reports
+  lichtfunke: string;        // 1. LICHTFUNKE (Jesus spricht direkt, warmherzig auf Augenhöhe)
+  klarblick: string;         // 2. KLARBLICK (Erklärung angepasst an Denkstil, logische Funktionsweise)
+  tagwerk: string;           // 3. TAGWERK (Übertragung auf Beruf & Arbeitsalltag mit konkreter Handlung)
+  freiraum: string;          // 4. FREIRAUM (Feierabend, Erholung, Druck abbauen ohne schlechtes Gewissen)
+  standpunkt: string;        // 5. STANDPUNKT (Lebenssituation / Zivilstand, Umgang mit Mitmenschen)
+  spiegel: string;           // 6. SPIEGEL (Miteinander/Gemeinschaft + 2-3 Reflexionsfragen im Stillen)
+  leuchtkraft: string;       // 7. LEUCHTKRAFT (Der Garten im Herzen, Gnade ohne Leistung + Herzensgebet)
   
+  // Legacy-Kompatibilität für ältere gespeicherte Reports
+  coreConduit?: string;
+  workBench?: string;
+  systemDecoded?: string;
+  dailyFreedom?: string;
+  heartGarden?: string;
+  oxygenMask?: string;
+
   favorite?: boolean;
   notes?: string;
 }

@@ -38,23 +38,26 @@ export const ReportView: React.FC<ReportViewProps> = ({
 Verbindungsprofil: ${report.profileSnapshot.profession} | ${report.profileSnapshot.mindset}
 Verfassung: ${report.mood}
 
-1. DIE KERNLEITUNG:
-${report.coreConduit}
+1. LICHTFUNKE
+${report.lichtfunke || report.coreConduit}
 
-2. DIE WERKBANK - ALLTAGSANALOGIE:
-${report.workBench}
+2. KLARBLICK
+${report.klarblick || report.systemDecoded}
 
-3. DAS SYSTEM ENTSCHLÜSSELT:
-${report.systemDecoded}
+3. TAGWERK
+${report.tagwerk || report.workBench}
 
-4. FREIRAUM IM ALLTAG:
-${report.dailyFreedom}
+4. FREIRAUM
+${report.freiraum || report.dailyFreedom}
 
-5. DER GARTEN IM HERZEN:
-${report.heartGarden}
+5. STANDPUNKT
+${report.standpunkt || report.profileSnapshot.relationshipStatus}
 
-6. DIE SAUERSTOFFMASKE - GEBET:
-${report.oxygenMask}
+6. SPIEGEL
+${report.spiegel}
+
+7. LEUCHTKRAFT
+${report.leuchtkraft || report.heartGarden}
 
 — Generiert mit Lightflow (Angeschlossen an die Quelle)`;
 
@@ -76,10 +79,10 @@ ${report.oxygenMask}
       setIsPlayingAudio(false);
     } else {
       window.speechSynthesis.cancel();
-      const textToRead = `${report.coreConduit}. Zur Alltagssituation an der Werkbank: ${report.workBench}. Für deinen Garten im Herzen: ${report.heartGarden}. Die Sauerstoffmaske: ${report.oxygenMask}`;
+      const textToRead = `Lichtfunke: ${report.lichtfunke || report.coreConduit}. Klarblick: ${report.klarblick || report.systemDecoded}. Tagwerk: ${report.tagwerk || report.workBench}. Freiraum: ${report.freiraum || report.dailyFreedom}. Standpunkt: ${report.standpunkt}. Spiegel: ${report.spiegel}. Leuchtkraft: ${report.leuchtkraft || report.heartGarden}`;
       const utterance = new SpeechSynthesisUtterance(textToRead);
       utterance.lang = 'de-DE';
-      utterance.rate = 0.92; // Ruhiges, warmes Lesetempo
+      utterance.rate = 0.92;
       utterance.pitch = 0.95;
 
       utterance.onend = () => setIsPlayingAudio(false);
@@ -107,6 +110,11 @@ ${report.oxygenMask}
             <span className="px-2 py-0.5 rounded-lg bg-stone-200/60 dark:bg-slate-800 text-stone-700 dark:text-stone-300 text-[11px]">
               {report.profileSnapshot.relationshipStatus}
             </span>
+            {report.profileSnapshot.journeyStage && (
+              <span className="px-2 py-0.5 rounded-lg bg-[#3E6B56]/15 text-[#2A483A] dark:text-[#A7F3D0] text-[11px]">
+                {report.profileSnapshot.journeyStage}
+              </span>
+            )}
             <span className="px-2 py-0.5 rounded-lg bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] text-[11px] font-medium">
               {report.mood}
             </span>
@@ -184,7 +192,7 @@ ${report.oxygenMask}
                 onSaveNotes(report.id, notesText);
                 setNotesOpen(false);
               }}
-              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] transition-colors"
+              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] transition-colors cursor-pointer"
             >
               Notiz speichern
             </button>
@@ -192,19 +200,17 @@ ${report.oxygenMask}
         </div>
       )}
 
-      {/* Die 6 zusammenhängenden Karten mit vertikal fließender Lichtlinie */}
+      {/* Die 7 Posten mit vertikal fließender Lichtlinie */}
       <div className="relative pl-6 sm:pl-10 space-y-7">
         
         {/* Vertikale Lichtleiter-Leitung links */}
         <div className="absolute left-2.5 sm:left-4 top-4 bottom-6 w-0.5 bg-gradient-to-b from-[#FFFBEB] via-[#F59E0B] to-[#3E6B56] opacity-40"></div>
-        {/* Fließender Lichtimpuls entlang der Leitung */}
         <div className="absolute left-2 sm:left-3.5 top-0 w-1.5 h-12 bg-gradient-to-b from-transparent via-[#FDE68A] to-transparent rounded-full blur-[1px] animate-pulse"></div>
 
         {/* ========================================================
-            KARTE 1: DIE KERNLEITUNG (Der Impuls)
+            POSTEN 1: LICHTFUNKE
             ======================================================== */}
         <div className="relative group">
-          {/* Node Icon am Lichtleiter */}
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
             1
           </div>
@@ -214,17 +220,17 @@ ${report.oxygenMask}
 
             <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A] mb-3">
               <Sparkles className="w-4 h-4 text-[#E09F3E]" />
-              <span>1. Die Kernleitung • Der Impuls</span>
+              <span>1. LICHTFUNKE</span>
             </div>
 
             <p className="font-serif text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic">
-              „{report.coreConduit}“
+              „{report.lichtfunke || report.coreConduit}“
             </p>
           </div>
         </div>
 
         {/* ========================================================
-            KARTE 2: DIE WERKBANK (Berufs- & Alltagsanalogie)
+            POSTEN 2: KLARBLICK
             ======================================================== */}
         <div className="relative group">
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
@@ -233,18 +239,18 @@ ${report.oxygenMask}
 
           <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
             <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Wrench className="w-4 h-4 text-[#E09F3E]" />
-              <span>2. Die Werkbank • Deine Alltagsanalogie</span>
+              <Cpu className="w-4 h-4 text-[#E09F3E]" />
+              <span>2. KLARBLICK</span>
             </div>
 
             <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.workBench}
+              {report.klarblick || report.systemDecoded}
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            KARTE 3: DAS SYSTEM ENTSCHLÜSSELT (Für den Denker)
+            POSTEN 3: TAGWERK
             ======================================================== */}
         <div className="relative group">
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
@@ -253,18 +259,18 @@ ${report.oxygenMask}
 
           <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
             <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Cpu className="w-4 h-4 text-[#E09F3E]" />
-              <span>3. Das System entschlüsselt • Für den Denker</span>
+              <Wrench className="w-4 h-4 text-[#E09F3E]" />
+              <span>3. TAGWERK</span>
             </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line bg-stone-50/70 dark:bg-slate-900/50 p-4 rounded-2xl border border-stone-200/50 dark:border-slate-800/60 font-mono text-xs sm:text-sm">
-              {report.systemDecoded}
+            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+              {report.tagwerk || report.workBench}
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            KARTE 4: FREIRAUM IM ALLTAG (Privatleben & Feierabend)
+            POSTEN 4: FREIRAUM
             ======================================================== */}
         <div className="relative group">
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
@@ -274,43 +280,61 @@ ${report.oxygenMask}
           <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
             <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
               <Home className="w-4 h-4 text-[#E09F3E]" />
-              <span>4. Freiraum im Alltag • Feierabend & Privatleben</span>
+              <span>4. FREIRAUM</span>
             </div>
 
             <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.dailyFreedom}
+              {report.freiraum || report.dailyFreedom}
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            KARTE 5: DER GARTEN IM HERZEN (Salbeigrün - Auftanken)
+            POSTEN 5: STANDPUNKT
             ======================================================== */}
         <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#3E6B56] text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#3E6B56]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
             5
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#EBF3EF]/90 via-white to-[#EBF3EF]/50 dark:from-[#1A2E24]/80 dark:via-[#18202A] dark:to-[#1A2E24]/50 border border-[#3E6B56]/40 shadow-lg shadow-[#3E6B56]/5 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 w-36 h-36 bg-[#3E6B56]/15 rounded-full blur-2xl pointer-events-none"></div>
-
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#2A483A] dark:text-[#A7F3D0] mb-3">
-              <Sprout className="w-4 h-4 text-[#3E6B56]" />
-              <span>5. Der Garten im Herzen • Auftanken an der Quelle</span>
+          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
+            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
+              <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+              <span>5. STANDPUNKT</span>
             </div>
 
-            <div className="text-sm sm:text-base text-stone-800 dark:text-stone-200 leading-relaxed whitespace-pre-line font-serif">
-              {report.heartGarden}
+            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+              {report.standpunkt || report.profileSnapshot.relationshipStatus}
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            KARTE 6: DIE SAUERSTOFFMASKE (Herzensgebet - Warm Amber)
+            POSTEN 6: SPIEGEL
+            ======================================================== */}
+        <div className="relative group">
+          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+            6
+          </div>
+
+          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
+            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
+              <Sprout className="w-4 h-4 text-[#E09F3E]" />
+              <span>6. SPIEGEL</span>
+            </div>
+
+            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+              {report.spiegel}
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================
+            POSTEN 7: LEUCHTKRAFT
             ======================================================== */}
         <div className="relative group">
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#F59E0B] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#F59E0B]/40 ring-4 ring-[#FAF9F6] dark:ring-[#12161A] animate-light-pulse">
-            6
+            7
           </div>
 
           <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md">
@@ -318,15 +342,15 @@ ${report.oxygenMask}
 
             <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A] mb-3">
               <Wind className="w-4 h-4 text-[#E09F3E]" />
-              <span>6. Die Sauerstoffmaske • Dein Herzensgebet</span>
+              <span>7. LEUCHTKRAFT</span>
             </div>
 
             <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
-              {report.oxygenMask}
+              {report.leuchtkraft || report.heartGarden}
             </div>
 
             <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-              <span>Tief einatmen. Die Last ist abgelegt.</span>
+              <span>Tief einatmen. Angekommen an der Quelle.</span>
               <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
             </div>
           </div>

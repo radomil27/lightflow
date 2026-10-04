@@ -23,9 +23,10 @@ export const SavedReportsModal: React.FC<SavedReportsModalProps> = ({
   if (!isOpen) return null;
 
   const filtered = reports.filter((r) => {
+    const summary = r.lichtfunke || r.coreConduit || '';
     const matchesSearch =
       r.passage.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.coreConduit.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.profileSnapshot.profession.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFav = onlyFavorites ? r.favorite : true;
     return matchesSearch && matchesFav;
@@ -124,7 +125,7 @@ export const SavedReportsModal: React.FC<SavedReportsModalProps> = ({
                   </div>
 
                   <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 italic font-serif">
-                    „{r.coreConduit}“
+                    „{r.lichtfunke || r.coreConduit}“
                   </p>
                 </div>
 

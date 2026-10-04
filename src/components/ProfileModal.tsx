@@ -33,11 +33,12 @@ const PRESET_RELATIONSHIPS = [
   'Alleinerziehend',
 ];
 
-const PRESET_FAITH_STAGES = [
-  'Hinterfragend & Kritisch',
-  'Auf der Suche & Offen',
-  'Tief verwurzelt',
-  'Ausgelaugt & Erschöpft',
+const PRESET_JOURNEY_STAGES = [
+  'Neugierig & Entdecker',
+  'Erste Schritte / Neu unterwegs',
+  'Schon länger auf dem Weg',
+  'Im Zweifel & Sucht Antworten',
+  'Müde & Ausgelaugt (Brauche Ruhe)',
 ];
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({
@@ -163,27 +164,30 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
           </div>
 
-          {/* 4. Glaubensphase */}
+          {/* 4. DEIN WEG MIT JESUS */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
               <Compass className="w-4 h-4 text-[#E09F3E]" />
-              4. Verhältnis zu Glauben & Theologie
+              4. DEIN WEG MIT JESUS
             </label>
             <div className="flex flex-wrap gap-2">
-              {PRESET_FAITH_STAGES.map((f) => (
-                <button
-                  type="button"
-                  key={f}
-                  onClick={() => setFormData({ ...formData, faithStage: f })}
-                  className={`text-xs px-3 py-1.5 rounded-xl border transition-all ${
-                    formData.faithStage === f
-                      ? 'bg-[#3E6B56]/20 text-[#2A483A] dark:text-[#A7F3D0] border-[#3E6B56]'
-                      : 'bg-white dark:bg-slate-900 text-stone-700 dark:text-stone-400 border-stone-200 dark:border-slate-800'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+              {PRESET_JOURNEY_STAGES.map((stage) => {
+                const isSelected = (formData.journeyStage || formData.faithStage) === stage;
+                return (
+                  <button
+                    type="button"
+                    key={stage}
+                    onClick={() => setFormData({ ...formData, journeyStage: stage, faithStage: stage })}
+                    className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#3E6B56]/20 text-[#2A483A] dark:text-[#A7F3D0] border-[#3E6B56] font-medium'
+                        : 'bg-white dark:bg-slate-900 text-stone-700 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                    }`}
+                  >
+                    {stage}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
