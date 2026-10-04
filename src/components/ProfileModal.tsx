@@ -86,25 +86,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* 1. Beruf / Fachmetaphern */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-[#E09F3E]" />
               1. Beruf & Erfahrungswelt
             </label>
-            <input
-              type="text"
-              value={formData.profession}
-              onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#E09F3E]/50 dark:text-stone-100"
-              placeholder="z.B. Küchenmonteur / Handwerk"
-            />
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            
+            {/* Grobauswahl-Chips */}
+            <div className="flex flex-wrap gap-1.5">
               {PRESET_PROFESSIONS.map((p) => (
                 <button
                   type="button"
                   key={p}
                   onClick={() => setFormData({ ...formData, profession: p })}
-                  className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                  className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                     formData.profession === p
                       ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E]/50 font-medium'
                       : 'bg-stone-100 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-800 hover:border-[#E09F3E]/30'
@@ -113,6 +108,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   {p}
                 </button>
               ))}
+            </div>
+
+            {/* Freitext-Feld für die genaue Tätigkeit */}
+            <div className="pt-1">
+              <label className="text-[11px] font-medium text-stone-500 dark:text-stone-400 block mb-1">
+                Genaue Tätigkeit & Alltag (Freitext für echte Praxis-Metaphern):
+              </label>
+              <input
+                type="text"
+                value={formData.professionDetail ?? ''}
+                onChange={(e) => setFormData({ ...formData, professionDetail: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#E09F3E]/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                placeholder="z. B. Küchenmonteur für Endmontage, Servicetechniker im Aussendienst..."
+              />
             </div>
           </div>
 

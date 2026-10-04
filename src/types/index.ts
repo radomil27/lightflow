@@ -5,6 +5,7 @@
 
 export interface UserProfile {
   profession: string;        // z.B. "Küchenmonteur / Handwerk", "IT & Code", "Pflege"
+  professionDetail?: string;  // Freitext für genaue Tätigkeit (z.B. "Küchenmonteur für anspruchsvolle Endmontage")
   mindset: string;           // "Lösungsorientiert & Analytisch", "Bildhaft", "Beziehungsorientiert"
   relationshipStatus: string;// "Single / Alleinlebend", "Partnerschaft", "Familie"
   faithStage?: string;       // Abwärtskompatibel

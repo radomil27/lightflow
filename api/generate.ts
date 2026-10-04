@@ -31,6 +31,9 @@ export default async function handler(req: any, res: any) {
   try {
     const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
     const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
+    const fullProfession = profile.professionDetail && profile.professionDetail.trim().length > 0
+      ? `${profile.profession} (Konkrete Tätigkeit & Alltag: ${profile.professionDetail.trim()})`
+      : profile.profession;
 
     const prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
@@ -38,7 +41,7 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN:
-- Beruf / Tätigkeitsfeld: ${profile.profession}
+- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
 - Weg mit Jesus: ${journey}
@@ -47,8 +50,9 @@ NUTZER-DATEN:
 LEITLINIEN FÜR DEINE AUSLEGUNG:
 1. KEINE ABGEHACKTEN SÄTZE: Formuliere jeden einzelnen Gedanken in vollständigen, grammatikalisch geschlossenen, flüssigen und tiefgründigen Sätzen. Breche niemals mitten im Satz oder Gedanken ab.
 2. 100% BEZUG & VERSTÄNDNIS DES BIBELTEXTES: Erkläre den Text so, dass die Erzählung, der geschichtliche Ablauf, die konkrete Warnung, die Fehlschlüsse der Menschen und die befreiende Kernerkenntnis absolut verständlich und glasklar werden. Der Leser muss sofort verstehen, was die eigentliche Botschaft ist.
-3. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
-4. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
+3. PRAXISNAH & AUTHENTISCH: Nutze die konkrete Arbeitswelt des Nutzers (${fullProfession}), seine typischen Werkzeuge, Herausforderungen, Montage-Situationen oder Arbeitsabläufe als lebendige Metaphern, ohne ihm zu belehren, wer er ist.
+4. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
+5. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
 
 INHALTLICHE LOGIK DER 7 POSTEN:
 

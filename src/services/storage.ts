@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
   profession: 'Küchenmonteur / Handwerk',
+  professionDetail: 'Küchenmonteur für anspruchsvolle Endmontage & Passleisten',
   mindset: 'Lösungsorientiert & Analytisch',
   relationshipStatus: 'Single / Alleinlebend',
   faithStage: 'Im Zweifel & Sucht Antworten',

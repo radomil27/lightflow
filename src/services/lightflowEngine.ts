@@ -12,6 +12,9 @@ import { UserProfile, LightflowReport, AppSettings } from '../types';
 export function buildSystemPrompt(profile: UserProfile, passage: string, mood?: string): string {
   const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
   const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
+  const fullProfession = profile.professionDetail && profile.professionDetail.trim().length > 0
+    ? `${profile.profession} (Konkrete Tätigkeit & Alltag: ${profile.professionDetail.trim()})`
+    : profile.profession;
 
   return `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
@@ -19,7 +22,7 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN:
-- Beruf / Tätigkeitsfeld: ${profile.profession}
+- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
 - Weg mit Jesus: ${journey}
@@ -28,8 +31,9 @@ NUTZER-DATEN:
 LEITLINIEN FÜR DEINE AUSLEGUNG:
 1. KEINE ABGEHACKTEN SÄTZE: Formuliere jeden einzelnen Gedanken in vollständigen, grammatikalisch geschlossenen, flüssigen und tiefgründigen Sätzen. Breche niemals mitten im Satz oder Gedanken ab.
 2. 100% BEZUG & VERSTÄNDNIS DES BIBELTEXTES: Erkläre den Text so, dass die Erzählung, der geschichtliche Ablauf, die konkrete Warnung, die Fehlschlüsse der Menschen und die befreiende Kernerkenntnis absolut verständlich und glasklar werden. Der Leser muss sofort verstehen, was die eigentliche Botschaft ist.
-3. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
-4. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
+3. PRAXISNAH & AUTHENTISCH: Nutze die konkrete Arbeitswelt des Nutzers (${fullProfession}), seine typischen Werkzeuge, Herausforderungen, Montage-Situationen oder Arbeitsabläufe als lebendige Metaphern, ohne ihm zu belehren, wer er ist.
+4. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
+5. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
 
 INHALTLICHE LOGIK DER 7 POSTEN:
 
@@ -218,8 +222,50 @@ export function generateLocalReport(
 }
 
 /**
+ * Hilfsfunktionen für intelligentes lokales Caching von Reports
+ */
+function getReportCacheKey(passage: string, profile: UserProfile, mood: string): string {
+  const normPassage = passage.trim().toLowerCase();
+  const prof = (profile.profession || '').trim().toLowerCase();
+  const profDet = (profile.professionDetail || '').trim().toLowerCase();
+  const mind = (profile.mindset || '').trim().toLowerCase();
+  const rel = (profile.relationshipStatus || '').trim().toLowerCase();
+  const journey = (profile.journeyStage || profile.faithStage || '').trim().toLowerCase();
+  const m = (mood || '').trim().toLowerCase();
+  return `lf_cache_${normPassage}_${prof}_${profDet}_${mind}_${rel}_${journey}_${m}`;
+}
+
+export function getCachedReport(passage: string, profile: UserProfile, mood: string): LightflowReport | null {
+  try {
+    const key = getReportCacheKey(passage, profile, mood);
+    const cached = localStorage.getItem(key);
+    if (cached) {
+      const parsed = JSON.parse(cached) as LightflowReport;
+      // Gültigen Report aus Cache zurückgeben
+      return {
+        ...parsed,
+        timestamp: Date.now(), // Aktualisiert die Zeit für die Ansicht
+      };
+    }
+  } catch (e) {
+    console.warn('Cache-Lesefehler:', e);
+  }
+  return null;
+}
+
+export function setCachedReport(passage: string, profile: UserProfile, mood: string, report: LightflowReport): void {
+  try {
+    const key = getReportCacheKey(passage, profile, mood);
+    localStorage.setItem(key, JSON.stringify(report));
+  } catch (e) {
+    console.warn('Cache-Speicherfehler:', e);
+  }
+}
+
+/**
  * Haupt-Service-Funktion zur Generierung des Lightflow-Reports
  * Arbeitet standardmäßig vollautomatisch ohne Nutzereingabe von Keys!
+ * Prüft zuerst den lokalen Cache für 0ms Ladezeit.
  */
 export async function generateLightflowReport(
   passage: string,
@@ -227,6 +273,12 @@ export async function generateLightflowReport(
   mood: string,
   settings?: AppSettings
 ): Promise<LightflowReport> {
+  // 0. Cache-Prüfung: Bereits generiert? Sofort ohne API-Verzögerung zurückliefern!
+  const cached = getCachedReport(passage, profile, mood);
+  if (cached) {
+    return cached;
+  }
+
   // 1. Automatische Serverless API-Abfrage (falls online)
   if (navigator.onLine) {
     try {
@@ -239,7 +291,9 @@ export async function generateLightflowReport(
       if (response.ok) {
         const data = await response.json();
         if (data.text && !data.useFallback) {
-          return parseReportSections(data.text, passage, profile, mood);
+          const report = parseReportSections(data.text, passage, profile, mood);
+          setCachedReport(passage, profile, mood, report);
+          return report;
         }
       }
     } catch (e) {
@@ -254,7 +308,9 @@ export async function generateLightflowReport(
       const prompt = buildSystemPrompt(profile, passage, mood);
       const rawResponse = await callGeminiApi(prompt, customApiKey);
       if (rawResponse) {
-        return parseReportSections(rawResponse, passage, profile, mood);
+        const report = parseReportSections(rawResponse, passage, profile, mood);
+        setCachedReport(passage, profile, mood, report);
+        return report;
       }
     } catch (error) {
       console.warn('Manueller API Call fehlgeschlagen:', error);
@@ -263,5 +319,7 @@ export async function generateLightflowReport(
 
   // 3. Vorinstallierte, autarke Lightflow-Engine (immer sofort verfügbar)
   await new Promise((resolve) => setTimeout(resolve, 950));
-  return generateLocalReport(passage, profile, mood);
+  const fallbackReport = generateLocalReport(passage, profile, mood);
+  setCachedReport(passage, profile, mood, fallbackReport);
+  return fallbackReport;
 }

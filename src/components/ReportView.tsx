@@ -102,7 +102,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 mb-1.5">
             <span className="flex items-center gap-1 font-medium px-2 py-0.5 rounded-lg bg-amber-500/10 text-[#B45309] dark:text-[#FDE68A] border border-amber-500/20">
               <Briefcase className="w-3 h-3" />
-              {report.profileSnapshot.profession}
+              {report.profileSnapshot.professionDetail || report.profileSnapshot.profession}
             </span>
             <span className="px-2 py-0.5 rounded-lg bg-stone-200/60 dark:bg-slate-800 text-stone-700 dark:text-stone-300 text-[11px]">
               {report.profileSnapshot.mindset}
