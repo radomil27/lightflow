@@ -1,0 +1,25 @@
+{
+  "name": "Lightflow – Angeschlossen an die Quelle",
+  "short_name": "Lightflow",
+  "description": "Deine direkte Versorgungsleitung nach oben: Frischer Sauerstoff, klares Licht und unverfälschte Wahrheit für deinen Alltag.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12161A",
+  "theme_color": "#12161A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["lifestyle", "productivity", "utilities"]
+}

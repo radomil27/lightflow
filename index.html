@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Lightflow – Angeschlossen an die Quelle</title>
+    
+    <!-- Meta-Tags für PWA und SEO -->
+    <meta name="description" content="Lightflow liefert frischen Sauerstoff, klares Licht und lebensnahe Übersetzungen von Bibelstellen direkt in deinen Beruf und Alltag." />
+    <meta name="theme-color" content="#12161A" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Lightflow" />
+
+    <!-- Favicon & PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Google Fonts: Lora (Serif) & Plus Jakarta Sans (Grotesk) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#FAF9F6] dark:bg-[#12161A] text-[#1E293B] dark:text-[#F1F5F9] antialiased selection:bg-[#E09F3E]/20 transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Service Worker Registrierung für PWA-Offline-Support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('SW Registration optional failed:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-light: #FAF9F6;
+    --bg-dark: #12161A;
+    --card-light: #FFFFFF;
+    --card-dark: #18202A;
+    --amber-gold: #E09F3E;
+    --amber-bright: #F59E0B;
+    --amber-light: #FDE68A;
+    --ocean-slate: #1E293B;
+    --sage-green: #3E6B56;
+    --sage-light: #EBF3EF;
+    --sage-dark: #2A483A;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #FAF9F6;
+    color: #1E293B;
+    overflow-x: hidden;
+  }
+
+  .dark body, html.dark body {
+    background-color: #12161A;
+    color: #F1F5F9;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Lora', Georgia, serif;
+  }
+}
+
+/* Lichtleiter- und Puls-Animationen */
+@keyframes lightPulse {
+  0%, 100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.95));
+  }
+}
+
+@keyframes flowDown {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes oxygenBubble {
+  0% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-16px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes contourGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-light-pulse {
+  animation: lightPulse 2.8s ease-in-out infinite;
+}
+
+.animate-contour {
+  background-size: 200% 200%;
+  animation: contourGlow 3s ease infinite;
+}
+
+/* Feine Glasmorphismus-Klassen */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+.dark .glass-panel {
+  background: rgba(24, 32, 42, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.glass-panel-sage {
+  background: rgba(235, 243, 239, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(62, 107, 86, 0.25);
+}
+
+.dark .glass-panel-sage {
+  background: rgba(30, 48, 40, 0.65);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(62, 107, 86, 0.4);
+}
+
+.glass-panel-amber {
+  background: rgba(254, 247, 235, 0.8);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(224, 159, 62, 0.28);
+}
+
+.dark .glass-panel-amber {
+  background: rgba(43, 33, 20, 0.65);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
