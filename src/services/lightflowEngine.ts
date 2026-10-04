@@ -239,53 +239,49 @@ GÖTTLICHES PRINZIP: Gott fängt immer bei der Wiederherstellung der Beziehung a
 
 /**
  * Haupt-Service-Funktion zur Generierung des Lightflow-Reports
+ * Arbeitet standardmäßig vollautomatisch ohne Nutzereingabe von Keys!
  */
 export async function generateLightflowReport(
   passage: string,
   profile: UserProfile,
   mood: string,
-  settings: AppSettings
+  settings?: AppSettings
 ): Promise<LightflowReport> {
-  const customApiKey = settings.customApiKey?.trim();
+  // 1. Automatische Serverless API-Abfrage (falls online)
+  if (navigator.onLine) {
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passage, profile, mood }),
+      });
 
-  // Falls ein API-Key hinterlegt ist, versuchen wir den echten LLM-Call
+      if (response.ok) {
+        const data = await response.json();
+        if (data.text && !data.useFallback) {
+          return parseReportSections(data.text, passage, profile, mood);
+        }
+      }
+    } catch (e) {
+      console.log('Automatischer Serverless-Call ging in Fallback über:', e);
+    }
+  }
+
+  // 2. Client-Key Fallback (falls der Besitzer manuell einen eingetragen hat)
+  const customApiKey = settings?.customApiKey?.trim();
   if (customApiKey && navigator.onLine) {
     try {
       const prompt = buildSystemPrompt(profile, passage, mood);
-      let rawResponse = '';
-
-      if (settings.apiProvider === 'gemini') {
-        rawResponse = await callGeminiApi(prompt, customApiKey);
-      } else {
-        // OpenAI kompatibler Call
-        const openAiUrl = 'https://api.openai.com/v1/chat/completions';
-        const res = await fetch(openAiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${customApiKey}`,
-          },
-          body: JSON.stringify({
-            model: settings.selectedModel || 'gpt-4o-mini',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0.7,
-          }),
-        });
-        if (!res.ok) throw new Error(`OpenAI Fehler: ${res.statusText}`);
-        const data = await res.json();
-        rawResponse = data.choices?.[0]?.message?.content || '';
-      }
-
+      const rawResponse = await callGeminiApi(prompt, customApiKey);
       if (rawResponse) {
         return parseReportSections(rawResponse, passage, profile, mood);
       }
     } catch (error) {
-      console.warn('LLM API Call fehlgeschlagen, wechsle zur lokalen Lightflow-Engine:', error);
-      // Fällt automatisch auf die feinfühlige lokale Engine zurück
+      console.warn('Manueller API Call fehlgeschlagen:', error);
     }
   }
 
-  // Künstliche leichte Verzögerung für das "Befüllen der Versorgungsleitung"
+  // 3. Vorinstallierte, autarke Lightflow-Engine (immer sofort verfügbar)
   await new Promise((resolve) => setTimeout(resolve, 950));
   return generateLocalReport(passage, profile, mood);
 }

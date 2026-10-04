@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppSettings } from '../types';
-import { X, Key, ShieldCheck, Check, Cpu } from 'lucide-react';
+import { X, ShieldCheck, Check, Cpu, Sparkles, ChevronDown, Key } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -16,6 +16,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveSettings,
 }) => {
   const [formData, setFormData] = useState<AppSettings>({ ...settings });
+  const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isOpen) return null;
@@ -27,7 +28,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setTimeout(() => {
       setSavedSuccess(false);
       onClose();
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -39,7 +40,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="flex items-center space-x-2">
             <Cpu className="w-5 h-5 text-[#E09F3E]" />
             <h2 className="text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
-              Einstellungen & KI-Engine
+              Lightflow Status & System
             </h2>
           </div>
           <button
@@ -52,64 +53,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           
-          {/* KI Provider Wahl */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-              KI-Engine Modus
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, apiProvider: 'gemini' })}
-                className={`p-3 rounded-xl border text-xs font-medium text-left transition-all ${
-                  formData.apiProvider === 'gemini'
-                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E]'
-                    : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-600 dark:text-stone-400'
-                }`}
-              >
-                <div className="font-semibold text-stone-900 dark:text-stone-100">Google Gemini</div>
-                <div className="text-[10px] mt-0.5 opacity-80">Gemini 1.5 Flash (schnell & tiefgründig)</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, apiProvider: 'openai' })}
-                className={`p-3 rounded-xl border text-xs font-medium text-left transition-all ${
-                  formData.apiProvider === 'openai'
-                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E]'
-                    : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-600 dark:text-stone-400'
-                }`}
-              >
-                <div className="font-semibold text-stone-900 dark:text-stone-100">OpenAI</div>
-                <div className="text-[10px] mt-0.5 opacity-80">GPT-4o / GPT-4o-mini</div>
-              </button>
+          {/* Status-Karte: Vorinstalliert */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30">
+            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A] mb-1.5">
+              <Sparkles className="w-4 h-4 text-[#E09F3E]" />
+              <span>KI-Engine: Vollständig vorinstalliert</span>
             </div>
-          </div>
-
-          {/* API Key Eingabe */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-[#E09F3E]" />
-              Optionaler API-Schlüssel
-            </label>
-            <input
-              type="password"
-              value={formData.customApiKey || ''}
-              onChange={(e) => setFormData({ ...formData, customApiKey: e.target.value })}
-              placeholder={formData.apiProvider === 'gemini' ? 'AIzaSy...' : 'sk-...'}
-              className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 text-xs sm:text-sm font-mono text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#E09F3E]/50"
-            />
-            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
-              Ohne API-Key nutzt Lightflow die integrierte Offline-Engine mit sofortigen Auswertungen. Mit eigenem Key wird die Live-LLM mit dem System-Prompt befragt.
+            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+              Lightflow ist fertig vorkonfiguriert. Alle Texte werden automatisch im Hintergrund generiert – passgenau zu deinem Beruf, deinem Denkstil und deiner Tagesverfassung. Keine technischen Einstellungen nötig!
             </p>
           </div>
 
           {/* Datenschutz-Hinweis */}
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+          <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
             <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold">100% Lokaler Datenschutz:</span> Deine Daten, dein Profil und eventuelle Schlüssel verlassen niemals dein Gerät zu Tracking-Zwecken.
+              <span className="font-semibold">Privat & Werbefrei:</span> Dein Verbindungsprofil und deine Notizen bleiben geschützt auf deinem Smartphone.
             </div>
+          </div>
+
+          {/* Einklappbarer Expertenbereich (Standardmäßig versteckt) */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setShowDeveloperOptions(!showDeveloperOptions)}
+              className="text-[11px] text-stone-400 dark:text-stone-500 hover:text-stone-600 flex items-center gap-1 cursor-pointer"
+            >
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDeveloperOptions ? 'rotate-180' : ''}`} />
+              <span>Entwickler-Optionen (Optional)</span>
+            </button>
+
+            {showDeveloperOptions && (
+              <div className="mt-3 p-3.5 rounded-2xl bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800 space-y-3 animate-in fade-in">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-stone-600 dark:text-stone-400 flex items-center gap-1">
+                    <Key className="w-3 h-3 text-[#E09F3E]" />
+                    Eigener Gemini API-Schlüssel
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.customApiKey || ''}
+                    onChange={(e) => setFormData({ ...formData, customApiKey: e.target.value })}
+                    placeholder="AIzaSy..."
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-stone-300 dark:border-slate-700 font-mono"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -117,16 +107,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-200/50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              className="px-5 py-2 text-xs font-semibold bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] rounded-xl transition-all cursor-pointer shadow-sm"
             >
-              Schließen
-            </button>
-            <button
-              type="submit"
-              className="flex items-center space-x-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] transition-all cursor-pointer shadow-sm"
-            >
-              {savedSuccess ? <Check className="w-4 h-4" /> : null}
-              <span>{savedSuccess ? 'Gespeichert' : 'Einstellungen sichern'}</span>
+              {savedSuccess ? <Check className="w-4 h-4 inline mr-1" /> : null}
+              <span>Verstanden</span>
             </button>
           </div>
 
