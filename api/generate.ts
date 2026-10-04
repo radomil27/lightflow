@@ -71,25 +71,53 @@ STRUKTUR DER 6 BEREICHE:
 ### [6. DIE SAUERSTOFFMASKE - DEIN GEBET]
 (Ein ehrliches, unfrommes Gebet in der Ich-Form, das unmittelbar auf die Botschaft des Bibeltextes antwortet. Wie das erste tiefe Durchatmen nach einem langen Tauchgang.)`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-      }),
-    });
+    // Probiere verschiedene Modell-Namen durch (gemini-1.5-flash-latest, gemini-1.5-flash, gemini-pro)
+    const candidateModels = [
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro-latest',
+      'gemini-1.5-pro',
+      'gemini-pro'
+    ];
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('Gemini API Fehler:', err);
-      return res.status(200).json({ useFallback: true, error: err });
+    let lastError = '';
+    for (const model of candidateModels) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const response = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            return res.status(200).json({ text, source: 'gemini', model });
+          }
+        } else {
+          lastError = await response.text();
+        }
+      } catch (err: any) {
+        lastError = err.message;
+      }
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return res.status(200).json({ text, source: 'gemini' });
+    // Falls kein Modell direkt klappte, frage die Liste der verfügbaren Modelle für diesen Key ab
+    try {
+      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listResp.ok) {
+        const listData = await listResp.json();
+        const available = listData.models?.map((m: any) => m.name) || [];
+        return res.status(200).json({ useFallback: true, error: lastError, availableModels: available });
+      }
+    } catch (_) {}
+
+    return res.status(200).json({ useFallback: true, error: lastError });
   } catch (error: any) {
     console.error('Serverless Catch:', error);
     return res.status(200).json({ useFallback: true, error: error.message });
