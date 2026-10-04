@@ -22,8 +22,8 @@ export const Header: React.FC<HeaderProps> = ({
   savedCount,
 }) => {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#FAF9F6]/90 dark:bg-[#12161A]/90 border-b border-[#E5E0D8]/80 dark:border-[#1E293B] transition-colors duration-200">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
+    <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#FAF9F6]/90 dark:bg-[#12161A]/90 border-b border-[#E5E0D8]/80 dark:border-[#1E293B] transition-colors duration-200 safe-area-header">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 sm:py-0 min-h-16 flex items-center justify-between">
         
         {/* Logo & Marken-Metapher */}
         <div className="flex items-center space-x-3.5 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>

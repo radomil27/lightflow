@@ -231,7 +231,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer mit Marken-Leitbild */}
-      <footer className="border-t border-stone-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur py-8 text-center text-xs text-stone-500 dark:text-stone-400">
+      <footer className="border-t border-stone-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur py-8 safe-area-footer text-center text-xs text-stone-500 dark:text-stone-400">
         <div className="max-w-4xl mx-auto px-4 flex flex-col items-center space-y-2">
           <div className="flex items-center space-x-2 text-[#B45309] dark:text-[#FDE68A] font-serif font-semibold text-sm">
             <Sparkles className="w-3.5 h-3.5 text-[#E09F3E]" />
