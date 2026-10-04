@@ -86,6 +86,18 @@ export const App: React.FC = () => {
     saveStoredSettings(updatedSettings);
   };
 
+  // Expliziter Theme-Wechsel (Hell / Dunkel / Automatisch)
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    let isDark = newTheme === 'dark';
+    if (newTheme === 'system') {
+      isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    setDarkMode(isDark);
+    const updatedSettings: AppSettings = { ...settings, theme: newTheme };
+    setSettings(updatedSettings);
+    saveStoredSettings(updatedSettings);
+  };
+
   // Profil speichern
   const handleSaveProfile = (updatedProfile: UserProfile) => {
     setProfile(updatedProfile);
@@ -267,6 +279,10 @@ export const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onSaveSettings={handleSaveSettings}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenSaved={() => setIsSavedOpen(true)}
+        savedCount={savedReports.length}
+        onThemeChange={handleThemeChange}
       />
 
     </div>
