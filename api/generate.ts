@@ -1,17 +1,14 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 // Vercel Serverless Function für Lightflow
-// Ermöglicht automatische KI-Generierung für alle Nutzer ohne Client-Key-Eingabe
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS Header
+// Vollautomatische serverseitige KI-Generierung über Google Gemini
+export default async function handler(req: any, res: any) {
+  // CORS Header für PWA
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -24,10 +21,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Passage und Profil erforderlich' });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
 
-  // Wenn kein Server-Key hinterlegt ist, liefert die API ein Signal für den lokalen Fallback
   if (!apiKey) {
+    // Gibt Fallback-Signal an Client, falls noch kein Key in Vercel hinterlegt ist
     return res.status(200).json({ useFallback: true });
   }
 
@@ -57,29 +54,27 @@ AUSGABE-FORMAT:
 ### [5. DER GARTEN IM HERZEN]
 ### [6. DIE SAUERSTOFFMASKE - DEIN GEBET]`;
 
-    if (process.env.GEMINI_API_KEY) {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-      const response = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-        }),
-      });
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`Gemini Error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      return res.status(200).json({ text, source: 'gemini' });
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('Gemini API Fehler:', err);
+      return res.status(200).json({ useFallback: true, error: err });
     }
 
-    return res.status(200).json({ useFallback: true });
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    return res.status(200).json({ text, source: 'gemini' });
   } catch (error: any) {
-    console.error('Serverless Error:', error);
+    console.error('Serverless Catch:', error);
     return res.status(200).json({ useFallback: true, error: error.message });
   }
 }
