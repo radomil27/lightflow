@@ -10,6 +10,7 @@ interface InputSectionProps {
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   profile: UserProfile;
+  onOpenPicker: () => void;
 }
 
 const MOOD_CHIPS = [
@@ -57,8 +58,8 @@ export const InputSection: React.FC<InputSectionProps> = ({
   onSubmit,
   isLoading,
   profile,
+  onOpenPicker,
 }) => {
-
   return (
     <section className="w-full max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-4">
       {/* Sanfter Banner zur Kern-Metapher */}
@@ -81,21 +82,29 @@ export const InputSection: React.FC<InputSectionProps> = ({
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5">
-        {/* Haupt-Eingabefeld */}
+        {/* Haupt-Eingabefeld mit Klick-Trigger für Bibel-Navigator */}
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-[#E09F3E]/30 via-[#F59E0B]/20 to-[#3E6B56]/30 rounded-3xl blur-md opacity-40 group-hover:opacity-75 transition-opacity pointer-events-none"></div>
           
           <div className="relative rounded-3xl bg-white/95 dark:bg-[#151B22]/95 backdrop-blur-xl border border-stone-200/80 dark:border-slate-800 p-2 sm:p-2.5 shadow-xl transition-all">
-            <div className="flex items-center px-3 pt-1">
-              <Search className="w-5 h-5 text-[#E09F3E] shrink-0 mr-3" />
+            <div
+              onClick={onOpenPicker}
+              className="flex items-center px-3 pt-1 cursor-pointer group/search"
+              title="Klicken, um Bücher, Kapitel und Verse auszuwählen"
+            >
+              <Search className="w-5 h-5 text-[#E09F3E] shrink-0 mr-3 group-hover/search:scale-110 transition-transform" />
               <input
                 type="text"
                 value={passage}
                 onChange={(e) => setPassage(e.target.value)}
-                placeholder="Bibelstelle (z. B. Matthäus 12:1-14) oder Lebensfrage..."
-                className="w-full py-3.5 text-base sm:text-lg bg-transparent border-none focus:outline-none text-[#1E293B] dark:text-[#F1F5F9] placeholder-stone-400 font-serif"
-                disabled={isLoading}
+                readOnly
+                onClick={onOpenPicker}
+                placeholder="Tippe hier, um Buch, Kapitel & Vers zu wählen..."
+                className="w-full py-3.5 text-base sm:text-lg bg-transparent border-none focus:outline-none text-[#1E293B] dark:text-[#F1F5F9] placeholder-stone-400 font-serif cursor-pointer"
               />
+              <span className="hidden sm:inline-flex text-[11px] font-semibold px-2.5 py-1 rounded-xl bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] border border-[#E09F3E]/30 whitespace-nowrap">
+                Bibel-Navigator ➔
+              </span>
             </div>
 
             {/* Trennlinie mit dezentem Lichtstrom-Glow */}

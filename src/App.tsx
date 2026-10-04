@@ -16,6 +16,7 @@ import { ReportView } from './components/ReportView';
 import { ProfileModal } from './components/ProfileModal';
 import { SavedReportsModal } from './components/SavedReportsModal';
 import { SettingsModal } from './components/SettingsModal';
+import { BiblePickerModal } from './components/BiblePickerModal';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -41,6 +42,7 @@ export const App: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isSavedOpen, setIsSavedOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
 
   // PWA Install Prompt Event
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -136,6 +138,31 @@ export const App: React.FC = () => {
     }
   };
 
+  // Auswahl aus dem interaktiven Bibel-Navigator (startet direkt die Auswertung)
+  const handleSelectPassageFromPicker = async (selectedPassage: string, autoSubmit: boolean = true) => {
+    setPassage(selectedPassage);
+    if (autoSubmit) {
+      setIsLoading(true);
+      try {
+        const report = await generateLightflowReport(selectedPassage, profile, selectedMood, settings);
+        setCurrentReport(report);
+        saveReport(report);
+        setSavedReports(getStoredReports());
+
+        setTimeout(() => {
+          const reportElement = document.getElementById('lightflow-report');
+          if (reportElement) {
+            reportElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      } catch (error) {
+        console.error('Fehler bei der Lichtfluss-Generierung:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   // Favorit umschalten
   const handleToggleFavorite = (id: string) => {
     if (!currentReport || currentReport.id !== id) return;
@@ -227,6 +254,7 @@ export const App: React.FC = () => {
           onSubmit={handleSubmit}
           isLoading={isLoading}
           profile={profile}
+          onOpenPicker={() => setIsPickerOpen(true)}
         />
 
         {/* Auswertungs-Report */}
@@ -283,6 +311,13 @@ export const App: React.FC = () => {
         onOpenSaved={() => setIsSavedOpen(true)}
         savedCount={savedReports.length}
         onThemeChange={handleThemeChange}
+      />
+
+      <BiblePickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelectPassage={handleSelectPassageFromPicker}
+        currentPassage={passage}
       />
 
     </div>
