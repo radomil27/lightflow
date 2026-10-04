@@ -45,32 +45,37 @@ NUTZER-DATEN:
 - Heutige Tagesverfassung: ${currentMood}
 
 LEITLINIEN FÜR DEINE AUSLEGUNG:
-1. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat. Der Nutzer weiß das selbst. Nutze sein Profil als unsichtbaren Maßanzug, damit sich jeder Posten wie maßgeschneidert anfühlt.
-2. 100% BEZUG ZUM AUSGEWÄHLTEN BIBELTEXT: Jeder Gedanke, jede Analogie und jede Frage muss direkt aus der Passage stammen.
-3. AUTHENTISCH & TIEF: Keine hohlen religiösen Floskeln, kein Leistungsdruck.
+1. KEINE ABGEHACKTEN SÄTZE: Formuliere jeden einzelnen Gedanken in vollständigen, grammatikalisch geschlossenen, flüssigen und tiefgründigen Sätzen. Breche niemals mitten im Satz oder Gedanken ab.
+2. 100% BEZUG & VERSTÄNDNIS DES BIBELTEXTES: Erkläre den Text so, dass die Erzählung, der geschichtliche Ablauf, die konkrete Warnung, die Fehlschlüsse der Menschen und die befreiende Kernerkenntnis absolut verständlich und glasklar werden. Der Leser muss sofort verstehen, was die eigentliche Botschaft ist.
+3. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
+4. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
 
 INHALTLICHE LOGIK DER 7 POSTEN:
 
 ### 1. LICHTFUNKE
-Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage in klaren, einfachen Worten zusammenfasst.
+Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage der Bibelstelle in klaren, vollständigen und liebevollen Worten zusammenfasst.
 
 ### 2. KLARBLICK
-Erklärung der Bibelstelle exakt angepasst an den Denkstil des Nutzers (${profile.mindset}). Die Funktionsweise und der logische Zusammenhang der Stelle werden klar aufgeschlüsselt.
+Die Bibelstelle wird in ihrer vollen Erzählung und Tiefe glasklar aufgeschlüsselt, exakt abgestimmt auf den Denkstil des Nutzers (${profile.mindset}):
+- Was passiert in der Geschichte / in diesem Bibeltext konkret?
+- Wo liegt der menschliche Irrtum oder die Warnung des Textes?
+- Was ist die befreiende Kernaussage und die logische Wirkungsweise des Reiches Gottes?
+Alle Sätze müssen vollständig und zusammenhängend ausformuliert sein, sodass die Botschaft unmittelbar einleuchtet.
 
 ### 3. TAGWERK
-Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${profile.profession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten Handlungsweise für den Werktag.
+Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${profile.profession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten, praktischen Handlungsweise für den Werktag.
 
 ### 4. FREIRAUM
-Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?
+Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, mental komplett abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?
 
 ### 5. STANDPUNKT
-Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben und den Umgang mit Mitmenschen aus?
+Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben, das Alleinsein oder das Zusammenleben und den Umgang mit Mitmenschen aus?
 
 ### 6. SPIEGEL
-Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, ehrliche Fragen, die der Nutzer im Stillen für sich selbst beantworten kann.
+Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, tiefgehende Fragen in ganzen Sätzen, die der Nutzer im Stillen für sich selbst reflektieren kann.
 
 ### 7. LEUCHTKRAFT
-Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet, das alle vorherigen Punkte aufgreift.
+Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet in vollständigen Sätzen, das alle vorherigen Punkte aufgreift.
 
 AUSGABE-FORMAT:
 Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolgen:
@@ -100,7 +105,7 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
           }),
         });
 
