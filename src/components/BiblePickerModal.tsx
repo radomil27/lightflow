@@ -31,6 +31,11 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
   const [startVerse, setStartVerse] = useState<number | null>(null);
   const [endVerse, setEndVerse] = useState<number | null>(null);
 
+  // Dragging-Zustand für Wisch-Geste (z. B. von Vers 1 bis Vers 20 fahren)
+  const isDraggingRef = React.useRef(false);
+  const dragOriginVerseRef = React.useRef<number | null>(null);
+  const didDragRef = React.useRef(false);
+
   if (!isOpen) return null;
 
   // Letzte Vorschläge
@@ -66,8 +71,14 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
     setStep('verse');
   };
 
-  // Vers anklicken mit Von-Bis-Logik
+  // Vers anklicken mit Von-Bis-Logik (Fallback bei kurzem Tippen)
   const handleVerseClick = (verse: number) => {
+    // Wenn der Klick aus einer Wischgeste resultiert, ignorieren
+    if (didDragRef.current) {
+      didDragRef.current = false;
+      return;
+    }
+
     if (startVerse === null) {
       // Erster Klick: Startvers festlegen
       setStartVerse(verse);
@@ -86,6 +97,55 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
       setStartVerse(min);
       setEndVerse(max);
     }
+  };
+
+  // Touch/Drag Geste: Element unter Berührung ermitteln
+  const getVerseFromTouch = (clientX: number, clientY: number): number | null => {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (!el) return null;
+    const button = el.closest('[data-verse]');
+    if (!button) return null;
+    const vStr = button.getAttribute('data-verse');
+    if (!vStr) return null;
+    const v = parseInt(vStr, 10);
+    return isNaN(v) ? null : v;
+  };
+
+  // Touch Start
+  const handleTouchStart = (verse: number) => {
+    isDraggingRef.current = true;
+    dragOriginVerseRef.current = verse;
+    didDragRef.current = false;
+    // Sofort visuellen Start setzen
+    setStartVerse(verse);
+    setEndVerse(verse);
+  };
+
+  // Touch Move über den Bildschirm
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current || dragOriginVerseRef.current === null) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const currentV = getVerseFromTouch(touch.clientX, touch.clientY);
+    if (currentV !== null) {
+      const origin = dragOriginVerseRef.current;
+      if (currentV !== origin) {
+        didDragRef.current = true;
+      }
+      setStartVerse(Math.min(origin, currentV));
+      setEndVerse(Math.max(origin, currentV));
+    }
+  };
+
+  // Touch End
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    dragOriginVerseRef.current = null;
+    // Kurz verzögert didDrag zurücksetzen, damit der synthetische Click nicht überschreibt
+    setTimeout(() => {
+      didDragRef.current = false;
+    }, 50);
   };
 
   // Zusammengebaute Stelle berechnen
@@ -315,8 +375,13 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
             </div>
 
             {/* Vers-Kacheln */}
-            <div className="flex-1 overflow-y-auto pr-1">
-              <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
+            <div
+              className="flex-1 overflow-y-auto pr-1 select-none"
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
+            >
+              <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 touch-none">
                 {Array.from({ length: getVerseCount(selectedBook, selectedChapter) }, (_, i) => i + 1).map((v) => {
                   const isSelected =
                     startVerse !== null &&
@@ -328,8 +393,10 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
                     <button
                       key={v}
                       type="button"
+                      data-verse={v}
                       onClick={() => handleVerseClick(v)}
-                      className={`aspect-square flex items-center justify-center rounded-2xl border font-serif text-sm font-semibold transition-all shadow-sm active:scale-95 cursor-pointer ${
+                      onTouchStart={() => handleTouchStart(v)}
+                      className={`aspect-square flex items-center justify-center rounded-2xl border font-serif text-sm font-semibold transition-all shadow-sm active:scale-95 cursor-pointer touch-none select-none ${
                         isSelected
                           ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] shadow-md shadow-[#E09F3E]/20 font-bold scale-[1.02]'
                           : 'bg-white dark:bg-slate-900 border-stone-200/90 dark:border-slate-800 text-stone-800 dark:text-stone-100 hover:border-[#E09F3E]/60'
