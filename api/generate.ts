@@ -71,13 +71,12 @@ STRUKTUR DER 6 BEREICHE:
 ### [6. DIE SAUERSTOFFMASKE - DEIN GEBET]
 (Ein ehrliches, unfrommes Gebet in der Ich-Form, das unmittelbar auf die Botschaft des Bibeltextes antwortet. Wie das erste tiefe Durchatmen nach einem langen Tauchgang.)`;
 
-    // Probiere verschiedene Modell-Namen durch (gemini-1.5-flash-latest, gemini-1.5-flash, gemini-pro)
+    // Aktuell verfügbare Gemini-Modelle laut API
     const candidateModels = [
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro-latest',
-      'gemini-1.5-pro',
-      'gemini-pro'
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-2.5-pro',
+      'gemini-pro-latest'
     ];
 
     let lastError = '';
