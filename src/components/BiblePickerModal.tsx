@@ -71,27 +71,28 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
     setStep('verse');
   };
 
-  // Vers anklicken mit Von-Bis-Logik (Fallback bei kurzem Tippen)
+  // Vers anklicken: Tippen (Startvers -> Endvers) oder Einzelvers
   const handleVerseClick = (verse: number) => {
-    // Wenn der Klick aus einer Wischgeste resultiert, ignorieren
+    // Wenn gerade eine Wischgeste stattfand, Click nicht erneut auswerten
     if (didDragRef.current) {
       didDragRef.current = false;
       return;
     }
 
     if (startVerse === null) {
-      // Erster Klick: Startvers festlegen
+      // 1. Tippen: Startvers setzen
       setStartVerse(verse);
       setEndVerse(verse);
-    } else if (startVerse === verse && endVerse === verse) {
-      // Erneuter Klick auf denselben Vers: bleibt Einzelvers
-      return;
+    } else if (startVerse === verse && (endVerse === null || endVerse === verse)) {
+      // Erneuter Klick auf denselben einzelnen Vers: Abwählen / Reset
+      setStartVerse(null);
+      setEndVerse(null);
     } else if (endVerse !== null && startVerse !== endVerse) {
-      // Wenn bereits ein Bereich aktiv war: Neuen Startvers beginnen
+      // Wenn bereits ein Bereich gewählt war und man tippt: Neuen Startvers beginnen
       setStartVerse(verse);
       setEndVerse(verse);
     } else {
-      // Zweiter Klick: Bereich von startVerse bis verse aufspannen!
+      // 2. Tippen auf einen anderen Vers: Bereich von startVerse bis verse aufspannen!
       const min = Math.min(startVerse, verse);
       const max = Math.max(startVerse, verse);
       setStartVerse(min);
@@ -111,17 +112,14 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
     return isNaN(v) ? null : v;
   };
 
-  // Touch Start
+  // Touch Start (Wischgeste vorbereiten)
   const handleTouchStart = (verse: number) => {
     isDraggingRef.current = true;
     dragOriginVerseRef.current = verse;
     didDragRef.current = false;
-    // Sofort visuellen Start setzen
-    setStartVerse(verse);
-    setEndVerse(verse);
   };
 
-  // Touch Move über den Bildschirm
+  // Touch Move über den Bildschirm (Wischen über Verse)
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDraggingRef.current || dragOriginVerseRef.current === null) return;
     const touch = e.touches[0];
@@ -131,10 +129,10 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
     if (currentV !== null) {
       const origin = dragOriginVerseRef.current;
       if (currentV !== origin) {
-        didDragRef.current = true;
+        didDragRef.current = true; // Erkennung als echte Wischbewegung
+        setStartVerse(Math.min(origin, currentV));
+        setEndVerse(Math.max(origin, currentV));
       }
-      setStartVerse(Math.min(origin, currentV));
-      setEndVerse(Math.max(origin, currentV));
     }
   };
 
@@ -142,10 +140,10 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
   const handleTouchEnd = () => {
     isDraggingRef.current = false;
     dragOriginVerseRef.current = null;
-    // Kurz verzögert didDrag zurücksetzen, damit der synthetische Click nicht überschreibt
+    // didDragRef kurz aufrecht erhalten, damit der nachfolgende synthetische Klick ignoriert wird
     setTimeout(() => {
       didDragRef.current = false;
-    }, 50);
+    }, 120);
   };
 
   // Zusammengebaute Stelle berechnen
@@ -307,7 +305,9 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
         {step === 'chapter' && selectedBook && (
           <div className="flex-1 flex flex-col overflow-hidden p-4 sm:p-5">
             <div className="flex items-center justify-between mb-3 text-xs text-stone-500">
-              <span>Wähle ein Kapitel in <strong>{selectedBook.name}</strong>:</span>
+              <span className="font-serif font-medium text-stone-700 dark:text-stone-300">
+                {selectedBook.name}
+              </span>
               <button
                 type="button"
                 onClick={() => setStep('book')}
@@ -346,35 +346,12 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
         )}
 
         {/* ========================================================
-            SCHRITT 3: VERSE (Mit Von-Bis Markierung z. B. 5-12)
+            SCHRITT 3: VERSE
             ======================================================== */}
         {step === 'verse' && selectedBook && selectedChapter && (
           <div className="flex-1 flex flex-col overflow-hidden p-4 sm:p-5">
             
-            {/* Hinweis zur Bedienung */}
-            <div className="mb-3 p-2.5 rounded-xl bg-[#E09F3E]/10 border border-[#E09F3E]/30 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between">
-              <span>
-                {startVerse === null
-                  ? 'Tippe auf den ersten Vers (z. B. 5)...'
-                  : startVerse === endVerse
-                  ? `Vers ${startVerse} gewählt. Tippe auf einen zweiten Vers (z. B. 12) für Bereich 5–12.`
-                  : `Verse ${startVerse} bis ${endVerse} markiert.`}
-              </span>
-              {(startVerse !== null) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStartVerse(null);
-                    setEndVerse(null);
-                  }}
-                  className="text-[11px] underline text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 ml-2"
-                >
-                  Zurücksetzen
-                </button>
-              )}
-            </div>
-
-            {/* Vers-Kacheln */}
+            {/* Vers-Kacheln (sauber ohne Erklärtexte) */}
             <div
               className="flex-1 overflow-y-auto pr-1 select-none"
               onTouchMove={handleTouchMove}
