@@ -156,47 +156,43 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     }
 
     // Modell-Kaskade: Exakt auf den aktiven Google Gemini Key abgestimmt
-    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash, gemini-3.5-flash-lite (hohe Quotenverfügbarkeit) und weiteren
+    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash, gemini-3.5-flash-lite (hohe Quotenverfügbarkeit)
     const candidateModels = [
       'gemini-3.8-flash',
       'gemini-3.7-flash',
       'gemini-3.5-flash-lite',
-      'gemini-3.1-flash-lite',
-      'gemini-3.5-flash'
+      'gemini-3.1-flash-lite'
     ];
 
     const modelErrors: Record<string, string> = {};
 
-    // Probiere die verfügbaren Endpunkte durch (bis zu 7.5s Timeout pro Call, um Vercel 10s Budget einzuhalten)
+    // Probiere die verfügbaren Endpunkte durch (4.2s Timeout pro Call, damit bis zu 2 Versuche ins 10s Vercel-Budget passen)
     for (const model of candidateModels) {
-      // Probiere v1beta und v1
-      for (const apiVer of ['v1beta', 'v1']) {
-        try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`;
-          const response = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout(7500),
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
-            }),
-          });
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const response = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(4200),
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
+          }),
+        });
 
-          if (response.ok) {
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              console.log(`[api/generate] Erfolgreich generiert mit Modell: ${model} (${apiVer}, ${text.length} Zeichen)`);
-              return res.status(200).json({ text, source: 'gemini', model, apiVersion: apiVer, posten: selectedPosten });
-            }
-          } else {
-            const errBody = await response.text();
-            modelErrors[`${apiVer}/${model}`] = `HTTP ${response.status}: ${errBody.slice(0, 150)}`;
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            console.log(`[api/generate] Erfolgreich generiert mit Modell: ${model} (${text.length} Zeichen)`);
+            return res.status(200).json({ text, source: 'gemini', model, posten: selectedPosten });
           }
-        } catch (err: any) {
-          modelErrors[`${apiVer}/${model}`] = err.message || 'Timeout / Abort';
+        } else {
+          const errBody = await response.text();
+          modelErrors[model] = `HTTP ${response.status}: ${errBody.slice(0, 150)}`;
         }
+      } catch (err: any) {
+        modelErrors[model] = err.message || 'Timeout / Abort';
       }
     }
 
