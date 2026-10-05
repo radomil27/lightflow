@@ -156,13 +156,12 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     }
 
     // Modell-Kaskade für maximale Stabilität und Performance:
-    // gemini-2.0-flash antwortet in 2-3 Sekunden und verhindert Vercel 10s-Timeouts zuverlässig.
+    // Google API empfiehlt gemini-3.5-flash-lite und gemini-2.5-flash
     const candidateModels = [
-      'gemini-2.0-flash',
+      'gemini-3.5-flash-lite',
       'gemini-2.5-flash',
-      'gemini-1.5-flash',
-      'gemini-2.0-flash-lite',
-      'gemini-2.5-flash-lite'
+      'gemini-2.0-flash',
+      'gemini-1.5-flash'
     ];
 
     let lastError = '';
