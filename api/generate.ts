@@ -100,7 +100,10 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
       'gemini-3.7',
       'gemini-2.5-flash',
       'gemini-2.5-flash-lite',
-      'gemini-flash-latest'
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
     ];
 
     let lastError = '';
@@ -130,40 +133,53 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
       }
     }
 
-    // Falls die spezifischen Modell-IDs noch nicht freigeschaltet sind, dynamisch alle verfügbaren Modelle für diesen Key prüfen
+    // Falls die vordefinierten Modell-IDs fehlschlagen, dynamisch alle für diesen Key freigeschalteten Modelle abrufen
     try {
       const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
       if (listResp.ok) {
         const listData = await listResp.json();
-        const availableModels: string[] = listData.models?.map((m: any) => m.name.replace('models/', '')) || [];
-        
-        // Suche nach 3.8, dann 3.7, dann flash
-        const preferred = availableModels.find((m: string) => m.includes('3.8')) 
-                       || availableModels.find((m: string) => m.includes('3.7'))
-                       || availableModels.find((m: string) => m.includes('flash') && m.includes('generateContent'));
+        const contentModels: string[] = (listData.models || [])
+          .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+          .map((m: any) => m.name.replace('models/', ''));
 
-        if (preferred) {
-          const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${preferred}:generateContent?key=${apiKey}`;
-          const fallbackResp = await fetch(fallbackUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
-            }),
-          });
-          if (fallbackResp.ok) {
-            const fallbackData = await fallbackResp.json();
-            const text = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              return res.status(200).json({ text, source: 'gemini', model: preferred });
+        // Sortierung nach Priorität: 3.8 -> 3.7 -> 2.5 -> 2.0 -> 1.5 -> flash
+        const sortedModels = contentModels.sort((a, b) => {
+          const score = (m: string) => {
+            if (m.includes('3.8')) return 100;
+            if (m.includes('3.7')) return 90;
+            if (m.includes('2.5')) return 80;
+            if (m.includes('2.0')) return 70;
+            if (m.includes('1.5')) return 60;
+            if (m.includes('flash')) return 50;
+            return 10;
+          };
+          return score(b) - score(a);
+        });
+
+        for (const preferred of sortedModels) {
+          try {
+            const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${preferred}:generateContent?key=${apiKey}`;
+            const fallbackResp = await fetch(fallbackUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+              }),
+            });
+            if (fallbackResp.ok) {
+              const fallbackData = await fallbackResp.json();
+              const text = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                return res.status(200).json({ text, source: 'gemini', model: preferred });
+              }
             }
-          }
+          } catch (_) {}
         }
       }
     } catch (_) {}
 
-    return res.status(200).json({ useFallback: false, error: lastError });
+    return res.status(200).json({ useFallback: true, error: lastError });
   } catch (error: any) {
     console.error('Serverless Catch:', error);
     return res.status(200).json({ useFallback: true, error: error.message });
