@@ -75,6 +75,18 @@ export default async function handler(req: any, res: any) {
     let prompt = '';
     let maxTokens = 2600;
 
+    const synthesisInstruction = `GANZHEITLICHE PERSÖNLICHKEITS-SYNTHESE (VOR DER GENERIERUNG DURCHFÜHREN):
+1. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
+   - Pragmatisch/Lösungsorientiert/Analytisch: Direkte Kausalität, schnörkellose Sätze, praktische Logik statt verschachtelter Poesie.
+   - Bildhaft/Emotional/Beziehungsorientiert: Warme Vergleiche, emotionale Resonanz und Raum zum Fühlen.
+2. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
+   - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
+   - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
+3. RESONANZBODEN: Die Tagesverfassung (${currentMood}) bestimmt das TEMPERAMENT.
+   - Erschöpft/Unter Druck: Kurze, entlastende Gedanken, kein intellektueller Ballast, maximale Gnade und Sauerstoff.
+   - Dankbar/Kraftvoll/Entschlossen: Aufbruch, Ermutigung, mutige Schritte im Alltag.
+4. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
+
     if (selectedPosten) {
       maxTokens = 1200;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
@@ -88,6 +100,8 @@ NUTZER-DATEN (UNSICHTBARER MASSANZUG):
 - Lebenssituation: ${profile.relationshipStatus}
 - Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
+
+${synthesisInstruction}
 
 WICHTIGE LEITLINIEN:
 - Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}) mit ihren echten Werkzeugen, typischen Herausforderungen und Situationen.
@@ -118,9 +132,11 @@ NUTZER-DATEN (UNSICHTBARER MASSANZUG):
 - Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
 
+${synthesisInstruction}
+
 STRIKTE LEITLINIEN:
-1. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in 2 bis maximal 4 vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
-2. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern (z. B. bei Handwerk/Küchenbau: Passleisten, schiefe Wände, Werkbank, Wasserwaage; nicht Software/Laptop!).
+1. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
+2. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern.
 3. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
 4. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
 5. AUTHENTISCH & GNADENVOLL: Keine religiösen Phrasen, kein Leistungsdruck.
