@@ -98,15 +98,15 @@ export function parseReportSections(
     favorite: false,
   };
 
-  // Ultra-tolerante Regex für Markdown-Header (#, ##, ###, **, fett, etc.)
+  // Ultra-tolerante Regex für alle 7 Abschnitte (unterstützt ###, ##, #, **, Ziffern 1-7, Doppelpunkte und alternative Schreibweisen)
   const sections = [
-    { key: 'lichtfunke', regex: /(?:###|##|#|\*\*|)\s*\[?1\.\s*LICHTFUNKE\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?2\.|\Z)/i },
-    { key: 'klarblick', regex: /(?:###|##|#|\*\*|)\s*\[?2\.\s*KLARBLICK\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?3\.|\Z)/i },
-    { key: 'tagwerk', regex: /(?:###|##|#|\*\*|)\s*\[?3\.\s*TAGWERK\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?4\.|\Z)/i },
-    { key: 'freiraum', regex: /(?:###|##|#|\*\*|)\s*\[?4\.\s*(?:FREIRAUM|FEIERABEND)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?5\.|\Z)/i },
-    { key: 'standpunkt', regex: /(?:###|##|#|\*\*|)\s*\[?5\.\s*STANDPUNKT\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?6\.|\Z)/i },
-    { key: 'spiegel', regex: /(?:###|##|#|\*\*|)\s*\[?6\.\s*SPIEGEL\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?7\.|\Z)/i },
-    { key: 'leuchtkraft', regex: /(?:###|##|#|\*\*|)\s*\[?7\.\s*LEUCHTKRAFT\]?\*?:?([\s\S]*?)$/i },
+    { key: 'lichtfunke', regex: /(?:###|##|#|\*\*|)\s*\[?1\.\s*(?:LICHTFUNKE|KERNZUSPRUCH)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?2\.|\Z)/i },
+    { key: 'klarblick', regex: /(?:###|##|#|\*\*|)\s*\[?2\.\s*(?:KLARBLICK|EXEGESE|DECODIERUNG)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?3\.|\Z)/i },
+    { key: 'tagwerk', regex: /(?:###|##|#|\*\*|)\s*\[?3\.\s*(?:TAGWERK|WERKBANK|ARBEIT)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?4\.|\Z)/i },
+    { key: 'freiraum', regex: /(?:###|##|#|\*\*|)\s*\[?4\.\s*(?:FREIRAUM|FEIERABEND|ATEMPAUSE)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?5\.|\Z)/i },
+    { key: 'standpunkt', regex: /(?:###|##|#|\*\*|)\s*\[?5\.\s*(?:STANDPUNKT|LEBENSSITUATION|ZUHAUSE)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?6\.|\Z)/i },
+    { key: 'spiegel', regex: /(?:###|##|#|\*\*|)\s*\[?6\.\s*(?:SPIEGEL|REFLEKTION|GEMEINSCHAFT)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?7\.|\Z)/i },
+    { key: 'leuchtkraft', regex: /(?:###|##|#|\*\*|)\s*\[?7\.\s*(?:LEUCHTKRAFT|HERZENSGEBET|GEBET|QUELLE)\]?\*?:?([\s\S]*?)$/i },
   ] as const;
 
   for (const s of sections) {
@@ -128,29 +128,29 @@ export function parseReportSections(
     defaultReport.leuchtkraft = paragraphs[6] || '';
   }
 
-  // Sicherheits-Validierung: Kein Posten darf leer bleiben (verhindert dauerhaft pulsierende Skeletons)
+  // Sicherheits-Validierung: Kein Posten darf leer bleiben (garantiert Text für Posten 1 bis 7)
   const dynamicFallback = generateLocalReport(passage, profile, mood);
-  if (!defaultReport.lichtfunke || defaultReport.lichtfunke.length < 15) {
-    defaultReport.lichtfunke = dynamicFallback.lichtfunke;
+  const keys: (keyof Pick<LightflowReport, 'lichtfunke' | 'klarblick' | 'tagwerk' | 'freiraum' | 'standpunkt' | 'spiegel' | 'leuchtkraft'>)[] = [
+    'lichtfunke', 'klarblick', 'tagwerk', 'freiraum', 'standpunkt', 'spiegel', 'leuchtkraft'
+  ];
+
+  for (const k of keys) {
+    if (!defaultReport[k] || defaultReport[k].trim().length < 15) {
+      console.info(`[lightflowEngine] Posten ${k} war unvollständig (${defaultReport[k]?.length || 0} Zeichen). Greife auf dynamische Exegese zurück.`);
+      defaultReport[k] = dynamicFallback[k];
+    }
   }
-  if (!defaultReport.klarblick || defaultReport.klarblick.length < 15) {
-    defaultReport.klarblick = dynamicFallback.klarblick;
-  }
-  if (!defaultReport.tagwerk || defaultReport.tagwerk.length < 15) {
-    defaultReport.tagwerk = dynamicFallback.tagwerk;
-  }
-  if (!defaultReport.freiraum || defaultReport.freiraum.length < 15) {
-    defaultReport.freiraum = dynamicFallback.freiraum;
-  }
-  if (!defaultReport.standpunkt || defaultReport.standpunkt.length < 15) {
-    defaultReport.standpunkt = dynamicFallback.standpunkt;
-  }
-  if (!defaultReport.spiegel || defaultReport.spiegel.length < 15) {
-    defaultReport.spiegel = dynamicFallback.spiegel;
-  }
-  if (!defaultReport.leuchtkraft || defaultReport.leuchtkraft.length < 15) {
-    defaultReport.leuchtkraft = dynamicFallback.leuchtkraft;
-  }
+
+  // Dev-Log zur Verifikation des Parsers
+  console.log('[lightflowEngine] parseReportSections Ergebnis:', {
+    lichtfunke: defaultReport.lichtfunke.slice(0, 40) + '...',
+    klarblick: defaultReport.klarblick.slice(0, 40) + '...',
+    tagwerk: defaultReport.tagwerk.slice(0, 40) + '...',
+    freiraum: defaultReport.freiraum.slice(0, 40) + '...',
+    standpunkt: defaultReport.standpunkt.slice(0, 40) + '...',
+    spiegel: defaultReport.spiegel.slice(0, 40) + '...',
+    leuchtkraft: defaultReport.leuchtkraft.slice(0, 40) + '...',
+  });
 
   // Abwärtskompatibilität pflegen
   defaultReport.coreConduit = defaultReport.lichtfunke;

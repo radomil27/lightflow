@@ -14,6 +14,8 @@ import {
   VolumeX,
   FileText,
   Briefcase,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface ReportViewProps {
@@ -33,48 +35,55 @@ export const ReportView: React.FC<ReportViewProps> = ({
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
 
-  // Schrittweise Enthüllung der 7 Posten (Posten 1 erscheint sofort, 2-7 enthüllen sich flüssig)
-  const [unlockedStep, setUnlockedStep] = useState<number>(1);
+  // Accordion-State: Speichert welche Posten aufgeklappt sind (1-basiert: 1 bis 7)
+  const [openSections, setOpenSections] = useState<number[]>([1]);
   const activeReportIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    // Wenn derselbe Report bereits entriegelt wird, die laufende Animation nicht durch Re-Render abbrechen
+    // Wenn derselbe Report bereits entfaltet wird, die Animation nicht durch Re-Render zurücksetzen
     if (activeReportIdRef.current === report.id) {
       return;
     }
     activeReportIdRef.current = report.id;
 
-    // Ältere Reports aus dem Archiv sofort komplett aufdecken
-    const isRecent = Date.now() - report.timestamp < 60000;
+    // Ältere Reports aus dem Archiv sofort komplett aufklappen
+    const isRecent = Date.now() - report.timestamp < 45000;
     if (!isRecent) {
-      setUnlockedStep(7);
+      setOpenSections([1, 2, 3, 4, 5, 6, 7]);
       return;
     }
 
-    // Bei neu generiertem Report: Start bei 1, dann schrittweises Entriegeln im 400ms-Takt
-    setUnlockedStep(1);
+    // Bei neu generiertem Report: Startet mit nur Posten 1 offen
+    setOpenSections([1]);
 
+    // Progressive Enthüllung: Nacheinander Posten 2 bis 7 im 450ms-Takt geschmeidig aufklappen
+    let currentStep = 1;
     const interval = setInterval(() => {
-      setUnlockedStep((prev) => {
-        if (prev >= 7) {
-          clearInterval(interval);
-          return 7;
-        }
-        return prev + 1;
-      });
-    }, 400);
+      currentStep += 1;
+      if (currentStep <= 7) {
+        setOpenSections((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+      } else {
+        clearInterval(interval);
+      }
+    }, 450);
 
-    // Absoluter Sicherheits-Fallback: Nach spätestens 3 Sekunden sind garantiert alle 7 Posten offen
+    // Sicherheits-Fallback: Nach spätestens 3.8s sind alle Posten geöffnet
     const safeguardTimer = setTimeout(() => {
-      setUnlockedStep(7);
+      setOpenSections([1, 2, 3, 4, 5, 6, 7]);
       clearInterval(interval);
-    }, 3000);
+    }, 3800);
 
     return () => {
       clearInterval(interval);
       clearTimeout(safeguardTimer);
     };
   }, [report.id]);
+
+  const toggleSection = (stepNum: number) => {
+    setOpenSections((prev) =>
+      prev.includes(stepNum) ? prev.filter((s) => s !== stepNum) : [...prev, stepNum]
+    );
+  };
 
   const handleCopySection = (stepNum: number, title: string, text: string) => {
     const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle`;
@@ -260,312 +269,381 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="absolute left-2 sm:left-3.5 top-0 w-1.5 h-12 bg-gradient-to-b from-transparent via-[#FDE68A] to-transparent rounded-full blur-[1px] animate-pulse"></div>
 
         {/* ========================================================
-            POSTEN 1: LICHTFUNKE (Immer sofort sichtbar)
+            POSTEN 1: LICHTFUNKE (Immer sofort sichtbar & ausklappbar)
             ======================================================== */}
-        <div className="relative group animate-in fade-in duration-500">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(1)}
+            className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer"
+          >
             1
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#211B14] dark:via-[#18202A] dark:to-[#18202A] border border-[#E09F3E]/40 shadow-lg shadow-[#E09F3E]/5 relative overflow-hidden backdrop-blur-md">
+          <div className="rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#211B14] dark:via-[#18202A] dark:to-[#18202A] border border-[#E09F3E]/40 shadow-lg shadow-[#E09F3E]/5 relative overflow-hidden backdrop-blur-md transition-all duration-300">
             <div className="absolute top-0 right-0 w-36 h-36 bg-[#E09F3E]/10 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div className="flex items-center justify-between mb-3">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(1)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
+            >
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
                 <Sparkles className="w-4 h-4 text-[#E09F3E]" />
                 <span>1. LICHTFUNKE</span>
               </div>
-              <button
-                onClick={() => handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                title="Diesen Zuspruch kopieren"
-              >
-                {copiedSection === 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                <span className="text-[10px] hidden sm:inline">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Zuspruch kopieren"
+                >
+                  {copiedSection === 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(1) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
+              </div>
             </div>
 
-            <p className="font-serif text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic">
-              „{report.lichtfunke || report.coreConduit}“
-            </p>
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(1) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-500/15">
+                <p className="font-serif text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic">
+                  „{report.lichtfunke || report.coreConduit}“
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* ========================================================
             POSTEN 2: KLARBLICK
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(2)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(2) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             2
           </div>
 
-          {unlockedStep >= 2 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Cpu className="w-4 h-4 text-[#E09F3E]" />
-                  <span>2. KLARBLICK</span>
-                </div>
+          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(2)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                <Cpu className="w-4 h-4 text-[#E09F3E]" />
+                <span>2. KLARBLICK</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Diesen Abschnitt kopieren"
                 >
                   {copiedSection === 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 2 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(2) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
+            </div>
 
-              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-                {report.klarblick || report.systemDecoded}
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(2) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                  {report.klarblick || report.systemDecoded}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
-                <Cpu className="w-4 h-4 text-stone-400" />
-                <span>2. KLARBLICK wird aufbereitet... (klicken zum Aufdecken)</span>
-              </div>
-              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
-              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ========================================================
             POSTEN 3: TAGWERK
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(3)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(3) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             3
           </div>
 
-          {unlockedStep >= 3 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Wrench className="w-4 h-4 text-[#E09F3E]" />
-                  <span>3. TAGWERK</span>
-                </div>
+          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(3)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                <Wrench className="w-4 h-4 text-[#E09F3E]" />
+                <span>3. TAGWERK</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Diesen Abschnitt kopieren"
                 >
                   {copiedSection === 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 3 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(3) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
+            </div>
 
-              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-                {report.tagwerk || report.workBench}
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(3) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                  {report.tagwerk || report.workBench}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
-                <Wrench className="w-4 h-4 text-stone-400" />
-                <span>3. TAGWERK lädt nach... (klicken zum Aufdecken)</span>
-              </div>
-              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
-              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-2/3"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ========================================================
             POSTEN 4: FREIRAUM
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(4)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(4) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             4
           </div>
 
-          {unlockedStep >= 4 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Home className="w-4 h-4 text-[#E09F3E]" />
-                  <span>4. FREIRAUM</span>
-                </div>
+          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(4)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                <Home className="w-4 h-4 text-[#E09F3E]" />
+                <span>4. FREIRAUM</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Diesen Abschnitt kopieren"
                 >
                   {copiedSection === 4 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 4 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(4) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
+            </div>
 
-              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-                {report.freiraum || report.dailyFreedom}
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(4) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                  {report.freiraum || report.dailyFreedom}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
-                <Home className="w-4 h-4 text-stone-400" />
-                <span>4. FREIRAUM lädt nach... (klicken zum Aufdecken)</span>
-              </div>
-              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-4/5 mb-2"></div>
-              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ========================================================
             POSTEN 5: STANDPUNKT
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(5)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(5) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             5
           </div>
 
-          {unlockedStep >= 5 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Briefcase className="w-4 h-4 text-[#E09F3E]" />
-                  <span>5. STANDPUNKT</span>
-                </div>
+          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(5)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+                <span>5. STANDPUNKT</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Diesen Abschnitt kopieren"
                 >
                   {copiedSection === 5 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 5 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(5) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
+            </div>
 
-              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-                {report.standpunkt || report.profileSnapshot.relationshipStatus}
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(5) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                  {report.standpunkt || report.profileSnapshot.relationshipStatus}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
-                <Briefcase className="w-4 h-4 text-stone-400" />
-                <span>5. STANDPUNKT lädt nach... (klicken zum Aufdecken)</span>
-              </div>
-              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
-              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/3"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ========================================================
             POSTEN 6: SPIEGEL
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-slate-700 text-stone-200 flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(6)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(6) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             6
           </div>
 
-          {unlockedStep >= 6 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Sprout className="w-4 h-4 text-[#E09F3E]" />
-                  <span>6. SPIEGEL</span>
-                </div>
+          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(6)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                <Sprout className="w-4 h-4 text-[#E09F3E]" />
+                <span>6. SPIEGEL</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(6, '6. SPIEGEL', report.spiegel || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(6, '6. SPIEGEL', report.spiegel || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Diesen Abschnitt kopieren"
                 >
                   {copiedSection === 6 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 6 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(6) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
+            </div>
 
-              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-                {report.spiegel}
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(6) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                  {report.spiegel}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
-                <Sprout className="w-4 h-4 text-stone-400" />
-                <span>6. SPIEGEL lädt nach... (klicken zum Aufdecken)</span>
-              </div>
-              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
-              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ========================================================
-            POSTEN 7: LEUCHTKRAFT
+            POSTEN 7: LEUCHTKRAFT (Herzensgebet)
             ======================================================== */}
-        <div className="relative group">
-          <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#F59E0B] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#F59E0B]/40 ring-4 ring-[#FAF9F6] dark:ring-[#12161A] animate-light-pulse">
+        <div className="relative group transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(7)}
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+              openSections.includes(7) ? 'bg-[#F59E0B] text-slate-950 shadow-[#F59E0B]/40 animate-light-pulse' : 'bg-slate-700 text-stone-300'
+            }`}
+          >
             7
           </div>
 
-          {unlockedStep >= 7 ? (
-            <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md animate-in fade-in duration-500">
-              <div className="absolute bottom-0 right-0 w-44 h-44 bg-[#F59E0B]/15 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="rounded-3xl bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md transition-all duration-300">
+            <div className="absolute bottom-0 right-0 w-44 h-44 bg-[#F59E0B]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
-                  <Wind className="w-4 h-4 text-[#E09F3E]" />
-                  <span>7. LEUCHTKRAFT</span>
-                </div>
+            {/* Akkordeon-Header */}
+            <div 
+              onClick={() => toggleSection(7)}
+              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                <Wind className="w-4 h-4 text-[#E09F3E]" />
+                <span>7. LEUCHTKRAFT</span>
+              </div>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '')}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '');
+                  }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                   title="Dieses Gebet kopieren"
                 >
                   {copiedSection === 7 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 7 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
-              </div>
-
-              <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
-                {report.leuchtkraft || report.heartGarden}
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-                <span>Tief einatmen. Angekommen an der Quelle.</span>
-                <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
+                <div className="p-1 text-stone-400 dark:text-stone-500">
+                  {openSections.includes(7) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
             </div>
-          ) : (
-            <div 
-              onClick={() => setUnlockedStep(7)}
-              className="rounded-3xl p-6 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 animate-pulse cursor-pointer hover:bg-amber-500/10 transition-colors"
-              title="Klicken, um sofort aufzudecken"
-            >
-              <div className="flex items-center space-x-2 text-xs font-medium text-amber-600/70 dark:text-amber-400/70 mb-3">
-                <Wind className="w-4 h-4 text-amber-500" />
-                <span>7. LEUCHTKRAFT (Herzensgebet) wird vollendet... (klicken zum Aufdecken)</span>
+
+            {/* Ausgeklappter Inhalt */}
+            {openSections.includes(7) && (
+              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-200/50 dark:border-amber-900/30">
+                <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
+                  {report.leuchtkraft || report.heartGarden}
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                  <span>Tief einatmen. Angekommen an der Quelle.</span>
+                  <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
+                </div>
               </div>
-              <div className="h-5 bg-amber-200/40 dark:bg-amber-900/30 rounded-md w-full mb-2"></div>
-              <div className="h-5 bg-amber-200/30 dark:bg-amber-900/20 rounded-md w-2/3"></div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
       </div>
