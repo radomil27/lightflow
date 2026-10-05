@@ -35,7 +35,72 @@ export default async function handler(req: any, res: any) {
       ? `${profile.profession} (Konkrete Tätigkeit & Alltag: ${profile.professionDetail.trim()})`
       : profile.profession;
 
-    const prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
+    const { posten } = req.body || {};
+    const selectedPosten = typeof posten === 'number' && posten >= 1 && posten <= 7 ? posten : null;
+
+    const sectionDescriptions: Record<number, { title: string; prompt: string }> = {
+      1: {
+        title: '### 1. LICHTFUNKE',
+        prompt: 'Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage der Bibelstelle in klaren, vollständigen und liebevollen Worten zusammenfasst.'
+      },
+      2: {
+        title: '### 2. KLARBLICK',
+        prompt: `Die Bibelstelle wird in ihrer vollen Erzählung und Tiefe glasklar aufgeschlüsselt, exakt abgestimmt auf den Denkstil des Nutzers (${profile.mindset}):\n- Was passiert in der Geschichte / in diesem Bibeltext konkret?\n- Wo liegt der menschliche Irrtum oder die Warnung des Textes?\n- Was ist die befreiende Kernaussage und die logische Wirkungsweise des Reiches Gottes?\nAlle Sätze müssen vollständig und zusammenhängend ausformuliert sein, sodass die Botschaft unmittelbar einleuchtet.`
+      },
+      3: {
+        title: '### 3. TAGWERK',
+        prompt: `Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${fullProfession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten, praktischen Handlungsweise für den Werktag.`
+      },
+      4: {
+        title: '### 4. FREIRAUM',
+        prompt: 'Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, mental komplett abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?'
+      },
+      5: {
+        title: '### 5. STANDPUNKT',
+        prompt: `Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben, das Alleinsein oder das Zusammenleben und den Umgang mit Mitmenschen aus?`
+      },
+      6: {
+        title: '### 6. SPIEGEL',
+        prompt: 'Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, tiefgehende Fragen in ganzen Sätzen, die der Nutzer im Stillen für sich selbst reflektieren kann.'
+      },
+      7: {
+        title: '### 7. LEUCHTKRAFT',
+        prompt: 'Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet in vollständigen Sätzen, das alle vorherigen Punkte aufgreift.'
+      }
+    };
+
+    let prompt = '';
+    let maxTokens = 2500;
+
+    if (selectedPosten) {
+      maxTokens = 650;
+      prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
+
+BIBELTEXT:
+${passage}
+
+NUTZER-DATEN:
+- Beruf / Tätigkeitsfeld: ${fullProfession}
+- Denkstil: ${profile.mindset}
+- Lebenssituation: ${profile.relationshipStatus}
+- Weg mit Jesus: ${journey}
+- Heutige Tagesverfassung: ${currentMood}
+
+LEITLINIEN:
+- KEINE abgehackten Sätze. Vollständige, berührende, grammatikalisch geschlossene Sätze.
+- 100% Bezug zum Bibeltext.
+- Kein Meta-Talk (nicht sagen "Weil du...").
+
+AUFGABE:
+Generiere AUSSCHLIESSLICH den folgenden Baustein:
+${sectionDescriptions[selectedPosten].title}
+${sectionDescriptions[selectedPosten].prompt}
+
+FORMAT:
+${sectionDescriptions[selectedPosten].title}
+[Dein Text hier in vollständigen Sätzen]`;
+    } else {
+      prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
 BIBELTEXT:
 ${passage}
@@ -57,29 +122,25 @@ LEITLINIEN FÜR DEINE AUSLEGUNG:
 INHALTLICHE LOGIK DER 7 POSTEN:
 
 ### 1. LICHTFUNKE
-Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage der Bibelstelle in klaren, vollständigen und liebevollen Worten zusammenfasst.
+${sectionDescriptions[1].prompt}
 
 ### 2. KLARBLICK
-Die Bibelstelle wird in ihrer vollen Erzählung und Tiefe glasklar aufgeschlüsselt, exakt abgestimmt auf den Denkstil des Nutzers (${profile.mindset}):
-- Was passiert in der Geschichte / in diesem Bibeltext konkret?
-- Wo liegt der menschliche Irrtum oder die Warnung des Textes?
-- Was ist die befreiende Kernaussage und die logische Wirkungsweise des Reiches Gottes?
-Alle Sätze müssen vollständig und zusammenhängend ausformuliert sein, sodass die Botschaft unmittelbar einleuchtet.
+${sectionDescriptions[2].prompt}
 
 ### 3. TAGWERK
-Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${profile.profession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten, praktischen Handlungsweise für den Werktag.
+${sectionDescriptions[3].prompt}
 
 ### 4. FREIRAUM
-Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, mental komplett abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?
+${sectionDescriptions[4].prompt}
 
 ### 5. STANDPUNKT
-Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben, das Alleinsein oder das Zusammenleben und den Umgang mit Mitmenschen aus?
+${sectionDescriptions[5].prompt}
 
 ### 6. SPIEGEL
-Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, tiefgehende Fragen in ganzen Sätzen, die der Nutzer im Stillen für sich selbst reflektieren kann.
+${sectionDescriptions[6].prompt}
 
 ### 7. LEUCHTKRAFT
-Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet in vollständigen Sätzen, das alle vorherigen Punkte aufgreift.
+${sectionDescriptions[7].prompt}
 
 AUSGABE-FORMAT:
 Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolgen:
@@ -90,6 +151,7 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 5. STANDPUNKT
 ### 6. SPIEGEL
 ### 7. LEUCHTKRAFT`;
+    }
 
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
     // Schnelle dynamische Erkennung der verfügbaren Modelle, um Timeouts durch ungültige IDs zu verhindern
@@ -141,7 +203,7 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
           signal: AbortSignal.timeout(timeoutMs),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2500 },
+            generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
           }),
         });
 
@@ -149,7 +211,7 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
           const data = await response.json();
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
-            return res.status(200).json({ text, source: 'gemini', model });
+            return res.status(200).json({ text, source: 'gemini', model, posten: selectedPosten });
           }
         } else {
           lastError = await response.text();
