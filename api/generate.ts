@@ -155,25 +155,23 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
     }
 
-    // Modell-Kaskade: Exakt auf den aktiven Google Gemini Key abgestimmt
-    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash, gemini-3.5-flash-lite (hohe Quotenverfügbarkeit)
+    // Modell-Kaskade: Sofort auf stabile, schnelle Standardmodelle gemäß Architekten-Auftrag
     const candidateModels = [
-      'gemini-3.8-flash',
-      'gemini-3.7-flash',
-      'gemini-3.5-flash-lite',
-      'gemini-3.1-flash-lite'
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
+      'gemini-2.0-flash'
     ];
 
     const modelErrors: Record<string, string> = {};
 
-    // Probiere die verfügbaren Endpunkte durch (4.2s Timeout pro Call, damit bis zu 2 Versuche ins 10s Vercel-Budget passen)
+    // 8.5 Sekunden Timeout für echte Exegese innerhalb des Vercel 10s Budgets
     for (const model of candidateModels) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(4200),
+          signal: AbortSignal.timeout(8500),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },

@@ -179,6 +179,18 @@ ${report.leuchtkraft || report.heartGarden}
             <span className="px-2 py-0.5 rounded-lg bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] text-[11px] font-medium">
               {report.mood}
             </span>
+            {report.isFallback ? (
+              <span 
+                className="px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-medium"
+                title={`Fallback-Grund: ${report.fallbackReason || 'Cloud nicht erreichbar'}`}
+              >
+                ⚡ Lokale Exegese (Offline-Schutz)
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-medium">
+                ✨ Gemini Cloud KI
+              </span>
+            )}
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">

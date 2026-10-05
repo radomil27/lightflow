@@ -39,6 +39,9 @@ export interface LightflowReport {
 
   favorite?: boolean;
   notes?: string;
+  isFallback?: boolean;
+  source?: 'gemini' | 'local_fallback';
+  fallbackReason?: string;
 }
 
 export interface AppSettings {

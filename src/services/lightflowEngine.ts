@@ -248,7 +248,30 @@ export function generateLocalReport(
     return rep;
   }
 
-  // 3. Universeller, dynamisch interpolierter Ausleger für jeden gewählten Bibeltext
+  // 3. Spezieller Deep-Report für Johannes 15:1-8 (Der wahre Weinstock, die Reben & das Fruchtbringen)
+  if (lowerPassage.includes('johannes 15') || lowerPassage.includes('joh 15') || lowerPassage.includes('weinstock') || lowerPassage.includes('reben')) {
+    const profLabel = profile.professionDetail || profile.profession;
+    return {
+      id: 'lf_' + Date.now(),
+      passage: passage.trim() || 'Johannes 15:1-8 (Der Weinstock und die Reben)',
+      timestamp: Date.now(),
+      profileSnapshot: { ...profile },
+      mood,
+      isFallback: true,
+      source: 'local_fallback',
+      fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
+      lichtfunke: 'Du musst das Leben nicht aus dir selbst herauspressen. Bleib einfach mit mir verbunden. Eine Rebe strengt sich nicht an, um Trauben hervorzubringen – sie lässt sich einfach vom Weinstock mit Saft und Kraft versorgen.',
+      klarblick: 'Jesus bedient sich des antiken Weinbaus, um die Quelle aller geistlichen Wirksamkeit aufzudecken: Er selbst ist der Weinstock, der Vater ist der Weingärtner, und wir sind die Reben. Der fundamentale Irrtum des Menschen besteht darin zu glauben, dass man Frucht durch bloße Willensanstrengung, Aktionismus und moralische Zucht erzwingen könnte. Doch eine abgeschnittene Rebe vertrocknet unweigerlich. Das hebräische Verständnis ist glasklar: Das Fruchtbringen ist kein Verdienst der Rebe, sondern das natürliche, organische Resultat des Angeschlossenseins an den Saftstrom des Weinstocks. Auch das schmerzhafte Beschneiden dient keinem Urteil, sondern reinigt die fruchttragenden Triebe von totem Ballast, damit noch reichere Frucht nachwachsen kann.',
+      tagwerk: `Im fordernden Arbeitsalltag als ${profLabel} verleitet der Termindruck dazu, alles aus eigener Willenskraft und Muskelanspannung stemmen zu wollen. Wer sich verausgabt, ohne an die Kraftquelle angeschlossen zu bleiben, brennt innerlich aus und reagiert gereizt.\n\nKonkrete Handlung für deinen Werktag: Wenn heute auf der Baustelle oder im Betrieb Hektik aufkommt, halte für drei bewusste Atemzüge inne. Erinnere dich daran: Du bist die Rebe, nicht der Weinstock. Lass die Verantwortung für das Gelingen los und verrichte deinen nächsten Handgriff in der inneren Ruhe, dass Gott deine Kraftquelle ist.`,
+      freiraum: `Wenn das Tagwerk getan ist, darf die Rebe einfach am Stock ruhen. Frucht wächst in der Stille der Nacht, nicht durch nächtliches Grübeln oder krampfhafte Selbstoptimierung. Leg das Werkzeug und alle ungelösten Baustellen zur Ruhe. Feierabend bedeutet: Angeschlossen sein und die Lebenskraft fließen lassen.`,
+      standpunkt: `In deinem persönlichen Lebensbereich (${profile.relationshipStatus}) befreit dich das Weinstock-Prinzip von der ständigen Sorge, den Erwartungen anderer hinterherlaufen zu müssen. Wahre Liebe und Geduld im Miteinander entstehen nicht aus verkrampfter Selbstdisziplin, sondern fließen ganz von selbst aus einem Herzen über, das bei Gott Heimat gefunden hat.`,
+      spiegel: `Reife zeigt sich darin, dass wir aufhören, uns und andere nach sichtbarem Ertrag zu beurteilen, sondern stattdessen auf die Wurzelverbindung achten.\n\nFragen für die Stille:\n1. An welchen Stellen versuche ich noch krampfhaft, Frucht mit eigener Muskelkraft zu erzwingen?\n2. Wo tut mir Gottes heilsamer Rebschnitt vielleicht gerade weh, um mich von totem Ballast zu befreien?\n3. Was hilft mir heute Abend ganz praktisch dabei, einfach in seiner Gegenwart zu bleiben?`,
+      leuchtkraft: `Im Garten deines Herzens pulsiert der Lebenssaft der Gnade. Kein Lärm, kein Druck, kein Müssen. Du bist ein Teil des lebendigen Weinstocks.\n\nHerzensgebet:\n„Herr Jesus, danke, dass du der Weinstock bist und ich die Rebe sein darf. Vergib mir, wo ich mich von dir abgeschnitten habe und aus eigener Kraft wirken wollte. Ich atme deine Ruhe ein und lasse alle Anspannung los. Reinige meine Gedanken von totem Ballast und schenke mir die Freiheit, einfach in deiner Liebe zu bleiben. Amen.“`,
+      favorite: false,
+    };
+  }
+
+  // 4. Universeller, dynamisch interpolierter Ausleger ohne Meta-Talk
   const profName = profile.professionDetail || profile.profession;
   return {
     id: 'lf_' + Date.now(),
@@ -256,8 +279,11 @@ export function generateLocalReport(
     timestamp: Date.now(),
     profileSnapshot: { ...profile },
     mood,
+    isFallback: true,
+    source: 'local_fallback',
+    fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
     lichtfunke: `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`,
-    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag. Aus der Perspektive deines Denkstils (${profile.mindset}) wird deutlich: Wer die innere Ordnung versteht, lässt sich von äußerem Lärm nicht beirren.`,
+    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag. Wer diese göttliche Ordnung verinnerlicht, lässt sich von äußerem Lärm und Hektik nicht beirren.`,
     tagwerk: `In der konkreten Praxis als ${profName} entscheidet die richtige Ausrichtung: Ist das Fundament schief, verzieht sich das ganze Werk. Wenn der Zeitdruck zunimmt, bewahre einen klaren Kopf.\n\nKonkrete Handlung für deinen Werktag: Halte heute mitten in der Hektik für 30 Sekunden inne, atme durch und richte deine Aufmerksamkeit neu aus, bevor du die nächste Aufgabe anpackst.`,
     freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht. Feierabend ist gelebte Gnade.`,
     standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld (${profile.relationshipStatus}) festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert und darfst ganz du selbst sein.`,
@@ -319,7 +345,9 @@ export async function generateLightflowReport(
   mood: string,
   settings?: AppSettings
 ): Promise<LightflowReport> {
-  // 1. Automatische Serverless API-Abfrage (Google Gemini 3.8 / 3.7)
+  let lastErrorDetail = '';
+
+  // 1. Automatische Serverless API-Abfrage (Google Gemini)
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -330,11 +358,22 @@ export async function generateLightflowReport(
     if (response.ok) {
       const data = await response.json();
       if (data.text) {
-        return parseReportSections(data.text, passage, profile, mood);
+        const parsed = parseReportSections(data.text, passage, profile, mood);
+        parsed.isFallback = false;
+        parsed.source = 'gemini';
+        return parsed;
       }
+      if (data.useFallback) {
+        lastErrorDetail = JSON.stringify(data.errors || data.error || 'Serverless returned useFallback');
+        console.warn('⚠️ [lightflowEngine] Serverless Gemini lieferte keinen Text:', lastErrorDetail);
+      }
+    } else {
+      lastErrorDetail = `HTTP ${response.status}: ${await response.text()}`;
+      console.warn('⚠️ [lightflowEngine] Serverless API HTTP-Fehler:', lastErrorDetail);
     }
-  } catch (e) {
-    console.warn('API-Aufruf Fehler:', e);
+  } catch (e: any) {
+    lastErrorDetail = e.message || 'Network/Fetch error';
+    console.warn('⚠️ [lightflowEngine] API-Aufruf Netzwerk-Fehler:', e);
   }
 
   // 2. Client-Key Fallback (falls der Besitzer manuell einen eingetragen hat)
@@ -344,13 +383,21 @@ export async function generateLightflowReport(
       const prompt = buildSystemPrompt(profile, passage, mood);
       const rawResponse = await callGeminiApi(prompt, customApiKey);
       if (rawResponse) {
-        return parseReportSections(rawResponse, passage, profile, mood);
+        const parsed = parseReportSections(rawResponse, passage, profile, mood);
+        parsed.isFallback = false;
+        parsed.source = 'gemini';
+        return parsed;
       }
-    } catch (error) {
-      console.warn('Manueller API Call fehlgeschlagen:', error);
+    } catch (error: any) {
+      console.warn('⚠️ [lightflowEngine] Manueller API Call fehlgeschlagen:', error);
     }
   }
 
   // 3. Fallback nur für den unwahrscheinlichen Fall kompletter Offline-Trennung
-  return generateLocalReport(passage, profile, mood);
+  console.warn(`⚠️ GEMINI API FAILED: Returning static heuristic fallback. Detail: ${lastErrorDetail}`);
+  const fallbackReport = generateLocalReport(passage, profile, mood);
+  fallbackReport.isFallback = true;
+  fallbackReport.source = 'local_fallback';
+  fallbackReport.fallbackReason = lastErrorDetail || 'Keine Verbindung zur Cloud-KI möglich';
+  return fallbackReport;
 }
