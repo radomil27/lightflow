@@ -72,37 +72,10 @@ export default async function handler(req: any, res: any) {
     };
 
     let prompt = '';
-    let maxTokens = 1600;
+    let maxTokens = 2600;
 
     if (selectedPosten) {
-      maxTokens = 500;
-      prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
-
-BIBELTEXT:
-${passage}
-
-NUTZER-DATEN:
-- Beruf / Tätigkeitsfeld: ${fullProfession}
-- Denkstil: ${profile.mindset}
-- Lebenssituation: ${profile.relationshipStatus}
-- Weg mit Jesus: ${journey}
-- Heutige Tagesverfassung: ${currentMood}
-
-LEITLINIEN:
-- KEINE abgehackten Sätze. Vollständige, berührende, grammatikalisch geschlossene Sätze.
-- 100% Bezug zum Bibeltext.
-- Kein Meta-Talk (nicht sagen "Weil du...").
-
-AUFGABE:
-Generiere AUSSCHLIESSLICH den folgenden Baustein:
-${sectionDescriptions[selectedPosten].title}
-${sectionDescriptions[selectedPosten].prompt}
-
-FORMAT:
-${sectionDescriptions[selectedPosten].title}
-[Dein Text hier in vollständigen Sätzen]`;
-    } else {
-      maxTokens = 1600;
+      maxTokens = 600;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
 BIBELTEXT:
@@ -115,23 +88,44 @@ NUTZER-DATEN:
 - Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
 
-LEITLINIEN:
-1. Formuliere prägnant in vollständigen, grammatikalisch geschlossenen Sätzen.
-2. 100% BEZUG ZUM BIBELTEXT: Erkläre die Erzählung und Kernaussage glasklar.
-3. PRAXISNAH: Nutze die konkrete Arbeitswelt des Nutzers (${fullProfession}) als lebendige Metapher.
-4. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit oder welches Mindset er hat. Nutze sein Profil als unsichtbaren Maßanzug.
-5. AUTHENTISCH: Keine religiösen Floskeln, kein Leistungsdruck.
+WICHTIGE LEITLINIEN:
+- Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}).
+- KEINE ABBRÜCHE: Formuliere jeden Gedanken zu Ende. Jeder Satz MUSS mit einem Satzzeichen (. ! ?) abschließen.
+- Verfasse für diesen Baustein 2 bis maximal 4 vollständige, tiefgründige und grammatikalisch geschlossene Sätze.
+- Kein Meta-Talk (nicht sagen "Weil du...").
+
+AUFGABE:
+Generiere AUSSCHLIESSLICH den folgenden Baustein:
+${sectionDescriptions[selectedPosten].title}
+${sectionDescriptions[selectedPosten].prompt}
+
+FORMAT:
+${sectionDescriptions[selectedPosten].title}
+[Dein Text hier in vollständigen, abgeschlossenen Sätzen]`;
+    } else {
+      maxTokens = 2600;
+      prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
+
+BIBELTEXT:
+${passage}
+
+NUTZER-DATEN (UNSICHTBARER MASSANZUG):
+- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
+- Denkstil / Stärken: ${profile.mindset}
+- Lebenssituation: ${profile.relationshipStatus}
+- Weg mit Jesus: ${journey}
+- Heutige Tagesverfassung: ${currentMood}
+
+STRIKTE LEITLINIEN:
+1. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in 2 bis maximal 4 vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
+2. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern (z. B. bei Handwerk/Küchenbau: Passleisten, schiefe Wände, Werkbank, Wasserwaage; nicht Software/Laptop!).
+3. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
+4. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
+5. AUTHENTISCH & GNADENVOLL: Keine religiösen Phrasen, kein Leistungsdruck.
 
 AUSGABE-FORMAT:
-### 1. LICHTFUNKE
-### 2. KLARBLICK
-### 3. TAGWERK
-### 4. FREIRAUM
-### 5. STANDPUNKT
-### 6. SPIEGEL
-### 7. LEUCHTKRAFT
+Die Ausgabe MUSS exakt in diesen 7 Abschnitten mit diesen Überschriften erfolgen und jeden Posten vollständig beenden:
 
-INHALTE:
 ### 1. LICHTFUNKE
 ${sectionDescriptions[1].prompt}
 
@@ -154,7 +148,7 @@ ${sectionDescriptions[6].prompt}
 ${sectionDescriptions[7].prompt}`;
     }
 
-    // Modell-Kaskade: gemini-3.5-flash-lite hat freie Quoten und liefert bei 1600 Tokens in ca. 3-4s
+    // Modell-Kaskade: gemini-3.5-flash-lite antwortet mit 2600 Tokens extrem zügig (in ca. 3s)
     const candidateModels = [
       'gemini-3.5-flash-lite',
       'gemini-flash-latest',

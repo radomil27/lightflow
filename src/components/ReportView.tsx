@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LightflowReport } from '../types';
+import { useSpeechPlayer } from '../hooks/useSpeechPlayer';
 import {
   Sparkles,
   Wrench,
@@ -11,11 +12,11 @@ import {
   Copy,
   Check,
   Volume2,
-  VolumeX,
   FileText,
   Briefcase,
   ChevronDown,
   ChevronUp,
+  Square,
 } from 'lucide-react';
 
 interface ReportViewProps {
@@ -31,13 +32,31 @@ export const ReportView: React.FC<ReportViewProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
+
+  // Robuster Speech-Player mit Satz-Chunking und Per-Posten-Unterstützung
+  const {
+    isPlaying,
+    currentPlayingStep,
+    playSection,
+    playFullReport,
+    stopSpeech,
+    isSupported: isSpeechSupported,
+  } = useSpeechPlayer();
 
   // Accordion-State: Speichert welche Posten aufgeklappt sind (1-basiert: 1 bis 7)
   const [openSections, setOpenSections] = useState<number[]>([1]);
   const activeReportIdRef = React.useRef<string | null>(null);
+
+  // Wenn ein Posten vorgelesen wird, klappe ihn automatisch auf
+  React.useEffect(() => {
+    if (currentPlayingStep !== null) {
+      setOpenSections((prev) =>
+        prev.includes(currentPlayingStep) ? prev : [...prev, currentPlayingStep]
+      );
+    }
+  }, [currentPlayingStep]);
 
   React.useEffect(() => {
     // Wenn derselbe Report bereits entfaltet wird, die Animation nicht durch Re-Render zurücksetzen
@@ -76,8 +95,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
     return () => {
       clearInterval(interval);
       clearTimeout(safeguardTimer);
+      stopSpeech();
     };
-  }, [report.id]);
+  }, [report.id, stopSpeech]);
 
   const toggleSection = (stepNum: number) => {
     setOpenSections((prev) =>
@@ -128,32 +148,6 @@ ${report.leuchtkraft || report.heartGarden}
     });
   };
 
-  // Vorlese-Funktion via Web Speech API
-  const handleToggleSpeech = () => {
-    if (!('speechSynthesis' in window)) {
-      alert('Sprachausgabe wird von diesem Browser leider nicht unterstützt.');
-      return;
-    }
-
-    if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
-      setIsPlayingAudio(false);
-    } else {
-      window.speechSynthesis.cancel();
-      const textToRead = `Lichtfunke: ${report.lichtfunke || report.coreConduit}. Klarblick: ${report.klarblick || report.systemDecoded}. Tagwerk: ${report.tagwerk || report.workBench}. Freiraum: ${report.freiraum || report.dailyFreedom}. Standpunkt: ${report.standpunkt}. Spiegel: ${report.spiegel}. Leuchtkraft: ${report.leuchtkraft || report.heartGarden}`;
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.lang = 'de-DE';
-      utterance.rate = 0.92;
-      utterance.pitch = 0.95;
-
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
-
-      window.speechSynthesis.speak(utterance);
-      setIsPlayingAudio(true);
-    }
-  };
-
   return (
     <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-in fade-in duration-500">
       
@@ -200,18 +194,37 @@ ${report.leuchtkraft || report.heartGarden}
 
         {/* Aktionsleiste (Audio, Favorit, Kopieren, Notiz) */}
         <div className="flex items-center space-x-2 shrink-0">
-          <button
-            onClick={handleToggleSpeech}
-            className={`p-2.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              isPlayingAudio
-                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md animate-pulse'
-                : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:border-[#E09F3E]/60'
-            }`}
-            title={isPlayingAudio ? 'Vorlesen anhalten' : 'Report sanft vorlesen lassen'}
-          >
-            {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#E09F3E]" />}
-            <span className="hidden md:inline">{isPlayingAudio ? 'Stopp' : 'Anhören'}</span>
-          </button>
+          {isSpeechSupported && (
+            <button
+              onClick={() => {
+                if (isPlaying) {
+                  stopSpeech();
+                } else {
+                  playFullReport(report);
+                }
+              }}
+              className={`p-2.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+                isPlaying
+                  ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/20 animate-pulse font-semibold'
+                  : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:border-[#E09F3E]/60'
+              }`}
+              title={isPlaying ? 'Vorlesen stoppen' : 'Gesamten Report flüssig vorlesen lassen'}
+            >
+              {isPlaying ? (
+                <>
+                  <Square className="w-4 h-4 fill-current" />
+                  <span className="hidden md:inline">
+                    {currentPlayingStep ? `Posten ${currentPlayingStep}...` : 'Stopp'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-[#E09F3E]" />
+                  <span className="hidden md:inline">Anhören</span>
+                </>
+              )}
+            </button>
+          )}
 
           <button
             onClick={() => onToggleFavorite(report.id)}
@@ -303,7 +316,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Sparkles className="w-4 h-4 text-[#E09F3E]" />
                 <span>1. LICHTFUNKE</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(1, '1. Lichtfunke', report.lichtfunke || report.coreConduit || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 1
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 1 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 1 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 1 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -356,7 +387,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Cpu className="w-4 h-4 text-[#E09F3E]" />
                 <span>2. KLARBLICK</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(2, '2. Klarblick', report.klarblick || report.systemDecoded || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 2
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 2 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 2 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 2 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -409,7 +458,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Wrench className="w-4 h-4 text-[#E09F3E]" />
                 <span>3. TAGWERK</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(3, '3. Tagwerk', report.tagwerk || report.workBench || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 3
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 3 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 3 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 3 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -462,7 +529,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Home className="w-4 h-4 text-[#E09F3E]" />
                 <span>4. FREIRAUM</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(4, '4. Freiraum', report.freiraum || report.dailyFreedom || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 4
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 4 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 4 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 4 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -515,7 +600,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Briefcase className="w-4 h-4 text-[#E09F3E]" />
                 <span>5. STANDPUNKT</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(5, '5. Standpunkt', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 5
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 5 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 5 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 5 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -568,7 +671,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Sprout className="w-4 h-4 text-[#E09F3E]" />
                 <span>6. SPIEGEL</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(6, '6. Spiegel', report.spiegel || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 6
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 6 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                  >
+                    {currentPlayingStep === 6 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 6 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -623,7 +744,25 @@ ${report.leuchtkraft || report.heartGarden}
                 <Wind className="w-4 h-4 text-[#E09F3E]" />
                 <span>7. LEUCHTKRAFT</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSection(7, '7. Leuchtkraft, Herzensgebet', report.leuchtkraft || report.heartGarden || '');
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
+                      currentPlayingStep === 7
+                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
+                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
+                    }`}
+                    title={currentPlayingStep === 7 ? 'Vorlesen anhalten' : 'Dieses Gebet vorlesen'}
+                  >
+                    {currentPlayingStep === 7 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 7 ? 'Stopp' : 'Audio'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
