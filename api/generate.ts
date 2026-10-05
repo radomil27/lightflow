@@ -72,10 +72,10 @@ export default async function handler(req: any, res: any) {
     };
 
     let prompt = '';
-    let maxTokens = 2500;
+    let maxTokens = 1600;
 
     if (selectedPosten) {
-      maxTokens = 650;
+      maxTokens = 500;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
 BIBELTEXT:
@@ -102,6 +102,7 @@ FORMAT:
 ${sectionDescriptions[selectedPosten].title}
 [Dein Text hier in vollständigen Sätzen]`;
     } else {
+      maxTokens = 1600;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
 BIBELTEXT:
@@ -114,15 +115,23 @@ NUTZER-DATEN:
 - Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
 
-LEITLINIEN FÜR DEINE AUSLEGUNG:
-1. KEINE ABGEHACKTEN SÄTZE: Formuliere jeden einzelnen Gedanken in vollständigen, grammatikalisch geschlossenen, flüssigen und tiefgründigen Sätzen. Breche niemals mitten im Satz oder Gedanken ab.
-2. 100% BEZUG & VERSTÄNDNIS DES BIBELTEXTES: Erkläre den Text so, dass die Erzählung, der geschichtliche Ablauf, die konkrete Warnung, die Fehlschlüsse der Menschen und die befreiende Kernerkenntnis absolut verständlich und glasklar werden. Der Leser muss sofort verstehen, was die eigentliche Botschaft ist.
-3. PRAXISNAH & AUTHENTISCH: Nutze die konkrete Arbeitswelt des Nutzers (${fullProfession}), seine typischen Werkzeuge, Herausforderungen, Montage-Situationen oder Arbeitsabläufe als lebendige Metaphern, ohne ihm zu belehren, wer er ist.
-4. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit hat, welchen Beziehungsstatus oder welches Mindset er hat (z. B. nicht sagen "Weil du Handwerker bist..."). Nutze sein Profil als unsichtbaren Maßanzug.
-5. AUTHENTISCH & TIEF: Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
+LEITLINIEN:
+1. Formuliere prägnant in vollständigen, grammatikalisch geschlossenen Sätzen.
+2. 100% BEZUG ZUM BIBELTEXT: Erkläre die Erzählung und Kernaussage glasklar.
+3. PRAXISNAH: Nutze die konkrete Arbeitswelt des Nutzers (${fullProfession}) als lebendige Metapher.
+4. KEIN META-TALK: Erkläre NIEMALS, was der Nutzer für eine Arbeit oder welches Mindset er hat. Nutze sein Profil als unsichtbaren Maßanzug.
+5. AUTHENTISCH: Keine religiösen Floskeln, kein Leistungsdruck.
 
-INHALTLICHE LOGIK DER 7 POSTEN:
+AUSGABE-FORMAT:
+### 1. LICHTFUNKE
+### 2. KLARBLICK
+### 3. TAGWERK
+### 4. FREIRAUM
+### 5. STANDPUNKT
+### 6. SPIEGEL
+### 7. LEUCHTKRAFT
 
+INHALTE:
 ### 1. LICHTFUNKE
 ${sectionDescriptions[1].prompt}
 
@@ -142,38 +151,26 @@ ${sectionDescriptions[5].prompt}
 ${sectionDescriptions[6].prompt}
 
 ### 7. LEUCHTKRAFT
-${sectionDescriptions[7].prompt}
-
-AUSGABE-FORMAT:
-Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolgen:
-### 1. LICHTFUNKE
-### 2. KLARBLICK
-### 3. TAGWERK
-### 4. FREIRAUM
-### 5. STANDPUNKT
-### 6. SPIEGEL
-### 7. LEUCHTKRAFT`;
+${sectionDescriptions[7].prompt}`;
     }
 
-    // Modell-Kaskade: Exakt auf die aktiven Google API Modelle abgestimmt
-    // 'gemini-flash-latest' zeigt immer auf das aktuelle, aktive Flash-Modell
+    // Modell-Kaskade: gemini-3.5-flash-lite hat freie Quoten und liefert bei 1600 Tokens in ca. 3-4s
     const candidateModels = [
-      'gemini-flash-latest',
       'gemini-3.5-flash-lite',
-      'gemini-3.5-flash',
+      'gemini-flash-latest',
       'gemini-3.8-flash'
     ];
 
     const modelErrors: Record<string, string> = {};
 
-    // 7.0 Sekunden Timeout für echte Exegese innerhalb des Vercel 10s Budgets
+    // 8.2 Sekunden Timeout (reicht für 1600 Tokens von flash-lite, bleibt im Vercel 10s Limit)
     for (const model of candidateModels) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(7000),
+          signal: AbortSignal.timeout(8200),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
