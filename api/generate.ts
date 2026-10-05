@@ -155,13 +155,13 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
     }
 
-    // Modell-Kaskade für maximale Stabilität und Performance:
-    // Google API empfiehlt gemini-3.5-flash-lite und gemini-2.5-flash
+    // Modell-Kaskade: Exakt auf den aktiven Google Gemini Key abgestimmt
+    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash und schnellen Fallbacks
     const candidateModels = [
-      'gemini-3.5-flash-lite',
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash'
+      'gemini-3.8-flash',
+      'gemini-3.7-flash',
+      'gemini-3.5-flash',
+      'gemini-2.5-flash'
     ];
 
     let lastError = '';
