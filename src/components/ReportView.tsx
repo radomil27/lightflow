@@ -33,28 +33,48 @@ export const ReportView: React.FC<ReportViewProps> = ({
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
 
-  // Schrittweise Enthüllung der 7 Posten (Posten 1 erscheint zuerst, 2-7 laden nach)
-  const [unlockedStep, setUnlockedStep] = useState<number>(() => {
-    const isRecent = Date.now() - report.timestamp < 10000;
-    return isRecent ? 1 : 7;
-  });
+  // Schrittweise Enthüllung der 7 Posten (Posten 1 erscheint sofort, 2-7 enthüllen sich flüssig)
+  const [unlockedStep, setUnlockedStep] = useState<number>(1);
+  const activeReportIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    const isRecent = Date.now() - report.timestamp < 10000;
-    if (isRecent) {
-      setUnlockedStep(1);
-      const timers: NodeJS.Timeout[] = [];
-      for (let step = 2; step <= 7; step++) {
-        const t = setTimeout(() => {
-          setUnlockedStep((prev) => Math.max(prev, step));
-        }, (step - 1) * 850);
-        timers.push(t);
-      }
-      return () => timers.forEach(clearTimeout);
-    } else {
-      setUnlockedStep(7);
+    // Wenn derselbe Report bereits entriegelt wird, die laufende Animation nicht durch Re-Render abbrechen
+    if (activeReportIdRef.current === report.id) {
+      return;
     }
-  }, [report.id, report.timestamp]);
+    activeReportIdRef.current = report.id;
+
+    // Ältere Reports aus dem Archiv sofort komplett aufdecken
+    const isRecent = Date.now() - report.timestamp < 60000;
+    if (!isRecent) {
+      setUnlockedStep(7);
+      return;
+    }
+
+    // Bei neu generiertem Report: Start bei 1, dann schrittweises Entriegeln im 500ms-Takt
+    setUnlockedStep(1);
+
+    const interval = setInterval(() => {
+      setUnlockedStep((prev) => {
+        if (prev >= 7) {
+          clearInterval(interval);
+          return 7;
+        }
+        return prev + 1;
+      });
+    }, 550);
+
+    // Absoluter Sicherheits-Fallback: Nach spätestens 4 Sekunden sind garantiert alle 7 Posten offen
+    const safeguardTimer = setTimeout(() => {
+      setUnlockedStep(7);
+      clearInterval(interval);
+    }, 4000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(safeguardTimer);
+    };
+  }, [report.id]);
 
   const handleCopySection = (stepNum: number, title: string, text: string) => {
     const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle`;
@@ -301,10 +321,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
                 <Cpu className="w-4 h-4 text-stone-400" />
-                <span>2. KLARBLICK wird aufbereitet...</span>
+                <span>2. KLARBLICK wird aufbereitet... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
               <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
@@ -342,10 +366,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
                 <Wrench className="w-4 h-4 text-stone-400" />
-                <span>3. TAGWERK lädt nach...</span>
+                <span>3. TAGWERK lädt nach... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
               <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-2/3"></div>
@@ -383,10 +411,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
                 <Home className="w-4 h-4 text-stone-400" />
-                <span>4. FREIRAUM lädt nach...</span>
+                <span>4. FREIRAUM lädt nach... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-4/5 mb-2"></div>
               <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
@@ -424,10 +456,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
                 <Briefcase className="w-4 h-4 text-stone-400" />
-                <span>5. STANDPUNKT lädt nach...</span>
+                <span>5. STANDPUNKT lädt nach... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
               <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/3"></div>
@@ -465,10 +501,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse cursor-pointer hover:bg-stone-200/40 dark:hover:bg-slate-800/40 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
                 <Sprout className="w-4 h-4 text-stone-400" />
-                <span>6. SPIEGEL lädt nach...</span>
+                <span>6. SPIEGEL lädt nach... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
               <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
@@ -513,10 +553,14 @@ ${report.leuchtkraft || report.heartGarden}
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl p-6 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 animate-pulse">
+            <div 
+              onClick={() => setUnlockedStep(7)}
+              className="rounded-3xl p-6 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 animate-pulse cursor-pointer hover:bg-amber-500/10 transition-colors"
+              title="Klicken, um sofort aufzudecken"
+            >
               <div className="flex items-center space-x-2 text-xs font-medium text-amber-600/70 dark:text-amber-400/70 mb-3">
                 <Wind className="w-4 h-4 text-amber-500" />
-                <span>7. LEUCHTKRAFT (Herzensgebet) wird vollendet...</span>
+                <span>7. LEUCHTKRAFT (Herzensgebet) wird vollendet... (klicken zum Aufdecken)</span>
               </div>
               <div className="h-5 bg-amber-200/40 dark:bg-amber-900/30 rounded-md w-full mb-2"></div>
               <div className="h-5 bg-amber-200/30 dark:bg-amber-900/20 rounded-md w-2/3"></div>
