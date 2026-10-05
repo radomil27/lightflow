@@ -157,7 +157,9 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     // Schnelle dynamische Erkennung der verfügbaren Modelle, um Timeouts durch ungültige IDs zu verhindern
     let activeModels: string[] = [];
     try {
-      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
+        signal: AbortSignal.timeout(2000)
+      });
       if (listResp.ok) {
         const listData = await listResp.json();
         activeModels = (listData.models || [])
@@ -191,11 +193,11 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     ]).slice(0, 3);
 
     let lastError = '';
-    // Probiere der Reihe nach die besten Modelle durch (schneller 1.5s Check für 3.8/3.7, stabiler 7.5s Lauf für Arbeitsmodelle)
+    // Probiere der Reihe nach die besten Modelle durch (schneller 1.5s Check für 3.8/3.7, 25s Lauf für Arbeitsmodelle)
     for (const model of queue) {
       try {
         const isFutureModel = model.includes('3.8') || model.includes('3.7');
-        const timeoutMs = isFutureModel ? 1500 : 7500;
+        const timeoutMs = isFutureModel ? 1500 : 25000;
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
