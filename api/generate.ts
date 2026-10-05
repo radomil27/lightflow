@@ -154,15 +154,18 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     }
 
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
-    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, 2.0, 1.5) zur 100% Fehlerfreiheit
+    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, flash-latest, 1.5) zur 100% Fehlerfreiheit
     const candidateModels = [
       'gemini-3.8-flash',
       'gemini-3.8',
       'gemini-3.7-flash',
       'gemini-3.7',
       'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash'
+      'gemini-2.5-flash-lite',
+      'gemini-flash-latest',
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash-001',
+      'gemini-1.5-pro-latest'
     ];
 
     let lastError = '';
