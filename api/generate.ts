@@ -92,22 +92,45 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
 
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
-    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks zur Garantie, dass NIEMALS ein Fehler geworfen wird
-    const candidateModels = [
+    // Schnelle dynamische Erkennung der verfügbaren Modelle, um Timeouts durch ungültige IDs zu verhindern
+    let activeModels: string[] = [];
+    try {
+      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listResp.ok) {
+        const listData = await listResp.json();
+        activeModels = (listData.models || [])
+          .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+          .map((m: any) => m.name.replace('models/', ''));
+      }
+    } catch (_) {}
+
+    // Sortierung nach Kunden-Vorgabe:
+    // 1. Gemini 3.8
+    // 2. Gemini 3.7
+    // 3. Sichere Fallbacks (2.5, 2.0, 1.5) zur 100% Fehlerfreiheit
+    const score = (m: string) => {
+      if (m.includes('3.8')) return 100;
+      if (m.includes('3.7')) return 90;
+      if (m.includes('2.5')) return 80;
+      if (m.includes('2.0-flash')) return 70;
+      if (m.includes('2.0')) return 65;
+      if (m.includes('1.5-flash')) return 60;
+      if (m.includes('1.5-pro')) return 55;
+      return 10;
+    };
+
+    activeModels.sort((a, b) => score(b) - score(a));
+
+    const queue = activeModels.length > 0 ? activeModels : [
       'gemini-3.8-flash',
-      'gemini-3.8',
       'gemini-3.7-flash',
-      'gemini-3.7',
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
       'gemini-2.0-flash',
-      'gemini-2.0-flash-lite',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
+      'gemini-1.5-flash'
     ];
 
     let lastError = '';
-    for (const model of candidateModels) {
+    // Probiere der Reihe nach die besten Modelle durch
+    for (const model of queue) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
@@ -132,52 +155,6 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
         lastError = err.message;
       }
     }
-
-    // Falls die vordefinierten Modell-IDs fehlschlagen, dynamisch alle für diesen Key freigeschalteten Modelle abrufen
-    try {
-      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      if (listResp.ok) {
-        const listData = await listResp.json();
-        const contentModels: string[] = (listData.models || [])
-          .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
-          .map((m: any) => m.name.replace('models/', ''));
-
-        // Sortierung nach Priorität: 3.8 -> 3.7 -> 2.5 -> 2.0 -> 1.5 -> flash
-        const sortedModels = contentModels.sort((a, b) => {
-          const score = (m: string) => {
-            if (m.includes('3.8')) return 100;
-            if (m.includes('3.7')) return 90;
-            if (m.includes('2.5')) return 80;
-            if (m.includes('2.0')) return 70;
-            if (m.includes('1.5')) return 60;
-            if (m.includes('flash')) return 50;
-            return 10;
-          };
-          return score(b) - score(a);
-        });
-
-        for (const preferred of sortedModels) {
-          try {
-            const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${preferred}:generateContent?key=${apiKey}`;
-            const fallbackResp = await fetch(fallbackUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
-              }),
-            });
-            if (fallbackResp.ok) {
-              const fallbackData = await fallbackResp.json();
-              const text = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                return res.status(200).json({ text, source: 'gemini', model: preferred });
-              }
-            }
-          } catch (_) {}
-        }
-      }
-    } catch (_) {}
 
     return res.status(200).json({ useFallback: true, error: lastError });
   } catch (error: any) {
