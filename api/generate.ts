@@ -153,12 +153,6 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
     }
 
-    if (req.body.debug_models) {
-      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      const listData = await listResp.json();
-      return res.status(200).json(listData);
-    }
-
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
     // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, flash-latest, 1.5) zur 100% Fehlerfreiheit
     const candidateModels = [
@@ -169,19 +163,18 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
       'gemini-2.5-flash',
       'gemini-2.5-flash-lite',
       'gemini-flash-latest',
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash-001',
-      'gemini-1.5-pro-latest'
+      'gemini-1.5-flash-latest'
     ];
 
     let lastError = '';
-    // Probiere der Reihe nach die besten Modelle durch
+    // Probiere der Reihe nach die besten Modelle durch (sicherer 2s Timeout pro Call)
     for (const model of candidateModels) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(2000),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
