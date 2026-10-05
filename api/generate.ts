@@ -154,45 +154,20 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     }
 
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
-    // Schnelle dynamische Erkennung der verfügbaren Modelle, um Timeouts durch ungültige IDs zu verhindern
-    let activeModels: string[] = [];
-    try {
-      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      if (listResp.ok) {
-        const listData = await listResp.json();
-        activeModels = (listData.models || [])
-          .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
-          .map((m: any) => m.name.replace('models/', ''));
-      }
-    } catch (_) {}
-
-    // Sortierung nach Kunden-Vorgabe:
-    // 1. Gemini 3.8
-    // 2. Gemini 3.7
-    // 3. Sichere Fallbacks (2.5, 2.0, 1.5) zur 100% Fehlerfreiheit
-    const score = (m: string) => {
-      if (m.includes('3.8')) return 100;
-      if (m.includes('3.7')) return 90;
-      if (m.includes('2.5')) return 80;
-      if (m.includes('2.0-flash')) return 70;
-      if (m.includes('2.0')) return 65;
-      if (m.includes('1.5-flash')) return 60;
-      if (m.includes('1.5-pro')) return 55;
-      return 10;
-    };
-
-    activeModels.sort((a, b) => score(b) - score(a));
-
-    const queue = activeModels.length > 0 ? activeModels : [
+    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, 2.0, 1.5) zur 100% Fehlerfreiheit
+    const candidateModels = [
       'gemini-3.8-flash',
+      'gemini-3.8',
       'gemini-3.7-flash',
+      'gemini-3.7',
+      'gemini-2.5-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash'
     ];
 
     let lastError = '';
     // Probiere der Reihe nach die besten Modelle durch
-    for (const model of queue) {
+    for (const model of candidateModels) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
