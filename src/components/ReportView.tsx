@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Square,
+  Loader2,
 } from 'lucide-react';
 
 interface ReportViewProps {
@@ -59,50 +60,49 @@ export const ReportView: React.FC<ReportViewProps> = ({
   }, [currentPlayingStep]);
 
   React.useEffect(() => {
-    // Wenn derselbe Report bereits entfaltet wird, die Animation nicht durch Re-Render zurücksetzen
-    if (activeReportIdRef.current === report.id) {
-      return;
-    }
-    activeReportIdRef.current = report.id;
-
-    // Ältere Reports aus dem Archiv sofort komplett aufklappen
-    const isRecent = Date.now() - report.timestamp < 45000;
-    if (!isRecent) {
-      setOpenSections([1, 2, 3, 4, 5, 6, 7]);
-      return;
-    }
-
-    // Bei neu generiertem Report: Startet mit nur Posten 1 offen
-    setOpenSections([1]);
-
-    // Progressive Enthüllung: Nacheinander Posten 2 bis 7 im 450ms-Takt geschmeidig aufklappen
-    let currentStep = 1;
-    const interval = setInterval(() => {
-      currentStep += 1;
-      if (currentStep <= 7) {
-        setOpenSections((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+    // Bei neuem Report startet Posten 1 offen, Posten 2-7 bleiben geschlossen für ruhiges Lesen
+    if (activeReportIdRef.current !== report.id) {
+      activeReportIdRef.current = report.id;
+      // Ältere Reports aus dem Archiv (vor mehr als 1 Minute gespeichert) komplett aufgeklappt anzeigen
+      const isArchived = Date.now() - report.timestamp > 60000;
+      if (isArchived) {
+        setOpenSections([1, 2, 3, 4, 5, 6, 7]);
       } else {
-        clearInterval(interval);
+        setOpenSections([1]);
       }
-    }, 450);
-
-    // Sicherheits-Fallback: Nach spätestens 3.8s sind alle Posten geöffnet
-    const safeguardTimer = setTimeout(() => {
-      setOpenSections([1, 2, 3, 4, 5, 6, 7]);
-      clearInterval(interval);
-    }, 3800);
+    }
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(safeguardTimer);
       stopSpeech();
     };
-  }, [report.id, stopSpeech]);
+  }, [report.id, report.timestamp, stopSpeech]);
 
   const toggleSection = (stepNum: number) => {
     setOpenSections((prev) =>
       prev.includes(stepNum) ? prev.filter((s) => s !== stepNum) : [...prev, stepNum]
     );
+  };
+
+  // Statusanzeige für sequentielle Hintergrund-Generierung (1 bis 7)
+  const renderSectionStatus = (stepNum: number, textVal?: string) => {
+    const state = report.sectionLoadingStates?.[stepNum];
+    if (state === 'loading' || (!textVal && state !== 'ready' && report.sectionLoadingStates)) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-[#B45309] dark:text-[#FDE68A] border border-amber-500/20 animate-pulse">
+          <Loader2 className="w-3 h-3 animate-spin text-[#E09F3E]" />
+          <span>Wird geladen...</span>
+        </span>
+      );
+    }
+    if (state === 'ready' || (textVal && textVal.trim().length > 0)) {
+      return (
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+          <Check className="w-3 h-3 text-emerald-500" />
+          <span className="hidden sm:inline">Bereit</span>
+        </span>
+      );
+    }
+    return null;
   };
 
   const handleCopySection = (stepNum: number, title: string, text: string) => {
@@ -315,6 +315,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
                 <Sparkles className="w-4 h-4 text-[#E09F3E]" />
                 <span>1. LICHTFUNKE</span>
+                {renderSectionStatus(1, report.lichtfunke || report.coreConduit)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -386,6 +387,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Cpu className="w-4 h-4 text-[#E09F3E]" />
                 <span>2. KLARBLICK</span>
+                {renderSectionStatus(2, report.klarblick || report.systemDecoded)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -457,6 +459,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Wrench className="w-4 h-4 text-[#E09F3E]" />
                 <span>3. TAGWERK</span>
+                {renderSectionStatus(3, report.tagwerk || report.workBench)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -528,6 +531,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Home className="w-4 h-4 text-[#E09F3E]" />
                 <span>4. FREIRAUM</span>
+                {renderSectionStatus(4, report.freiraum || report.dailyFreedom)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -599,6 +603,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Briefcase className="w-4 h-4 text-[#E09F3E]" />
                 <span>5. STANDPUNKT</span>
+                {renderSectionStatus(5, report.standpunkt || report.profileSnapshot.relationshipStatus)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -670,6 +675,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Sprout className="w-4 h-4 text-[#E09F3E]" />
                 <span>6. SPIEGEL</span>
+                {renderSectionStatus(6, report.spiegel)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -743,6 +749,7 @@ ${report.leuchtkraft || report.heartGarden}
               <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
                 <Wind className="w-4 h-4 text-[#E09F3E]" />
                 <span>7. LEUCHTKRAFT</span>
+                {renderSectionStatus(7, report.leuchtkraft || report.heartGarden)}
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (

@@ -9,7 +9,11 @@ import {
   getStoredSettings,
   saveStoredSettings,
 } from './services/storage';
-import { generateLightflowReport, generateLocalReport } from './services/lightflowEngine';
+import {
+  generateLocalReport,
+  generateInitialPostenReport,
+  runSequentialPipeline,
+} from './services/lightflowEngine';
 import { Header } from './components/Header';
 import { InputSection } from './components/InputSection';
 import { ReportView } from './components/ReportView';
@@ -112,17 +116,19 @@ export const App: React.FC = () => {
     saveStoredSettings(updatedSettings);
   };
 
-  // Lichtfluss-Generierung starten
+  // Lichtfluss-Generierung starten (Sequentielle Posten-für-Posten-Pipeline)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passage.trim()) return;
 
     setIsLoading(true);
     try {
-      const report = await generateLightflowReport(passage, profile, selectedMood, settings);
-      setCurrentReport(report);
-      saveReport(report);
+      // 1. Posten 1 blitzschnell generieren und sofort anzeigen
+      const initialReport = await generateInitialPostenReport(passage, profile, selectedMood);
+      setCurrentReport(initialReport);
+      saveReport(initialReport);
       setSavedReports(getStoredReports());
+      setIsLoading(false); // UI entsperren: Posten 1 ist sofort lesbar!
 
       // Sanftes Scrollen zum Auswertungs-Report
       setTimeout(() => {
@@ -130,34 +136,58 @@ export const App: React.FC = () => {
         if (reportElement) {
           reportElement.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 100);
+      }, 80);
+
+      // 2. Posten 2 bis 7 sequentiell im Hintergrund laden
+      await runSequentialPipeline(
+        initialReport,
+        passage,
+        profile,
+        selectedMood,
+        (updatedReport) => {
+          setCurrentReport(updatedReport);
+          saveReport(updatedReport);
+          setSavedReports(getStoredReports());
+        }
+      );
     } catch (error) {
       console.error('Fehler bei der Lichtfluss-Generierung:', error);
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // Auswahl aus dem interaktiven Bibel-Navigator (startet direkt die Auswertung)
+  // Auswahl aus dem interaktiven Bibel-Navigator (startet direkt die sequentielle Auswertung)
   const handleSelectPassageFromPicker = async (selectedPassage: string, autoSubmit: boolean = true) => {
     setPassage(selectedPassage);
     if (autoSubmit) {
       setIsLoading(true);
       try {
-        const report = await generateLightflowReport(selectedPassage, profile, selectedMood, settings);
-        setCurrentReport(report);
-        saveReport(report);
+        const initialReport = await generateInitialPostenReport(selectedPassage, profile, selectedMood);
+        setCurrentReport(initialReport);
+        saveReport(initialReport);
         setSavedReports(getStoredReports());
+        setIsLoading(false);
 
         setTimeout(() => {
           const reportElement = document.getElementById('lightflow-report');
           if (reportElement) {
             reportElement.scrollIntoView({ behavior: 'smooth' });
           }
-        }, 100);
+        }, 80);
+
+        await runSequentialPipeline(
+          initialReport,
+          selectedPassage,
+          profile,
+          selectedMood,
+          (updatedReport) => {
+            setCurrentReport(updatedReport);
+            saveReport(updatedReport);
+            setSavedReports(getStoredReports());
+          }
+        );
       } catch (error) {
         console.error('Fehler bei der Lichtfluss-Generierung:', error);
-      } finally {
         setIsLoading(false);
       }
     }

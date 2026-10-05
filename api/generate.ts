@@ -76,13 +76,13 @@ export default async function handler(req: any, res: any) {
     let maxTokens = 2600;
 
     if (selectedPosten) {
-      maxTokens = 600;
+      maxTokens = 1200;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 
 BIBELTEXT:
 ${passage}
 
-NUTZER-DATEN:
+NUTZER-DATEN (UNSICHTBARER MASSANZUG):
 - Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
@@ -90,10 +90,11 @@ NUTZER-DATEN:
 - Heutige Tagesverfassung: ${currentMood}
 
 WICHTIGE LEITLINIEN:
-- Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}).
-- KEINE ABBRÜCHE: Formuliere jeden Gedanken zu Ende. Jeder Satz MUSS mit einem Satzzeichen (. ! ?) abschließen.
-- Verfasse für diesen Baustein 2 bis maximal 4 vollständige, tiefgründige und grammatikalisch geschlossene Sätze.
-- Kein Meta-Talk (nicht sagen "Weil du...").
+- Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}) mit ihren echten Werkzeugen, typischen Herausforderungen und Situationen.
+- KEINE KÜNSTLICHEN ABBRÜCHE: Schreibe mit vollem Tiefgang, lebendiger Sprache und in vollständigen, grammatikalisch perfekten Sätzen.
+- Jeder Gedanke muss rund und vollendet sein. Beende jeden Satz mit einem Satzzeichen (. ! ?).
+- Kein Meta-Talk (niemals sagen "Weil du Handwerker bist...").
+- Keine oberflächlichen Floskeln, kein religiöser Leistungsdruck.
 
 AUFGABE:
 Generiere AUSSCHLIESSLICH den folgenden Baustein:
@@ -102,7 +103,7 @@ ${sectionDescriptions[selectedPosten].prompt}
 
 FORMAT:
 ${sectionDescriptions[selectedPosten].title}
-[Dein Text hier in vollständigen, abgeschlossenen Sätzen]`;
+[Dein Text hier in vollständigen, wohlformulierten Sätzen mit Tiefgang]`;
     } else {
       maxTokens = 2600;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".

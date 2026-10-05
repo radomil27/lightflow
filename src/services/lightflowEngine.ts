@@ -142,15 +142,7 @@ export function parseReportSections(
   }
 
   // Dev-Log zur Verifikation des Parsers
-  console.log('[lightflowEngine] parseReportSections Ergebnis:', {
-    lichtfunke: defaultReport.lichtfunke.slice(0, 40) + '...',
-    klarblick: defaultReport.klarblick.slice(0, 40) + '...',
-    tagwerk: defaultReport.tagwerk.slice(0, 40) + '...',
-    freiraum: defaultReport.freiraum.slice(0, 40) + '...',
-    standpunkt: defaultReport.standpunkt.slice(0, 40) + '...',
-    spiegel: defaultReport.spiegel.slice(0, 40) + '...',
-    leuchtkraft: defaultReport.leuchtkraft.slice(0, 40) + '...',
-  });
+  console.log('[lightflowEngine] parseReportSections erfolgreich abgeschlossen für alle 7 Posten.');
 
   // Abwärtskompatibilität pflegen
   defaultReport.coreConduit = defaultReport.lichtfunke;
@@ -161,6 +153,16 @@ export function parseReportSections(
   defaultReport.oxygenMask = defaultReport.leuchtkraft;
 
   return defaultReport;
+}
+
+/**
+ * Hilfsfunktion zum Bereinigen des reinen Posten-Texts (entfernt Markdown-Überschriften wie '### 1. LICHTFUNKE')
+ */
+export function cleanPostenText(rawText: string, postenIndex: number): string {
+  if (!rawText) return '';
+  // Entfernt optionale vorangestellte Header wie ### 1. LICHTFUNKE etc.
+  const headerRegex = new RegExp(`^(?:###|##|#|\\*\\*|)\\s*\\[?${postenIndex}\\.[^\\]\\n]*\\]?\\*?:?\\s*\\n*`, 'i');
+  return rawText.replace(headerRegex, '').trim();
 }
 
 /**
@@ -335,9 +337,137 @@ export function setCachedReport(passage: string, profile: UserProfile, mood: str
 }
 
 /**
- * Haupt-Service-Funktion zur Generierung des Lightflow-Reports
- * Arbeitet zu 100% cloudbasiert über Google Gemini (3.8 / 3.7).
- * Keine lokale Handy-Generierung, kein alter Cache: Immer frische, tiefe Exegese direkt von der KI!
+ * Generiert einen einzelnen Posten (1 bis 7) gezielt über das Backend (/api/generate).
+ */
+export async function generateSinglePosten(
+  passage: string,
+  profile: UserProfile,
+  mood: string,
+  postenIndex: number
+): Promise<{ text: string; source: 'gemini' | 'local_fallback' }> {
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passage, profile, mood, posten: postenIndex }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.text) {
+        const cleaned = cleanPostenText(data.text, postenIndex);
+        return { text: cleaned, source: 'gemini' };
+      }
+    }
+  } catch (err) {
+    console.warn(`[lightflowEngine] Einzelposten ${postenIndex} API-Fehler:`, err);
+  }
+
+  // Lokaler Fallback für diesen Posten
+  const localFallback = generateLocalReport(passage, profile, mood);
+  const keys: (keyof Pick<LightflowReport, 'lichtfunke' | 'klarblick' | 'tagwerk' | 'freiraum' | 'standpunkt' | 'spiegel' | 'leuchtkraft'>)[] = [
+    'lichtfunke', 'klarblick', 'tagwerk', 'freiraum', 'standpunkt', 'spiegel', 'leuchtkraft'
+  ];
+  const postenKey = keys[postenIndex - 1];
+  return { text: localFallback[postenKey] || '', source: 'local_fallback' };
+}
+
+/**
+ * Erstellt das anfängliche Report-Gerüst mit sofort fertigem Posten 1
+ * und markiert Posten 2..7 als anstehend ('loading').
+ */
+export async function generateInitialPostenReport(
+  passage: string,
+  profile: UserProfile,
+  mood: string
+): Promise<LightflowReport> {
+  // Posten 1 generieren
+  const posten1Res = await generateSinglePosten(passage, profile, mood, 1);
+
+  const initialReport: LightflowReport = {
+    id: 'lf_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    passage,
+    timestamp: Date.now(),
+    profileSnapshot: { ...profile },
+    mood,
+    lichtfunke: posten1Res.text,
+    klarblick: '',
+    tagwerk: '',
+    freiraum: '',
+    standpunkt: '',
+    spiegel: '',
+    leuchtkraft: '',
+    source: posten1Res.source,
+    isFallback: posten1Res.source === 'local_fallback',
+    favorite: false,
+    sectionLoadingStates: {
+      1: 'ready',
+      2: 'loading',
+      3: 'loading',
+      4: 'loading',
+      5: 'loading',
+      6: 'loading',
+      7: 'loading',
+    },
+  };
+
+  initialReport.coreConduit = initialReport.lichtfunke;
+  return initialReport;
+}
+
+/**
+ * Startet die sequentielle Pipeline für Posten 2 bis 7 (Posten für Posten hintereinander)
+ * und benachrichtigt bei jedem fertiggestellten Posten per Callback.
+ */
+export async function runSequentialPipeline(
+  baseReport: LightflowReport,
+  passage: string,
+  profile: UserProfile,
+  mood: string,
+  onPostenReady: (updatedReport: LightflowReport, completedPosten: number) => void
+): Promise<LightflowReport> {
+  const currentReport: LightflowReport = {
+    ...baseReport,
+    sectionLoadingStates: { ...baseReport.sectionLoadingStates },
+  };
+
+  const postenKeys: (keyof Pick<LightflowReport, 'klarblick' | 'tagwerk' | 'freiraum' | 'standpunkt' | 'spiegel' | 'leuchtkraft'>)[] = [
+    'klarblick', 'tagwerk', 'freiraum', 'standpunkt', 'spiegel', 'leuchtkraft'
+  ];
+
+  for (let i = 2; i <= 7; i++) {
+    try {
+      const res = await generateSinglePosten(passage, profile, mood, i);
+      const key = postenKeys[i - 2];
+      currentReport[key] = res.text;
+      if (currentReport.sectionLoadingStates) {
+        currentReport.sectionLoadingStates[i] = 'ready';
+      }
+
+      // Legacy-Mapping
+      if (i === 2) currentReport.systemDecoded = res.text;
+      if (i === 3) currentReport.workBench = res.text;
+      if (i === 4) currentReport.dailyFreedom = res.text;
+      if (i === 7) {
+        currentReport.heartGarden = res.text;
+        currentReport.oxygenMask = res.text;
+      }
+
+      onPostenReady({ ...currentReport, sectionLoadingStates: { ...currentReport.sectionLoadingStates } }, i);
+    } catch (err) {
+      console.error(`[lightflowEngine] Fehler beim Generieren von Posten ${i}:`, err);
+      if (currentReport.sectionLoadingStates) {
+        currentReport.sectionLoadingStates[i] = 'error';
+      }
+      onPostenReady({ ...currentReport, sectionLoadingStates: { ...currentReport.sectionLoadingStates } }, i);
+    }
+  }
+
+  return currentReport;
+}
+
+/**
+ * Haupt-Service-Funktion zur Generierung des Lightflow-Reports (Komplett)
  */
 export async function generateLightflowReport(
   passage: string,

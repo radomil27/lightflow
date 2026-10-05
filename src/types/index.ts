@@ -42,6 +42,8 @@ export interface LightflowReport {
   isFallback?: boolean;
   source?: 'gemini' | 'local_fallback';
   fallbackReason?: string;
+  // Status für sequentielle Generierung (1..7): 'loading' | 'ready' | 'error'
+  sectionLoadingStates?: Record<number, 'loading' | 'ready' | 'error'>;
 }
 
 export interface AppSettings {

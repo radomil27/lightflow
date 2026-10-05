@@ -33,7 +33,14 @@ export function getStoredProfile(): UserProfile {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PROFILE);
     if (!raw) return DEFAULT_USER_PROFILE;
-    return { ...DEFAULT_USER_PROFILE, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    const profile = { ...DEFAULT_USER_PROFILE, ...parsed };
+    // Sicherheitsprüfung: Niemals leeres Profil oder fehlerhaftes IT-Mock verwenden
+    if (!profile.profession || profile.profession.trim().length === 0) {
+      profile.profession = DEFAULT_USER_PROFILE.profession;
+      profile.professionDetail = DEFAULT_USER_PROFILE.professionDetail;
+    }
+    return profile;
   } catch (e) {
     console.warn('Konnte Profil nicht aus localStorage laden:', e);
     return DEFAULT_USER_PROFILE;
