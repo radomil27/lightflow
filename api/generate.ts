@@ -164,41 +164,43 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
       'gemini-2.5-flash'
     ];
 
-    let lastError = '';
+    const modelErrors: Record<string, string> = {};
+
     // Probiere die verfügbaren Endpunkte durch (bis zu 7.5s Timeout pro Call, um Vercel 10s Budget einzuhalten)
     for (const model of candidateModels) {
-      try {
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const response = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(7500),
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
-          }),
-        });
+      // Probiere v1beta und v1
+      for (const apiVer of ['v1beta', 'v1']) {
+        try {
+          const geminiUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`;
+          const response = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(7500),
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
+            }),
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            console.log(`[api/generate] Erfolgreich generiert mit Modell: ${model} (${text.length} Zeichen)`);
-            return res.status(200).json({ text, source: 'gemini', model, posten: selectedPosten });
+          if (response.ok) {
+            const data = await response.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              console.log(`[api/generate] Erfolgreich generiert mit Modell: ${model} (${apiVer}, ${text.length} Zeichen)`);
+              return res.status(200).json({ text, source: 'gemini', model, apiVersion: apiVer, posten: selectedPosten });
+            }
+          } else {
+            const errBody = await response.text();
+            modelErrors[`${apiVer}/${model}`] = `HTTP ${response.status}: ${errBody.slice(0, 150)}`;
           }
-        } else {
-          const errBody = await response.text();
-          lastError = `HTTP ${response.status}: ${errBody.slice(0, 300)}`;
-          console.error(`[api/generate] Modell ${model} lieferte Status ${response.status}:`, errBody.slice(0, 300));
+        } catch (err: any) {
+          modelErrors[`${apiVer}/${model}`] = err.message || 'Timeout / Abort';
         }
-      } catch (err: any) {
-        lastError = err.message || 'Timeout / Abort';
-        console.error(`[api/generate] Call auf Modell ${model} abgebrochen/fehlgeschlagen:`, err.message);
       }
     }
 
-    console.warn('[api/generate] Alle Kandidaten-Modelle fehlgeschlagen. Aktiviere Client-Fallback. Letzter Fehler:', lastError);
-    return res.status(200).json({ useFallback: true, error: lastError });
+    console.warn('[api/generate] Alle Kandidaten-Modelle fehlgeschlagen. Fehlerübersicht:', modelErrors);
+    return res.status(200).json({ useFallback: true, errors: modelErrors });
   } catch (error: any) {
     console.error('[api/generate] Unerwarteter Handler-Fehler:', error.message);
     return res.status(200).json({ useFallback: true, error: error.message });
