@@ -156,12 +156,13 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     }
 
     // Modell-Kaskade: Exakt auf den aktiven Google Gemini Key abgestimmt
-    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash und schnellen Fallbacks
+    // Wunschmodell: gemini-3.8-flash, gefolgt von gemini-3.7-flash, gemini-3.5-flash-lite (hohe Quotenverfügbarkeit) und weiteren
     const candidateModels = [
       'gemini-3.8-flash',
       'gemini-3.7-flash',
-      'gemini-3.5-flash',
-      'gemini-2.5-flash'
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-3.5-flash'
     ];
 
     const modelErrors: Record<string, string> = {};
