@@ -153,6 +153,12 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
     }
 
+    if (req.body.debug_models) {
+      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const listData = await listResp.json();
+      return res.status(200).json(listData);
+    }
+
     // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
     // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, flash-latest, 1.5) zur 100% Fehlerfreiheit
     const candidateModels = [
