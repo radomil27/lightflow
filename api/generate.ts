@@ -29,6 +29,7 @@ export default async function handler(req: any, res: any) {
   }
 
   console.log('[api/generate] Request empfangen für Passage:', passage, '| Key vorhanden (Länge:', apiKey.length, ')');
+  console.log('RECEIVED_PROFILE:', JSON.stringify(profile));
 
   try {
     const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';

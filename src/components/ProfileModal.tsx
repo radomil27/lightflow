@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { X, Check, Briefcase, Brain, Heart, Compass, Sparkles } from 'lucide-react';
 
@@ -48,6 +48,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onSave,
 }) => {
   const [formData, setFormData] = useState<UserProfile>({ ...profile });
+
+  // Garantiert, dass geänderte Profile aus dem Storage/Props beim Öffnen immer synchronisiert sind
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({ ...profile });
+    }
+  }, [isOpen, profile]);
 
   if (!isOpen) return null;
 
