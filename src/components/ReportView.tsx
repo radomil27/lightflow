@@ -28,9 +28,41 @@ export const ReportView: React.FC<ReportViewProps> = ({
   onSaveNotes,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [copiedSection, setCopiedSection] = useState<number | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
+
+  // Schrittweise Enthüllung der 7 Posten (Posten 1 erscheint zuerst, 2-7 laden nach)
+  const [unlockedStep, setUnlockedStep] = useState<number>(() => {
+    const isRecent = Date.now() - report.timestamp < 10000;
+    return isRecent ? 1 : 7;
+  });
+
+  React.useEffect(() => {
+    const isRecent = Date.now() - report.timestamp < 10000;
+    if (isRecent) {
+      setUnlockedStep(1);
+      const timers: NodeJS.Timeout[] = [];
+      for (let step = 2; step <= 7; step++) {
+        const t = setTimeout(() => {
+          setUnlockedStep((prev) => Math.max(prev, step));
+        }, (step - 1) * 850);
+        timers.push(t);
+      }
+      return () => timers.forEach(clearTimeout);
+    } else {
+      setUnlockedStep(7);
+    }
+  }, [report.id, report.timestamp]);
+
+  const handleCopySection = (stepNum: number, title: string, text: string) => {
+    const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle`;
+    navigator.clipboard.writeText(sectionText).then(() => {
+      setCopiedSection(stepNum);
+      setTimeout(() => setCopiedSection(null), 2000);
+    });
+  };
 
   // Text in Zwischenablage kopieren
   const handleCopy = () => {
@@ -208,9 +240,9 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="absolute left-2 sm:left-3.5 top-0 w-1.5 h-12 bg-gradient-to-b from-transparent via-[#FDE68A] to-transparent rounded-full blur-[1px] animate-pulse"></div>
 
         {/* ========================================================
-            POSTEN 1: LICHTFUNKE
+            POSTEN 1: LICHTFUNKE (Immer sofort sichtbar)
             ======================================================== */}
-        <div className="relative group">
+        <div className="relative group animate-in fade-in duration-500">
           <div className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A]">
             1
           </div>
@@ -218,9 +250,19 @@ ${report.leuchtkraft || report.heartGarden}
           <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#211B14] dark:via-[#18202A] dark:to-[#18202A] border border-[#E09F3E]/40 shadow-lg shadow-[#E09F3E]/5 relative overflow-hidden backdrop-blur-md">
             <div className="absolute top-0 right-0 w-36 h-36 bg-[#E09F3E]/10 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A] mb-3">
-              <Sparkles className="w-4 h-4 text-[#E09F3E]" />
-              <span>1. LICHTFUNKE</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                <Sparkles className="w-4 h-4 text-[#E09F3E]" />
+                <span>1. LICHTFUNKE</span>
+              </div>
+              <button
+                onClick={() => handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                title="Diesen Zuspruch kopieren"
+              >
+                {copiedSection === 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                <span className="text-[10px] hidden sm:inline">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
+              </button>
             </div>
 
             <p className="font-serif text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic">
@@ -237,16 +279,37 @@ ${report.leuchtkraft || report.heartGarden}
             2
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Cpu className="w-4 h-4 text-[#E09F3E]" />
-              <span>2. KLARBLICK</span>
-            </div>
+          {unlockedStep >= 2 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Cpu className="w-4 h-4 text-[#E09F3E]" />
+                  <span>2. KLARBLICK</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt kopieren"
+                >
+                  {copiedSection === 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 2 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.klarblick || report.systemDecoded}
+              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                {report.klarblick || report.systemDecoded}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
+                <Cpu className="w-4 h-4 text-stone-400" />
+                <span>2. KLARBLICK wird aufbereitet...</span>
+              </div>
+              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
+              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -257,16 +320,37 @@ ${report.leuchtkraft || report.heartGarden}
             3
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Wrench className="w-4 h-4 text-[#E09F3E]" />
-              <span>3. TAGWERK</span>
-            </div>
+          {unlockedStep >= 3 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Wrench className="w-4 h-4 text-[#E09F3E]" />
+                  <span>3. TAGWERK</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt kopieren"
+                >
+                  {copiedSection === 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 3 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.tagwerk || report.workBench}
+              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                {report.tagwerk || report.workBench}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
+                <Wrench className="w-4 h-4 text-stone-400" />
+                <span>3. TAGWERK lädt nach...</span>
+              </div>
+              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
+              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-2/3"></div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -277,16 +361,37 @@ ${report.leuchtkraft || report.heartGarden}
             4
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Home className="w-4 h-4 text-[#E09F3E]" />
-              <span>4. FREIRAUM</span>
-            </div>
+          {unlockedStep >= 4 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Home className="w-4 h-4 text-[#E09F3E]" />
+                  <span>4. FREIRAUM</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt kopieren"
+                >
+                  {copiedSection === 4 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 4 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.freiraum || report.dailyFreedom}
+              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                {report.freiraum || report.dailyFreedom}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
+                <Home className="w-4 h-4 text-stone-400" />
+                <span>4. FREIRAUM lädt nach...</span>
+              </div>
+              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-4/5 mb-2"></div>
+              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -297,16 +402,37 @@ ${report.leuchtkraft || report.heartGarden}
             5
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Briefcase className="w-4 h-4 text-[#E09F3E]" />
-              <span>5. STANDPUNKT</span>
-            </div>
+          {unlockedStep >= 5 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+                  <span>5. STANDPUNKT</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt kopieren"
+                >
+                  {copiedSection === 5 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 5 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.standpunkt || report.profileSnapshot.relationshipStatus}
+              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                {report.standpunkt || report.profileSnapshot.relationshipStatus}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
+                <Briefcase className="w-4 h-4 text-stone-400" />
+                <span>5. STANDPUNKT lädt nach...</span>
+              </div>
+              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-3/4 mb-2"></div>
+              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/3"></div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -317,16 +443,37 @@ ${report.leuchtkraft || report.heartGarden}
             6
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md">
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
-              <Sprout className="w-4 h-4 text-[#E09F3E]" />
-              <span>6. SPIEGEL</span>
-            </div>
+          {unlockedStep >= 6 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Sprout className="w-4 h-4 text-[#E09F3E]" />
+                  <span>6. SPIEGEL</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(6, '6. SPIEGEL', report.spiegel || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt kopieren"
+                >
+                  {copiedSection === 6 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 6 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
-              {report.spiegel}
+              <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                {report.spiegel}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-stone-100/60 dark:bg-slate-900/40 border border-stone-200/50 dark:border-slate-800/50 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-stone-400 dark:text-stone-500 mb-3">
+                <Sprout className="w-4 h-4 text-stone-400" />
+                <span>6. SPIEGEL lädt nach...</span>
+              </div>
+              <div className="h-4 bg-stone-200/80 dark:bg-slate-800/80 rounded-md w-5/6 mb-2"></div>
+              <div className="h-4 bg-stone-200/60 dark:bg-slate-800/60 rounded-md w-1/2"></div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -337,23 +484,44 @@ ${report.leuchtkraft || report.heartGarden}
             7
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute bottom-0 right-0 w-44 h-44 bg-[#F59E0B]/15 rounded-full blur-3xl pointer-events-none"></div>
+          {unlockedStep >= 7 ? (
+            <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md animate-in fade-in duration-500">
+              <div className="absolute bottom-0 right-0 w-44 h-44 bg-[#F59E0B]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A] mb-3">
-              <Wind className="w-4 h-4 text-[#E09F3E]" />
-              <span>7. LEUCHTKRAFT</span>
-            </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                  <Wind className="w-4 h-4 text-[#E09F3E]" />
+                  <span>7. LEUCHTKRAFT</span>
+                </div>
+                <button
+                  onClick={() => handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '')}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Dieses Gebet kopieren"
+                >
+                  {copiedSection === 7 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{copiedSection === 7 ? 'Kopiert' : 'Kopieren'}</span>
+                </button>
+              </div>
 
-            <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
-              {report.leuchtkraft || report.heartGarden}
-            </div>
+              <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
+                {report.leuchtkraft || report.heartGarden}
+              </div>
 
-            <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-              <span>Tief einatmen. Angekommen an der Quelle.</span>
-              <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
+              <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                <span>Tief einatmen. Angekommen an der Quelle.</span>
+                <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-3xl p-6 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 animate-pulse">
+              <div className="flex items-center space-x-2 text-xs font-medium text-amber-600/70 dark:text-amber-400/70 mb-3">
+                <Wind className="w-4 h-4 text-amber-500" />
+                <span>7. LEUCHTKRAFT (Herzensgebet) wird vollendet...</span>
+              </div>
+              <div className="h-5 bg-amber-200/40 dark:bg-amber-900/30 rounded-md w-full mb-2"></div>
+              <div className="h-5 bg-amber-200/30 dark:bg-amber-900/20 rounded-md w-2/3"></div>
+            </div>
+          )}
         </div>
 
       </div>
