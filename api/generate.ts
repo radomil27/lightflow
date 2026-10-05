@@ -129,17 +129,19 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
     ]).slice(0, 3);
 
     let lastError = '';
-    // Probiere der Reihe nach die besten Modelle durch (mit 12s Timeout pro Modell)
+    // Probiere der Reihe nach die besten Modelle durch (schneller 1.5s Check für 3.8/3.7, stabiler 7.5s Lauf für Arbeitsmodelle)
     for (const model of queue) {
       try {
+        const isFutureModel = model.includes('3.8') || model.includes('3.7');
+        const timeoutMs = isFutureModel ? 1500 : 7500;
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(12000),
+          signal: AbortSignal.timeout(timeoutMs),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2500 },
           }),
         });
 
