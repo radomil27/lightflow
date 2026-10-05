@@ -19,6 +19,7 @@ import {
   Square,
   Loader2,
   Share2,
+  Edit3,
 } from 'lucide-react';
 import { BibleTextViewer } from './BibleTextViewer';
 
@@ -28,6 +29,7 @@ interface ReportViewProps {
   onToggleFavorite: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
   onFontSizeChange?: (size: 'sm' | 'md' | 'lg') => void;
+  onEditPassage?: () => void;
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({
@@ -36,6 +38,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
   onToggleFavorite,
   onSaveNotes,
   onFontSizeChange,
+  onEditPassage,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
@@ -231,9 +234,21 @@ ${report.leuchtkraft || report.heartGarden}
             )}
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
-            {report.passage}
-          </h2>
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
+              {report.passage}
+            </h2>
+            {onEditPassage && (
+              <button
+                type="button"
+                onClick={onEditPassage}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors cursor-pointer"
+                title="Bibelstelle oder Stimmung neu anpassen"
+              >
+                <Edit3 className="w-4 h-4 text-[#E09F3E]" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Aktionsleiste (Audio, Favorit, Kopieren, Notiz) */}

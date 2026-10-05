@@ -285,6 +285,7 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           profile={profile}
           onOpenPicker={() => setIsPickerOpen(true)}
+          hasActiveReport={Boolean(currentReport)}
         />
 
         {/* Auswertungs-Report */}
@@ -300,6 +301,9 @@ export const App: React.FC = () => {
               }}
               onToggleFavorite={handleToggleFavorite}
               onSaveNotes={handleSaveNotes}
+              onEditPassage={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             />
           </div>
         )}

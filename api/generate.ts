@@ -44,7 +44,7 @@ export default async function handler(req: any, res: any) {
     const sectionDescriptions: Record<number, { title: string; prompt: string }> = {
       1: {
         title: '### 1. LICHTFUNKE',
-        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er nimmt den zentralen Gedanken oder das Hauptbild des Bibeltextes (${passage}) auf und formuliert daraus einen unmittelbaren Zuspruch auf Augenhöhe. Keine allgemeine Seelsorge-Floskel, sondern der Kern dieser konkreten Bibelstelle als befreiende Zusage. Umfang: Genau 2 bis 3 vollständige Sätze.`
+        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er nimmt den zentralen Gedanken oder das Hauptbild des Bibeltextes (${passage}) auf und formuliert daraus einen unmittelbaren Zuspruch auf Augenhöhe. Keine allgemeine Seelsorge-Floskel, sondern der Kern dieser konkreten Bibelstelle als befreiende Zusage. WICHTIG BEI POSITIVER STIMMUNG (z. B. 'Dankbar & Erfüllt', 'Kraftvoll & Bereit'): Wenn der Tag gelungen ist oder die Stimmung positiv ist, formuliere keinen Krisen-Trost, sondern feiere das Gelingen und die Freude gemeinsam mit dem Nutzer auf Augenhöhe! Umfang: Genau 2 bis 3 vollständige Sätze.`
       },
       2: {
         title: '### 2. KLARBLICK',
@@ -68,7 +68,7 @@ export default async function handler(req: any, res: any) {
       },
       7: {
         title: '### 7. LEUCHTKRAFT',
-        prompt: `Ein kurzer Satz des Ankommens in Gottes Gegenwart, gefolgt von einer Leerzeile und einem bodenständigen, unverkrampften Herzensgebet (4 bis 5 Sätze), das die Themen des Tages und der Bibelstelle aufgreift und mit "Amen." abschließt.`
+        prompt: `Ein kurzer Satz des Ankommens in Gottes Gegenwart, gefolgt von einer Leerzeile und einem bodenständigen, unverkrampften Herzensgebet (4 bis 5 Sätze), das die Themen des Tages und der Bibelstelle aufgreift und mit "Amen." abschließt. WICHTIG BEI POSITIVER STIMMUNG (z. B. 'Dankbar & Erfüllt', 'Kraftvoll & Bereit'): Formuliere ein ehrliches, erdnahes DANK- und Lobgebet (Danke für Kraft, Gelingen der Handgriffe, gute Begegnungen, Freude am Werk).`
       }
     };
 
@@ -82,9 +82,9 @@ export default async function handler(req: any, res: any) {
 2. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-3. RESONANZBODEN: Die Tagesverfassung (${currentMood}) bestimmt das TEMPERAMENT.
-   - Erschöpft/Unter Druck: Kurze, entlastende Gedanken, kein intellektueller Ballast, maximale Gnade und Sauerstoff.
-   - Dankbar/Kraftvoll/Entschlossen: Aufbruch, Ermutigung, mutige Schritte im Alltag.
+3. RESONANZBODEN ("GUTER TAG" vs. "BELASTETER TAG"): Die Tagesverfassung (${currentMood}) bestimmt das TEMPERAMENT.
+   - Wenn der Nutzer 'Dankbar & Erfüllt', 'Kraftvoll & Bereit' oder eine positive Stimmung gewählt hat: Formuliere keinen Krisen-Trost! Nimm das Gelingen des Tages auf. In Posten 1 feiert Jesus das Gelingen und die Frucht mit dem Nutzer. In Posten 7 (Leuchtkraft) wird ein ehrliches, erdnahes DANK- und Lobgebet formuliert (Danke für Kraft, Gelingen der Handgriffe, gute Begegnungen).
+   - Wenn der Nutzer 'Unter Druck / Erschöpft', 'Druck abbauen' oder 'Müde' gewählt hat: Kurze, entlastende Gedanken, kein intellektueller Ballast, maximale Gnade, Entspannung und Sauerstoff.
 4. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
 
     if (selectedPosten) {

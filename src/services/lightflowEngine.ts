@@ -287,6 +287,16 @@ export function generateLocalReport(
 
   // 4. Universeller, dynamisch interpolierter Ausleger ohne Meta-Talk
   const profName = profile.professionDetail || profile.profession;
+  const isPositiveMood = (mood || '').toLowerCase().includes('dankbar') || (mood || '').toLowerCase().includes('kraftvoll') || (mood || '').toLowerCase().includes('freude');
+
+  const defaultLichtfunke = isPositiveMood
+    ? `Ich freue mich an deiner Freude und an dem, was heute gelungen ist! Dein Fleiß und dein Herzschlag haben gute Spuren hinterlassen. Geh getrost weiter – meine Kraft fließt mit dir.`
+    : `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`;
+
+  const defaultLeuchtkraft = isPositiveMood
+    ? `Im Garten deines Herzens blüht die Dankbarkeit auf. Sieh auf das Gelungene des heutigen Tages und bringe es mit offenem Herzen vor Gott.\n\nHerzensgebet:\n„Herr, mein Herz ist voll Dank für deine Treue und die Kraft, die du mir heute geschenkt hast. Danke für gelungene Handgriffe, gute Worte und die Bewahrung mitten im Tag. Lass diese Freude in meinen Feierabend hineinstrahlen. Amen.“`
+    : `Im Garten deines Herzens herrscht tiefe Stille. Kein Lärm, keine Fristen, keine Prüfer. Du bist bedingungslos geliebt und von der Quelle versorgt.\n\nHerzensgebet:\n„Herr, danke für dein lebendiges Wort, das mich mitten in meiner Realität abholt. Kläre meine Gedanken, nimm den Druck aus meinen Schultern und schenke mir deinen tiefen Frieden. Ich vertraue dir mein Leben an. Amen.“`;
+
   return {
     id: 'lf_' + Date.now(),
     passage: passage.trim() || 'Impuls für den Tag',
@@ -296,13 +306,13 @@ export function generateLocalReport(
     isFallback: true,
     source: 'local_fallback',
     fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
-    lichtfunke: `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`,
+    lichtfunke: defaultLichtfunke,
     klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag. Wer diese göttliche Ordnung verinnerlicht, lässt sich von äußerem Lärm und Hektik nicht beirren.`,
     tagwerk: `In der konkreten Praxis als ${profName} entscheidet die richtige Ausrichtung: Ist das Fundament schief, verzieht sich das ganze Werk. Wenn der Zeitdruck zunimmt, bewahre einen klaren Kopf.\n\nKonkrete Handlung für deinen Werktag: Halte heute mitten in der Hektik für 30 Sekunden inne, atme durch und richte deine Aufmerksamkeit neu aus, bevor du die nächste Aufgabe anpackst.`,
     freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht. Feierabend ist gelebte Gnade.`,
     standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld (${profile.relationshipStatus}) festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert und darfst ganz du selbst sein.`,
     spiegel: `Echte Reife zeigt sich darin, wie wir mit den Schwächen der anderen umgehen – ob wir Druck weitergeben oder Raum zum Atmen schaffen.\n\nFragen für die Stille:\n1. Wo versuche ich noch mit eigener Muskelkraft Dinge zu erzwingen, die ich Gott anvertrauen sollte?\n2. Wer in meinem Umfeld braucht heute ein ermutigendes Wort statt kritischer Blicke?\n3. Was hindert mich daran, heute Abend vollkommen loszulassen?`,
-    leuchtkraft: `Im Garten deines Herzens herrscht tiefe Stille. Kein Lärm, keine Fristen, keine Prüfer. Du bist bedingungslos geliebt und von der Quelle versorgt.\n\nHerzensgebet:\n„Herr, danke für dein lebendiges Wort, das mich mitten in meiner Realität abholt. Kläre meine Gedanken, nimm den Druck aus meinen Schultern und schenke mir deinen tiefen Frieden. Ich vertraue dir mein Leben an. Amen.“`,
+    leuchtkraft: defaultLeuchtkraft,
     favorite: false,
   };
 }
