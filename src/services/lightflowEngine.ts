@@ -98,36 +98,61 @@ export function parseReportSections(
     favorite: false,
   };
 
+  // Ultra-tolerante Regex für Markdown-Header (#, ##, ###, **, fett, etc.)
   const sections = [
-    { key: 'lichtfunke', regex: /###\s*\[?1\.\s*LICHTFUNKE\]?([\s\S]*?)(?=###\s*\[?2\.|\Z)/i },
-    { key: 'klarblick', regex: /###\s*\[?2\.\s*KLARBLICK\]?([\s\S]*?)(?=###\s*\[?3\.|\Z)/i },
-    { key: 'tagwerk', regex: /###\s*\[?3\.\s*TAGWERK\]?([\s\S]*?)(?=###\s*\[?4\.|\Z)/i },
-    { key: 'freiraum', regex: /###\s*\[?4\.\s*(?:FREIRAUM|FEIERABEND)\]?([\s\S]*?)(?=###\s*\[?5\.|\Z)/i },
-    { key: 'standpunkt', regex: /###\s*\[?5\.\s*STANDPUNKT\]?([\s\S]*?)(?=###\s*\[?6\.|\Z)/i },
-    { key: 'spiegel', regex: /###\s*\[?6\.\s*SPIEGEL\]?([\s\S]*?)(?=###\s*\[?7\.|\Z)/i },
-    { key: 'leuchtkraft', regex: /###\s*\[?7\.\s*LEUCHTKRAFT\]?([\s\S]*?)$/i },
+    { key: 'lichtfunke', regex: /(?:###|##|#|\*\*|)\s*\[?1\.\s*LICHTFUNKE\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?2\.|\Z)/i },
+    { key: 'klarblick', regex: /(?:###|##|#|\*\*|)\s*\[?2\.\s*KLARBLICK\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?3\.|\Z)/i },
+    { key: 'tagwerk', regex: /(?:###|##|#|\*\*|)\s*\[?3\.\s*TAGWERK\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?4\.|\Z)/i },
+    { key: 'freiraum', regex: /(?:###|##|#|\*\*|)\s*\[?4\.\s*(?:FREIRAUM|FEIERABEND)\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?5\.|\Z)/i },
+    { key: 'standpunkt', regex: /(?:###|##|#|\*\*|)\s*\[?5\.\s*STANDPUNKT\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?6\.|\Z)/i },
+    { key: 'spiegel', regex: /(?:###|##|#|\*\*|)\s*\[?6\.\s*SPIEGEL\]?\*?:?([\s\S]*?)(?=(?:###|##|#|\*\*|)\s*\[?7\.|\Z)/i },
+    { key: 'leuchtkraft', regex: /(?:###|##|#|\*\*|)\s*\[?7\.\s*LEUCHTKRAFT\]?\*?:?([\s\S]*?)$/i },
   ] as const;
 
   for (const s of sections) {
     const match = rawText.match(s.regex);
-    if (match && match[1]) {
+    if (match && match[1] && match[1].trim().length > 0) {
       defaultReport[s.key] = match[1].trim();
     }
   }
 
-  // Fallback-Parsing für abweichende Formate
+  // Fallback-Parsing für unstrukturierte Textblöcke (Absatz-Splitting)
   if (!defaultReport.lichtfunke && rawText) {
-    const paragraphs = rawText.split('\n\n').filter((p) => p.trim().length > 0);
-    defaultReport.lichtfunke = paragraphs[0] || 'Ich bin da, wo du gerade stehst.';
-    defaultReport.klarblick = paragraphs[1] || 'Der Text legt das Fundament des Lebens frei.';
-    defaultReport.tagwerk = paragraphs[2] || 'Mitten in der Praxis greift Gottes Ausrichtung.';
-    defaultReport.freiraum = paragraphs[3] || 'Der Feierabend gehört dir und dem Atemholen.';
-    defaultReport.standpunkt = paragraphs[4] || 'In deinem persönlichen Raum darf Friede einkehren.';
-    defaultReport.spiegel = paragraphs[5] || 'Prüfe dein Herz im Stillen: Wo darf Gnade herrschen?';
-    defaultReport.leuchtkraft = paragraphs[6] || 'Hier im Garten darfst du einfach sein. Herr, danke für dein Licht. Amen.';
+    const paragraphs = rawText.split(/\n\s*\n/).filter((p) => p.trim().length > 0);
+    defaultReport.lichtfunke = paragraphs[0] || '';
+    defaultReport.klarblick = paragraphs[1] || '';
+    defaultReport.tagwerk = paragraphs[2] || '';
+    defaultReport.freiraum = paragraphs[3] || '';
+    defaultReport.standpunkt = paragraphs[4] || '';
+    defaultReport.spiegel = paragraphs[5] || '';
+    defaultReport.leuchtkraft = paragraphs[6] || '';
   }
 
-  // Auch Abwärtskompatibilität pflegen
+  // Sicherheits-Validierung: Kein Posten darf leer bleiben (verhindert dauerhaft pulsierende Skeletons)
+  const dynamicFallback = generateLocalReport(passage, profile, mood);
+  if (!defaultReport.lichtfunke || defaultReport.lichtfunke.length < 15) {
+    defaultReport.lichtfunke = dynamicFallback.lichtfunke;
+  }
+  if (!defaultReport.klarblick || defaultReport.klarblick.length < 15) {
+    defaultReport.klarblick = dynamicFallback.klarblick;
+  }
+  if (!defaultReport.tagwerk || defaultReport.tagwerk.length < 15) {
+    defaultReport.tagwerk = dynamicFallback.tagwerk;
+  }
+  if (!defaultReport.freiraum || defaultReport.freiraum.length < 15) {
+    defaultReport.freiraum = dynamicFallback.freiraum;
+  }
+  if (!defaultReport.standpunkt || defaultReport.standpunkt.length < 15) {
+    defaultReport.standpunkt = dynamicFallback.standpunkt;
+  }
+  if (!defaultReport.spiegel || defaultReport.spiegel.length < 15) {
+    defaultReport.spiegel = dynamicFallback.spiegel;
+  }
+  if (!defaultReport.leuchtkraft || defaultReport.leuchtkraft.length < 15) {
+    defaultReport.leuchtkraft = dynamicFallback.leuchtkraft;
+  }
+
+  // Abwärtskompatibilität pflegen
   defaultReport.coreConduit = defaultReport.lichtfunke;
   defaultReport.workBench = defaultReport.tagwerk;
   defaultReport.systemDecoded = defaultReport.klarblick;
@@ -179,7 +204,27 @@ export function generateLocalReport(
   const profession = profile.profession;
   const isHandwerk = profession.toLowerCase().includes('handwerk') || profession.toLowerCase().includes('monteur') || profession.toLowerCase().includes('küche') || profession.toLowerCase().includes('bau');
 
-  // Spezieller Deep-Report für Matthäus 12:1-14 (Sabbat & Barmherzigkeit)
+  // 1. Spezieller Deep-Report für Matthäus 20 (Arbeiter im Weinberg: Gnade vs. Leistungsdruck & Vergleich)
+  if (lowerPassage.includes('matthäus 20') || lowerPassage.includes('matt 20') || lowerPassage.includes('weinberg') || lowerPassage.includes('denar')) {
+    const profLabel = profile.professionDetail || profile.profession;
+    return {
+      id: 'lf_' + Date.now(),
+      passage: passage.trim() || 'Matthäus 20:1-16 (Die Arbeiter im Weinberg & Das Gesetz der Gnade)',
+      timestamp: Date.now(),
+      profileSnapshot: { ...profile },
+      mood,
+      lichtfunke: 'Hör auf, deinen Wert an den Stunden oder an der Leistung der anderen zu messen. Bei mir bist du kein Tagelöhner, der um Anerkennung betteln muss. Meine Güte steht fest, bevor dein Tag überhaupt beginnt.',
+      klarblick: 'Die Arbeiter der ersten Stunde erliegen dem ältesten Fehlschluss der Menschheit: Sie verwechseln vertragliche Gerechtigkeit mit göttlicher Barmherzigkeit. Sie murren nicht, weil sie zu wenig bekamen – denn sie erhielten exakt den vereinbarten Tagelohn –, sondern weil der Hausherr den Zu-Spät-Gekommenen dieselbe Würde und denselben vollen Lebensunterhalt schenkt. Die Warnung Jesu ist radikal: Wer das Reich Gottes wie eine Stechuhr betrachtet, vergiftet sein eigenes Herz mit Missgunst und Neid. Die befreiende Wahrheit lautet: Gottes Großzügigkeit nimmt dir nichts weg, sondern befreit dich vom ständigen Vergleich.',
+      tagwerk: `Im Berufsalltag als ${profLabel} begegnen dir ständig Leistungstabellen, Stundensätze und der stumme Vergleich, wer mehr geschafft oder weniger geleistet hat. Wenn der Termindruck wächst und die Kräfte schwinden, kriecht schnell das Gefühl hoch, zu kurz zu kommen oder sich aufreiben zu müssen.\n\nKonkrete Handlung für deinen Werktag: Wenn du heute merkst, dass du die Arbeit oder Pausen anderer bewertest, atme aus. Verrichte dein Werk gewissenhaft aus Freude am Handwerk, aber ziehe deinen Selbstwert nicht aus dem Vorsprung vor deinen Kollegen.`,
+      freiraum: `Wenn der Feierabend anbricht, endet die Abrechnung. Du musst vor Gott keine Überstunden nachweisen, um dich ausruhen zu dürfen. Der volle Denar des Friedens liegt bereits auf deinem Tisch – ganz gleich, wie mühsam oder zäh sich der Arbeitstag angefühlt hat. Lege die gedankliche Stechuhr ab und lass den Feierabend ein echtes Geschenk der Gnade sein.`,
+      standpunkt: `In deiner persönlichen Lebenssituation (${profile.relationshipStatus}) schenkt dir dieses Gleichnis eine tiefe innere Entlastung. Du musst im Alleinsein oder im Zusammenleben niemandem etwas beweisen. Wer verstanden hat, dass der Hausherr uneingeschränkt gut ist, hört auf, mit dem eigenen Schicksal zu hadern oder neidisch auf die scheinbar leichteren Lebenswege anderer zu blicken.`,
+      spiegel: `Gnade fühlt sich für das menschliche Ego oft ungerecht an, weil wir den Leistungsnachweis lieben. Reife zeigt sich dort, wo wir uns ehrlich mitfreuen können, wenn andere unverdiente Gunst empfangen.\n\nFragen für die Stille:\n1. Wo ertappe ich mich dabei, dass ich insgeheim mehr Anerkennung erwarte als andere, weil ich mich mehr abgemüht habe?\n2. Welcher stumme Vergleich raubt mir im Alltag am meisten Dankbarkeit und Frieden?\n3. Kann ich akzeptieren, dass Gottes Zuneigung zu mir bedingungslos ist und kein Stundenprotokoll kennt?`,
+      leuchtkraft: `Im Garten deines Herzens gibt es keine Akkordarbeit und keine Konkurrenz. Tritt vor den Meister, öffne deine Hände und empfange einfach seine unerschöpfliche Güte.\n\nHerzensgebet:\n„Herr, mein Herz ist oft so gefangen in Rechnungen, Vergleichen und dem Druck, mich beweisen zu müssen. Vergib mir, wo mein Auge böse wurde, weil du so gütig bist. Danke, dass mein Wert bei dir nicht von meiner Tagesleistung abhängt, sondern in deiner Gnade gegründet ist. Schenke mir ein weites Herz, Frieden für den Feierabend und die Freiheit, mich an deiner Güte zu freuen. Amen.“`,
+      favorite: false,
+    };
+  }
+
+  // 2. Spezieller Deep-Report für Matthäus 12:1-14 (Sabbat & Barmherzigkeit)
   if (lowerPassage.includes('matthäus 12') || lowerPassage.includes('matt 12') || lowerPassage.includes('sabbat')) {
     const tagwerkText = isHandwerk
       ? `Wenn beim Einpassen einer Arbeitsplatte unverhofft ein Rohr leckt, greifst du sofort zum Absperrventil – ganz gleich, was die Uhr schlägt. Wer tatenlos zusieht, nur um die Pause einzuhalten, ruiniert das Gebäude.\n\nKonkrete Handlung für deinen Werktag: Wenn heute ein Kollege oder Kunde in Not gerät, lass den starren Ablaufplan für einen Moment los. Barmherzigkeit und zupackende Hilfe haben Vorrang vor jedem Paragrafen.`
@@ -203,18 +248,19 @@ export function generateLocalReport(
     return rep;
   }
 
-  // Universeller, tiefgründiger Ausleger für jeden gewählten Bibeltext
+  // 3. Universeller, dynamisch interpolierter Ausleger für jeden gewählten Bibeltext
+  const profName = profile.professionDetail || profile.profession;
   return {
     id: 'lf_' + Date.now(),
     passage: passage.trim() || 'Impuls für den Tag',
     timestamp: Date.now(),
     profileSnapshot: { ...profile },
     mood,
-    lichtfunke: `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`,
-    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag.`,
-    tagwerk: `In der rauen Praxis entscheidet die Ausrichtung: Ist das Fundament schief, verzieht sich das ganze Werk. Wenn der Zeitdruck zunimmt, bewahre einen klaren Kopf.\n\nKonkrete Handlung für deinen Werktag: Halte heute mitten in der Hektik für 30 Sekunden inne, atme durch und richte deine Aufmerksamkeit neu aus, bevor du die nächste Aufgabe anpackst.`,
-    freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht.`,
-    standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert.`,
+    lichtfunke: `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`,
+    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag. Aus der Perspektive deines Denkstils (${profile.mindset}) wird deutlich: Wer die innere Ordnung versteht, lässt sich von äußerem Lärm nicht beirren.`,
+    tagwerk: `In der konkreten Praxis als ${profName} entscheidet die richtige Ausrichtung: Ist das Fundament schief, verzieht sich das ganze Werk. Wenn der Zeitdruck zunimmt, bewahre einen klaren Kopf.\n\nKonkrete Handlung für deinen Werktag: Halte heute mitten in der Hektik für 30 Sekunden inne, atme durch und richte deine Aufmerksamkeit neu aus, bevor du die nächste Aufgabe anpackst.`,
+    freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht. Feierabend ist gelebte Gnade.`,
+    standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld (${profile.relationshipStatus}) festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert und darfst ganz du selbst sein.`,
     spiegel: `Echte Reife zeigt sich darin, wie wir mit den Schwächen der anderen umgehen – ob wir Druck weitergeben oder Raum zum Atmen schaffen.\n\nFragen für die Stille:\n1. Wo versuche ich noch mit eigener Muskelkraft Dinge zu erzwingen, die ich Gott anvertrauen sollte?\n2. Wer in meinem Umfeld braucht heute ein ermutigendes Wort statt kritischer Blicke?\n3. Was hindert mich daran, heute Abend vollkommen loszulassen?`,
     leuchtkraft: `Im Garten deines Herzens herrscht tiefe Stille. Kein Lärm, keine Fristen, keine Prüfer. Du bist bedingungslos geliebt und von der Quelle versorgt.\n\nHerzensgebet:\n„Herr, danke für dein lebendiges Wort, das mich mitten in meiner Realität abholt. Kläre meine Gedanken, nimm den Druck aus meinen Schultern und schenke mir deinen tiefen Frieden. Ich vertraue dir mein Leben an. Amen.“`,
     favorite: false,

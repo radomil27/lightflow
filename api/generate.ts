@@ -21,12 +21,14 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Passage und Profil erforderlich' });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
 
   if (!apiKey) {
-    // Gibt Fallback-Signal an Client, falls noch kein Key in Vercel hinterlegt ist
-    return res.status(200).json({ useFallback: true });
+    console.error('[api/generate] GEMINI_API_KEY ist in den Vercel-Umgebungsvariablen nicht konfiguriert!');
+    return res.status(200).json({ useFallback: true, error: 'GEMINI_API_KEY_NOT_CONFIGURED' });
   }
+
+  console.log('[api/generate] Request empfangen für Passage:', passage, '| Key vorhanden (Länge:', apiKey.length, ')');
 
   try {
     const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
@@ -153,28 +155,25 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 7. LEUCHTKRAFT`;
     }
 
-    // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
-    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks (2.5, flash-latest, 1.5) zur 100% Fehlerfreiheit
+    // Modell-Kaskade für maximale Stabilität und Performance:
+    // gemini-2.0-flash antwortet in 2-3 Sekunden und verhindert Vercel 10s-Timeouts zuverlässig.
     const candidateModels = [
-      'gemini-3.8-flash',
-      'gemini-3.8',
-      'gemini-3.7-flash',
-      'gemini-3.7',
+      'gemini-2.0-flash',
       'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
-      'gemini-flash-latest',
-      'gemini-1.5-flash-latest'
+      'gemini-1.5-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-2.5-flash-lite'
     ];
 
     let lastError = '';
-    // Probiere der Reihe nach die besten Modelle durch (sicherer 2s Timeout pro Call)
+    // Probiere die verfügbaren Endpunkte durch (bis zu 7.5s Timeout pro Call, um Vercel 10s Budget einzuhalten)
     for (const model of candidateModels) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(2000),
+          signal: AbortSignal.timeout(7500),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
@@ -185,19 +184,24 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
           const data = await response.json();
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
+            console.log(`[api/generate] Erfolgreich generiert mit Modell: ${model} (${text.length} Zeichen)`);
             return res.status(200).json({ text, source: 'gemini', model, posten: selectedPosten });
           }
         } else {
-          lastError = await response.text();
+          const errBody = await response.text();
+          lastError = `HTTP ${response.status}: ${errBody.slice(0, 300)}`;
+          console.error(`[api/generate] Modell ${model} lieferte Status ${response.status}:`, errBody.slice(0, 300));
         }
       } catch (err: any) {
-        lastError = err.message;
+        lastError = err.message || 'Timeout / Abort';
+        console.error(`[api/generate] Call auf Modell ${model} abgebrochen/fehlgeschlagen:`, err.message);
       }
     }
 
+    console.warn('[api/generate] Alle Kandidaten-Modelle fehlgeschlagen. Aktiviere Client-Fallback. Letzter Fehler:', lastError);
     return res.status(200).json({ useFallback: true, error: lastError });
   } catch (error: any) {
-    console.error('Serverless Catch:', error);
+    console.error('[api/generate] Unerwarteter Handler-Fehler:', error.message);
     return res.status(200).json({ useFallback: true, error: error.message });
   }
 }

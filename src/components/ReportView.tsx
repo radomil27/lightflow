@@ -51,7 +51,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
       return;
     }
 
-    // Bei neu generiertem Report: Start bei 1, dann schrittweises Entriegeln im 500ms-Takt
+    // Bei neu generiertem Report: Start bei 1, dann schrittweises Entriegeln im 400ms-Takt
     setUnlockedStep(1);
 
     const interval = setInterval(() => {
@@ -62,13 +62,13 @@ export const ReportView: React.FC<ReportViewProps> = ({
         }
         return prev + 1;
       });
-    }, 550);
+    }, 400);
 
-    // Absoluter Sicherheits-Fallback: Nach spätestens 4 Sekunden sind garantiert alle 7 Posten offen
+    // Absoluter Sicherheits-Fallback: Nach spätestens 3 Sekunden sind garantiert alle 7 Posten offen
     const safeguardTimer = setTimeout(() => {
       setUnlockedStep(7);
       clearInterval(interval);
-    }, 4000);
+    }, 3000);
 
     return () => {
       clearInterval(interval);
