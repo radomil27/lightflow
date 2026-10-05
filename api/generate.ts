@@ -121,21 +121,22 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 
     activeModels.sort((a, b) => score(b) - score(a));
 
-    const queue = activeModels.length > 0 ? activeModels : [
+    const queue = (activeModels.length > 0 ? activeModels : [
       'gemini-3.8-flash',
       'gemini-3.7-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash'
-    ];
+    ]).slice(0, 3);
 
     let lastError = '';
-    // Probiere der Reihe nach die besten Modelle durch
+    // Probiere der Reihe nach die besten Modelle durch (mit 12s Timeout pro Modell)
     for (const model of queue) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(12000),
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
