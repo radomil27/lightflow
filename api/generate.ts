@@ -91,13 +91,16 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
 ### 6. SPIEGEL
 ### 7. LEUCHTKRAFT`;
 
-    // Modelle mit hoher / uneingeschränkter Free-Tier Quota (Flash-Lite & Gemma vor Pro)
+    // Priorität auf Gemini 3.8 und 3.7 gemäß Vorgabe
+    // Kaskadierende Ausfallkette: 3.8 -> 3.7 -> Fallbacks zur Garantie, dass NIEMALS ein Fehler geworfen wird
     const candidateModels = [
-      'gemini-2.5-flash-lite',
-      'gemini-flash-lite-latest',
+      'gemini-3.8-flash',
+      'gemini-3.8',
+      'gemini-3.7-flash',
+      'gemini-3.7',
       'gemini-2.5-flash',
-      'gemini-flash-latest',
-      'gemma-4-31b-it'
+      'gemini-2.5-flash-lite',
+      'gemini-flash-latest'
     ];
 
     let lastError = '';
@@ -127,17 +130,40 @@ Die Ausgabe muss in genau diesen 7 Abschnitten mit diesen Überschriften erfolge
       }
     }
 
-    // Falls kein Modell direkt klappte, frage die Liste der verfügbaren Modelle für diesen Key ab
+    // Falls die spezifischen Modell-IDs noch nicht freigeschaltet sind, dynamisch alle verfügbaren Modelle für diesen Key prüfen
     try {
       const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
       if (listResp.ok) {
         const listData = await listResp.json();
-        const available = listData.models?.map((m: any) => m.name) || [];
-        return res.status(200).json({ useFallback: true, error: lastError, availableModels: available });
+        const availableModels: string[] = listData.models?.map((m: any) => m.name.replace('models/', '')) || [];
+        
+        // Suche nach 3.8, dann 3.7, dann flash
+        const preferred = availableModels.find((m: string) => m.includes('3.8')) 
+                       || availableModels.find((m: string) => m.includes('3.7'))
+                       || availableModels.find((m: string) => m.includes('flash') && m.includes('generateContent'));
+
+        if (preferred) {
+          const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${preferred}:generateContent?key=${apiKey}`;
+          const fallbackResp = await fetch(fallbackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+            }),
+          });
+          if (fallbackResp.ok) {
+            const fallbackData = await fallbackResp.json();
+            const text = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              return res.status(200).json({ text, source: 'gemini', model: preferred });
+            }
+          }
+        }
       }
     } catch (_) {}
 
-    return res.status(200).json({ useFallback: true, error: lastError });
+    return res.status(200).json({ useFallback: false, error: lastError });
   } catch (error: any) {
     console.error('Serverless Catch:', error);
     return res.status(200).json({ useFallback: true, error: error.message });

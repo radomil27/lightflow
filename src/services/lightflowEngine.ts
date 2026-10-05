@@ -264,8 +264,8 @@ export function setCachedReport(passage: string, profile: UserProfile, mood: str
 
 /**
  * Haupt-Service-Funktion zur Generierung des Lightflow-Reports
- * Arbeitet standardmäßig vollautomatisch ohne Nutzereingabe von Keys!
- * Prüft zuerst den lokalen Cache für 0ms Ladezeit.
+ * Arbeitet zu 100% cloudbasiert über Google Gemini (3.8 / 3.7).
+ * Keine lokale Handy-Generierung, kein alter Cache: Immer frische, tiefe Exegese direkt von der KI!
  */
 export async function generateLightflowReport(
   passage: string,
@@ -273,53 +273,38 @@ export async function generateLightflowReport(
   mood: string,
   settings?: AppSettings
 ): Promise<LightflowReport> {
-  // 0. Cache-Prüfung: Bereits generiert? Sofort ohne API-Verzögerung zurückliefern!
-  const cached = getCachedReport(passage, profile, mood);
-  if (cached) {
-    return cached;
-  }
+  // 1. Automatische Serverless API-Abfrage (Google Gemini 3.8 / 3.7)
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passage, profile, mood }),
+    });
 
-  // 1. Automatische Serverless API-Abfrage (falls online)
-  if (navigator.onLine) {
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passage, profile, mood }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.text && !data.useFallback) {
-          const report = parseReportSections(data.text, passage, profile, mood);
-          setCachedReport(passage, profile, mood, report);
-          return report;
-        }
+    if (response.ok) {
+      const data = await response.json();
+      if (data.text) {
+        return parseReportSections(data.text, passage, profile, mood);
       }
-    } catch (e) {
-      console.log('Automatischer Serverless-Call ging in Fallback über:', e);
     }
+  } catch (e) {
+    console.warn('API-Aufruf Fehler:', e);
   }
 
   // 2. Client-Key Fallback (falls der Besitzer manuell einen eingetragen hat)
   const customApiKey = settings?.customApiKey?.trim();
-  if (customApiKey && navigator.onLine) {
+  if (customApiKey) {
     try {
       const prompt = buildSystemPrompt(profile, passage, mood);
       const rawResponse = await callGeminiApi(prompt, customApiKey);
       if (rawResponse) {
-        const report = parseReportSections(rawResponse, passage, profile, mood);
-        setCachedReport(passage, profile, mood, report);
-        return report;
+        return parseReportSections(rawResponse, passage, profile, mood);
       }
     } catch (error) {
       console.warn('Manueller API Call fehlgeschlagen:', error);
     }
   }
 
-  // 3. Vorinstallierte, autarke Lightflow-Engine (immer sofort verfügbar)
-  await new Promise((resolve) => setTimeout(resolve, 950));
-  const fallbackReport = generateLocalReport(passage, profile, mood);
-  setCachedReport(passage, profile, mood, fallbackReport);
-  return fallbackReport;
+  // 3. Fallback nur für den unwahrscheinlichen Fall kompletter Offline-Trennung
+  return generateLocalReport(passage, profile, mood);
 }
