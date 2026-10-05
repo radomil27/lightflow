@@ -44,31 +44,31 @@ export default async function handler(req: any, res: any) {
     const sectionDescriptions: Record<number, { title: string; prompt: string }> = {
       1: {
         title: '### 1. LICHTFUNKE',
-        prompt: 'Jesus spricht den Nutzer direkt, persönlich, warmherzig und auf Augenhöhe an. Keine Theologie, sondern ein erster Funke, der das Herz berührt und die Kernaussage der Bibelstelle in klaren, vollständigen und liebevollen Worten zusammenfasst.'
+        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er nimmt den zentralen Gedanken oder das Hauptbild des Bibeltextes (${passage}) auf und formuliert daraus einen unmittelbaren Zuspruch auf Augenhöhe. Keine allgemeine Seelsorge-Floskel, sondern der Kern dieser konkreten Bibelstelle als befreiende Zusage. Umfang: Genau 2 bis 3 vollständige Sätze.`
       },
       2: {
         title: '### 2. KLARBLICK',
-        prompt: `Die Bibelstelle wird in ihrer vollen Erzählung und Tiefe glasklar aufgeschlüsselt, exakt abgestimmt auf den Denkstil des Nutzers (${profile.mindset}):\n- Was passiert in der Geschichte / in diesem Bibeltext konkret?\n- Wo liegt der menschliche Irrtum oder die Warnung des Textes?\n- Was ist die befreiende Kernaussage und die logische Wirkungsweise des Reiches Gottes?\nAlle Sätze müssen vollständig und zusammenhängend ausformuliert sein, sodass die Botschaft unmittelbar einleuchtet.`
+        prompt: `Exegese abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die menschliche Falle oder der Irrtum in dieser Geschichte/diesem Text?\n2. Was ist das befreiende Prinzip des Reiches Gottes (Gnade, Vertrauen, Gottes Handeln statt menschlicher Krampf)?\nKein theologischer Fachjargon, sondern eine logisch einleuchtende Erklärung in 3 bis 4 vollständigen Sätzen.`
       },
       3: {
         title: '### 3. TAGWERK',
-        prompt: `Übertragung auf den Beruf und den Arbeitsalltag des Nutzers (${fullProfession}). Wie greift das Prinzip mitten bei der Arbeit, unter Zeitdruck oder im Umgang mit Kunden und Kollegen? Inklusive einer konkreten, praktischen Handlungsweise für den Werktag.`
+        prompt: `1:1-Übertragung in die konkrete Praxiswelt (${fullProfession}).\nNutze reale Fachbegriffe, typische Werkzeuge und Handgriffe. Zeige auf, wie das biblische Prinzip greift, wenn Zeitdruck herrscht, Dinge nicht passen oder Reibung entsteht. Keine Wellness-Tipps wie 'tief atmen', sondern eine handfeste Haltung für saubere Arbeit ohne Verbissenheit. Umfang: Genau 3 bis 4 vollständige Sätze.`
       },
       4: {
         title: '### 4. FREIRAUM',
-        prompt: 'Freizeit, Erholung und Feierabend. Was bedeutet diese Bibelstelle, wenn die Arbeit getan ist? Wie hilft sie dabei, mental komplett abzuschalten, inneren Druck abzubauen und ohne schlechtes Gewissen zur Ruhe zu kommen?'
+        prompt: 'Feierabend und Loslassen. Wenn das Werkzeug verstaut und die Arbeit beendet ist: Warum darf der Nutzer ohne schlechtes Gewissen Feierabend machen? Verankere das Prinzip, dass der menschliche Wert nicht an der unfertigen To-Do-Liste hängt. Umfang: 3 vollständige Sätze.'
       },
       5: {
         title: '### 5. STANDPUNKT',
-        prompt: `Bezug zur persönlichen Lebenssituation und dem Zivilstand (${profile.relationshipStatus}). Wie wirkt sich diese Wahrheit auf das persönliche Leben, das Alleinsein oder das Zusammenleben und den Umgang mit Mitmenschen aus?`
+        prompt: `Bezug auf das reale Lebensumfeld (${profile.relationshipStatus}). Gesunde Grenzen, Annahme und Entlastung im Miteinander oder Alleinsein. Umfang: 3 vollständige Sätze.`
       },
       6: {
         title: '### 6. SPIEGEL',
-        prompt: 'Wie man dieses Prinzip im Miteinander, in Gemeinschaft oder Gemeinde lebt (z. B. Barmherzigkeit statt Verurteilung). Enthält 2 bis 3 direkte, tiefgehende Fragen in ganzen Sätzen, die der Nutzer im Stillen für sich selbst reflektieren kann.'
+        prompt: `Ein kurzer Einleitungssatz über Barmherzigkeit und Echtheit im Miteinander, gefolgt von exakt 2 nummerierten, ehrlichen Reflexionsfragen für die persönliche Stille (z. B. "1. Wo versuchst du gerade..." und "2. Welchen Druck kannst du heute...").`
       },
       7: {
         title: '### 7. LEUCHTKRAFT',
-        prompt: 'Der Garten im Herzen: Der geschützte Ort der Stille und Begegnung mit Gott, an dem man ohne Leistung ankommen und Gnade empfangen darf. Abgeschlossen mit einem ehrlichen, erdnahen Herzensgebet in vollständigen Sätzen, das alle vorherigen Punkte aufgreift.'
+        prompt: `Ein kurzer Satz des Ankommens in Gottes Gegenwart, gefolgt von einer Leerzeile und einem bodenständigen, unverkrampften Herzensgebet (4 bis 5 Sätze), das die Themen des Tages und der Bibelstelle aufgreift und mit "Amen." abschließt.`
       }
     };
 
