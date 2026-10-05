@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ChevronRight,
   Settings,
+  Type,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -144,7 +145,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* 3. Bibliothek & Historie */}
+          {/* 3. Schriftgröße (Ergonomie für ermüdete Augen) */}
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                <Type className="w-4 h-4 text-[#E09F3E]" />
+                <span>Schriftgröße</span>
+              </div>
+              <span className="text-[11px] text-stone-400">
+                {settings.fontSize === 'sm' ? 'Kompakt' : settings.fontSize === 'lg' ? 'Groß (Feierabend)' : 'Standard'}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...settings, fontSize: 'sm' as const };
+                  onSaveSettings(updated);
+                }}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
+                  settings.fontSize === 'sm'
+                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                    : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                }`}
+              >
+                <span className="text-xs font-bold">A-</span>
+                <span className="text-[10px]">14px</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...settings, fontSize: 'md' as const };
+                  onSaveSettings(updated);
+                }}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
+                  (settings.fontSize || 'md') === 'md'
+                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                    : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                }`}
+              >
+                <span className="text-sm font-bold">A</span>
+                <span className="text-[10px]">16px</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = { ...settings, fontSize: 'lg' as const };
+                  onSaveSettings(updated);
+                }}
+                className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
+                  settings.fontSize === 'lg'
+                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                    : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                }`}
+              >
+                <span className="text-base font-bold">A+</span>
+                <span className="text-[10px]">18px</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4. Bibliothek & Historie */}
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -189,18 +252,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          {/* 4. Version der App */}
+          {/* 5. Version der App */}
           <div className="p-3 rounded-2xl bg-stone-100/70 dark:bg-slate-900/50 border border-stone-200/60 dark:border-slate-800 flex items-center justify-between text-xs text-stone-600 dark:text-stone-300">
             <div className="flex items-center space-x-2">
               <Info className="w-4 h-4 text-stone-400" />
               <span>Version der App</span>
             </div>
             <span className="font-mono text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-              v1.3.8 (PWA Live)
+              v1.4.0 (PWA Live)
             </span>
           </div>
 
-          {/* 5. Zu unterst: Privat & werbefrei */}
+          {/* 6. Zu unterst: Privat & werbefrei */}
           <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
             <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="leading-relaxed">

@@ -24,6 +24,8 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
+  fontSize: 'md',
+  bibleTranslation: 'SCH',
   apiProvider: 'gemini',
   selectedModel: 'gemini-1.5-flash',
 };

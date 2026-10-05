@@ -48,6 +48,8 @@ export interface LightflowReport {
 
 export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
+  fontSize?: 'sm' | 'md' | 'lg';
+  bibleTranslation?: 'SCH' | 'LUT';
   customApiKey?: string;
   apiProvider?: 'gemini' | 'openai';
   selectedModel?: string;

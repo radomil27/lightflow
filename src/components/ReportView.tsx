@@ -18,18 +18,24 @@ import {
   ChevronUp,
   Square,
   Loader2,
+  Share2,
 } from 'lucide-react';
+import { BibleTextViewer } from './BibleTextViewer';
 
 interface ReportViewProps {
   report: LightflowReport;
+  fontSize?: 'sm' | 'md' | 'lg';
   onToggleFavorite: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
+  onFontSizeChange?: (size: 'sm' | 'md' | 'lg') => void;
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({
   report,
+  fontSize = 'md',
   onToggleFavorite,
   onSaveNotes,
+  onFontSizeChange,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
@@ -105,9 +111,47 @@ export const ReportView: React.FC<ReportViewProps> = ({
     return null;
   };
 
+  // Dynamische CSS-Klassen für Schriftgröße (Feierabend-Ergonomie)
+  const bodyTextClass =
+    fontSize === 'sm'
+      ? 'text-sm'
+      : fontSize === 'lg'
+      ? 'text-lg sm:text-xl font-normal leading-relaxed'
+      : 'text-sm sm:text-base leading-relaxed';
+
+  const lichtfunkeTextClass =
+    fontSize === 'sm'
+      ? 'text-base sm:text-lg'
+      : fontSize === 'lg'
+      ? 'text-xl sm:text-2xl'
+      : 'text-lg sm:text-xl';
+
   const handleCopySection = (stepNum: number, title: string, text: string) => {
-    const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle`;
+    const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle\nhttps://lightflow-app-two.vercel.app`;
     navigator.clipboard.writeText(sectionText).then(() => {
+      setCopiedSection(stepNum);
+      setTimeout(() => setCopiedSection(null), 2000);
+    });
+  };
+
+  // Smart-Share-Funktion für WhatsApp, Telegram & Co. (mit Web-Share API & Clipboard-Fallback)
+  const handleShareSection = async (stepNum: number, title: string, text: string) => {
+    const shareText = `✨ Lightflow – ${report.passage}\n${title}:\n${text}\n\n🔗 https://lightflow-app-two.vercel.app`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Lightflow – ${report.passage} (${title})`,
+          text: shareText,
+          url: 'https://lightflow-app-two.vercel.app',
+        });
+        return;
+      } catch (err: any) {
+        // AbortError tritt auf, wenn der Nutzer das Teilen-Fenster manuell schließt
+        if (err.name === 'AbortError') return;
+      }
+    }
+    // Fallback für Desktop / nicht unterstützte Browser
+    navigator.clipboard.writeText(shareText).then(() => {
       setCopiedSection(stepNum);
       setTimeout(() => setCopiedSection(null), 2000);
     });
@@ -248,6 +292,48 @@ ${report.leuchtkraft || report.heartGarden}
             <span className="hidden md:inline">{copied ? 'Kopiert!' : 'Kopieren'}</span>
           </button>
 
+          {/* Schriftgrößen-Schnellumschalter A- / A+ */}
+          {onFontSizeChange && (
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-0.5 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => onFontSizeChange('sm')}
+                className={`px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  fontSize === 'sm'
+                    ? 'bg-[#E09F3E] text-slate-950 shadow-xs'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+                title="Kleine Schrift (14px)"
+              >
+                A-
+              </button>
+              <button
+                type="button"
+                onClick={() => onFontSizeChange('md')}
+                className={`px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  fontSize === 'md'
+                    ? 'bg-[#E09F3E] text-slate-950 shadow-xs'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+                title="Standard-Schrift (16px)"
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => onFontSizeChange('lg')}
+                className={`px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  fontSize === 'lg'
+                    ? 'bg-[#E09F3E] text-slate-950 shadow-xs'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+                title="Große Schrift für den Feierabend (18px)"
+              >
+                A+
+              </button>
+            </div>
+          )}
+
           <button
             onClick={() => setNotesOpen(!notesOpen)}
             className="p-2.5 rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-stone-700 dark:text-stone-300 hover:border-[#E09F3E]/60 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
@@ -258,6 +344,9 @@ ${report.leuchtkraft || report.heartGarden}
           </button>
         </div>
       </div>
+
+      {/* 3. Integrierter gemeinfreier Bibel-Volltext-Viewer (Schlachter 1951 / Luther 1912) */}
+      <BibleTextViewer passage={report.passage} />
 
       {/* Notiz-Eingabefeld falls geöffnet */}
       {notesOpen && (
@@ -340,6 +429,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Zuspruch per WhatsApp / Telegram teilen"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -357,7 +458,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(1) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-500/15">
-                <p className="font-serif text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic">
+                <p className={`font-serif ${lichtfunkeTextClass} font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic`}>
                   „{report.lichtfunke || report.coreConduit}“
                 </p>
               </div>
@@ -412,6 +513,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -429,7 +542,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(2) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.klarblick || report.systemDecoded}
                 </div>
               </div>
@@ -484,6 +597,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(3, '3. TAGWERK', report.tagwerk || report.workBench || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -501,7 +626,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(3) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.tagwerk || report.workBench}
                 </div>
               </div>
@@ -556,6 +681,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -573,7 +710,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(4) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.freiraum || report.dailyFreedom}
                 </div>
               </div>
@@ -628,6 +765,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -645,7 +794,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(5) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.standpunkt || report.profileSnapshot.relationshipStatus}
                 </div>
               </div>
@@ -700,6 +849,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(6, '6. SPIEGEL', report.spiegel || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(6, '6. SPIEGEL', report.spiegel || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -717,7 +878,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(6) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
+                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.spiegel}
                 </div>
               </div>
@@ -774,6 +935,18 @@ ${report.leuchtkraft || report.heartGarden}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleShareSection(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '');
+                  }}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-[10px] hidden sm:inline">Teilen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '');
                   }}
                   className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -791,7 +964,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {openSections.includes(7) && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-200/50 dark:border-amber-900/30">
-                <div className="text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2">
+                <div className={`${lichtfunkeTextClass} text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2`}>
                   {report.leuchtkraft || report.heartGarden}
                 </div>
 

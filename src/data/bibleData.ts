@@ -87,6 +87,71 @@ export const NEW_TESTAMENT_BOOKS: BibleBook[] = [
 
 export const ALL_BIBLE_BOOKS = [...OLD_TESTAMENT_BOOKS, ...NEW_TESTAMENT_BOOKS];
 
+// 1-basierte Buch-Nummer nach Standardkanon (1: 1. Mose bis 66: Offenbarung)
+export function getBookNumber(bookIdOrName: string): number {
+  const norm = bookIdOrName.trim().toLowerCase();
+  const index = ALL_BIBLE_BOOKS.findIndex(
+    (b) => b.id.toLowerCase() === norm ||
+           b.name.toLowerCase() === norm ||
+           b.shortName.toLowerCase() === norm
+  );
+  return index >= 0 ? index + 1 : 43; // Standard: 43 = Johannes
+}
+
+/**
+ * Parst eine Bibelstellen-Angabe wie 'Johannes 15:1-8' oder 'Matthäus 12' in Buch, Kapitel, Startvers, Endvers
+ */
+export function parsePassageReference(passage: string): {
+  book: BibleBook;
+  bookNumber: number;
+  chapter: number;
+  startVerse?: number;
+  endVerse?: number;
+} {
+  const clean = passage.trim();
+  
+  // Suche nach passendem Buch
+  let matchedBook: BibleBook = ALL_BIBLE_BOOKS[42]; // Default: Johannes
+  let remainder = clean;
+
+  // Längste Buchnamen zuerst abgleichen, damit "1. Johannes" vor "Johannes" matcht
+  const sortedBooks = [...ALL_BIBLE_BOOKS].sort((a, b) => b.name.length - a.name.length);
+  for (const b of sortedBooks) {
+    const reg = new RegExp(`^(${b.name}|${b.shortName}|${b.id})\\.?\\s*`, 'i');
+    if (reg.test(clean)) {
+      matchedBook = b;
+      remainder = clean.replace(reg, '').trim();
+      break;
+    }
+  }
+
+  // Parse Kapitel und Verse aus dem Rest (z. B. "15:1-8" oder "12:1-14" oder "15")
+  const chapMatch = remainder.match(/^(\d+)(?::(\d+)(?:-(\d+))?)?/);
+  let chapter = 1;
+  let startVerse: number | undefined;
+  let endVerse: number | undefined;
+
+  if (chapMatch) {
+    chapter = parseInt(chapMatch[1], 10) || 1;
+    if (chapMatch[2]) {
+      startVerse = parseInt(chapMatch[2], 10);
+    }
+    if (chapMatch[3]) {
+      endVerse = parseInt(chapMatch[3], 10);
+    }
+  }
+
+  const bookNumber = getBookNumber(matchedBook.id);
+
+  return {
+    book: matchedBook,
+    bookNumber,
+    chapter,
+    startVerse,
+    endVerse,
+  };
+}
+
 // Gibt die Versanzahl eines Kapitels zurück (mit verlässlichem Standard)
 export function getVerseCount(book: BibleBook, chapter: number): number {
   if (book.versesPerChapter && book.versesPerChapter[chapter]) {

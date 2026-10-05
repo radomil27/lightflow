@@ -292,6 +292,12 @@ export const App: React.FC = () => {
           <div id="lightflow-report">
             <ReportView
               report={currentReport}
+              fontSize={settings.fontSize || 'md'}
+              onFontSizeChange={(size) => {
+                const upd = { ...settings, fontSize: size };
+                setSettings(upd);
+                saveStoredSettings(upd);
+              }}
               onToggleFavorite={handleToggleFavorite}
               onSaveNotes={handleSaveNotes}
             />
