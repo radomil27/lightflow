@@ -201,43 +201,15 @@ ${report.leuchtkraft || report.heartGarden}
       {/* Report Kopfzeile mit Metadaten & Aktionsleiste */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-stone-200/80 dark:border-slate-800 gap-4">
         <div>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 mb-1.5">
-            <span className="flex items-center gap-1 font-medium px-2 py-0.5 rounded-lg bg-amber-500/10 text-[#B45309] dark:text-[#FDE68A] border border-amber-500/20">
-              <Briefcase className="w-3 h-3" />
-              {report.profileSnapshot.professionDetail || report.profileSnapshot.profession}
-            </span>
-            <span className="px-2 py-0.5 rounded-lg bg-stone-200/60 dark:bg-slate-800 text-stone-700 dark:text-stone-300 text-[11px]">
-              {report.profileSnapshot.mindset}
-            </span>
-            <span className="px-2 py-0.5 rounded-lg bg-stone-200/60 dark:bg-slate-800 text-stone-700 dark:text-stone-300 text-[11px]">
-              {report.profileSnapshot.relationshipStatus}
-            </span>
-            {report.profileSnapshot.journeyStage && (
-              <span className="px-2 py-0.5 rounded-lg bg-[#3E6B56]/15 text-[#2A483A] dark:text-[#A7F3D0] text-[11px]">
-                {report.profileSnapshot.journeyStage}
-              </span>
-            )}
-            <span className="px-2 py-0.5 rounded-lg bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] text-[11px] font-medium">
-              {report.mood}
-            </span>
-            {report.isFallback ? (
-              <span 
-                className="px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-medium"
-                title={`Fallback-Grund: ${report.fallbackReason || 'Cloud nicht erreichbar'}`}
-              >
-                ⚡ Lokale Exegese (Offline-Schutz)
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-medium">
-                ✨ Gemini Cloud KI
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
               {report.passage}
             </h2>
+            {report.mood && (
+              <span className="px-2.5 py-1 rounded-xl bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] text-xs font-medium border border-[#E09F3E]/25">
+                🌿 {report.mood}
+              </span>
+            )}
             {onEditPassage && (
               <button
                 type="button"

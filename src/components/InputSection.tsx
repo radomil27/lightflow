@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, Droplets, ArrowRight, Zap, RefreshCw, Feather, ChevronUp, Edit3 } from 'lucide-react';
+import { Search, Sparkles, Droplets, ArrowRight, Zap, RefreshCw, Feather, ChevronUp } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface InputSectionProps {
@@ -12,6 +12,8 @@ interface InputSectionProps {
   profile: UserProfile;
   onOpenPicker: () => void;
   hasActiveReport?: boolean;
+  isEditing?: boolean;
+  onCancelEdit?: () => void;
 }
 
 export const MOOD_CHIPS = [
@@ -62,47 +64,35 @@ export const InputSection: React.FC<InputSectionProps> = ({
   profile,
   onOpenPicker,
   hasActiveReport = false,
+  isEditing = false,
+  onCancelEdit,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(hasActiveReport);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(hasActiveReport && !isEditing);
 
-  // Synchronisiere Collapse-Status, wenn ein neuer Report generiert wurde
+  // Synchronisiere Collapse-Status, wenn ein neuer Report generiert oder Edit-Modus geändert wurde
   React.useEffect(() => {
-    if (hasActiveReport) {
+    if (isEditing) {
+      setIsCollapsed(false);
+    } else if (hasActiveReport) {
       setIsCollapsed(true);
     }
-  }, [hasActiveReport]);
+  }, [hasActiveReport, isEditing]);
 
   const hasPassage = passage.trim().length > 0;
   const hasMood = selectedMood && selectedMood.trim().length > 0;
   const isCtaReady = hasPassage && hasMood && !isLoading;
 
-  // Wenn ein aktiver Report vorliegt und der Nutzer den Bereich eingeklappt hat: Kompakter Header
-  if (hasActiveReport && isCollapsed) {
-    return (
-      <section className="w-full max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-2 animate-in fade-in duration-300">
-        <div className="flex items-center justify-between p-3.5 px-4 rounded-2xl bg-white/80 dark:bg-[#151B22]/80 border border-stone-200/80 dark:border-slate-800 shadow-sm backdrop-blur-md">
-          <div className="flex items-center space-x-2 text-xs sm:text-sm text-stone-700 dark:text-stone-300 truncate">
-            <span className="font-serif font-bold text-stone-900 dark:text-stone-100 truncate">
-              📖 {passage}
-            </span>
-            <span className="text-stone-300 dark:text-stone-600">•</span>
-            <span className="px-2 py-0.5 rounded-lg bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] text-xs font-medium whitespace-nowrap">
-              🌿 {selectedMood || 'Tagesstimmung'}
-            </span>
-          </div>
+  const handleClose = () => {
+    setIsCollapsed(true);
+    if (onCancelEdit) {
+      onCancelEdit();
+    }
+  };
 
-          <button
-            type="button"
-            onClick={() => setIsCollapsed(false)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-amber-500/15 text-stone-600 hover:text-[#B45309] dark:bg-slate-800/80 dark:hover:bg-amber-500/20 dark:text-stone-300 dark:hover:text-[#FDE68A] text-xs font-medium transition-colors shrink-0 ml-2 cursor-pointer"
-            title="Bibelstelle oder Stimmung neu anpassen"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-[#E09F3E]" />
-            <span className="hidden sm:inline">Neu anpassen</span>
-          </button>
-        </div>
-      </section>
-    );
+  // Wenn ein aktiver Report vorliegt und der Nutzer den Bereich eingeklappt hat:
+  // Keine redundante Leiste rendern – der ReportView besitzt die alleinige saubere Titelzeile mit [Edit3]
+  if (hasActiveReport && isCollapsed) {
+    return null;
   }
 
   return (
@@ -112,11 +102,11 @@ export const InputSection: React.FC<InputSectionProps> = ({
         <div className="flex justify-end mb-2">
           <button
             type="button"
-            onClick={() => setIsCollapsed(true)}
+            onClick={handleClose}
             className="text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
           >
             <ChevronUp className="w-3.5 h-3.5" />
-            <span>Kompaktansicht anzeigen</span>
+            <span>Zum Report zurückkehren</span>
           </button>
         </div>
       )}

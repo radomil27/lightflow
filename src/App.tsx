@@ -41,6 +41,7 @@ export const App: React.FC = () => {
     return generateLocalReport('Matthäus 12:1-14', getStoredProfile(), 'Unter Druck / Erschöpft');
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isEditingPassage, setIsEditingPassage] = useState<boolean>(false);
 
   // Modals
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
@@ -129,6 +130,7 @@ export const App: React.FC = () => {
       saveReport(initialReport);
       setSavedReports(getStoredReports());
       setIsLoading(false); // UI entsperren: Posten 1 ist sofort lesbar!
+      setIsEditingPassage(false);
 
       // Sanftes Scrollen zum Auswertungs-Report
       setTimeout(() => {
@@ -286,6 +288,8 @@ export const App: React.FC = () => {
           profile={profile}
           onOpenPicker={() => setIsPickerOpen(true)}
           hasActiveReport={Boolean(currentReport)}
+          isEditing={isEditingPassage}
+          onCancelEdit={() => setIsEditingPassage(false)}
         />
 
         {/* Auswertungs-Report */}
@@ -302,6 +306,7 @@ export const App: React.FC = () => {
               onToggleFavorite={handleToggleFavorite}
               onSaveNotes={handleSaveNotes}
               onEditPassage={() => {
+                setIsEditingPassage(true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             />
