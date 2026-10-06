@@ -21,6 +21,7 @@ import { ProfileModal } from './components/ProfileModal';
 import { SavedReportsModal } from './components/SavedReportsModal';
 import { SettingsModal } from './components/SettingsModal';
 import { BiblePickerModal } from './components/BiblePickerModal';
+import { MoodPickerModal } from './components/MoodPickerModal';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -48,6 +49,7 @@ export const App: React.FC = () => {
   const [isSavedOpen, setIsSavedOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
+  const [isMoodPickerOpen, setIsMoodPickerOpen] = useState<boolean>(false);
 
   // PWA Install Prompt Event
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -117,15 +119,15 @@ export const App: React.FC = () => {
     saveStoredSettings(updatedSettings);
   };
 
-  // Lichtfluss-Generierung starten (Sequentielle Posten-für-Posten-Pipeline)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!passage.trim()) return;
-
+  // Lichtfluss-Generierung starten mit gegebener Stimmung
+  const runGenerationWithMood = async (targetPassage: string, targetMood: string) => {
+    if (!targetPassage.trim()) return;
     setIsLoading(true);
+    setSelectedMood(targetMood);
+
     try {
       // 1. Posten 1 blitzschnell generieren und sofort anzeigen
-      const initialReport = await generateInitialPostenReport(passage, profile, selectedMood);
+      const initialReport = await generateInitialPostenReport(targetPassage, profile, targetMood);
       setCurrentReport(initialReport);
       saveReport(initialReport);
       setSavedReports(getStoredReports());
@@ -143,9 +145,9 @@ export const App: React.FC = () => {
       // 2. Posten 2 bis 7 sequentiell im Hintergrund laden
       await runSequentialPipeline(
         initialReport,
-        passage,
+        targetPassage,
         profile,
-        selectedMood,
+        targetMood,
         (updatedReport) => {
           setCurrentReport(updatedReport);
           saveReport(updatedReport);
@@ -158,40 +160,11 @@ export const App: React.FC = () => {
     }
   };
 
-  // Auswahl aus dem interaktiven Bibel-Navigator (startet direkt die sequentielle Auswertung)
-  const handleSelectPassageFromPicker = async (selectedPassage: string, autoSubmit: boolean = true) => {
+  // Auswahl aus dem interaktiven Bibel-Navigator: Übernimmt Passage und öffnet direkt das Mood-Modal
+  const handleSelectPassageFromPicker = (selectedPassage: string, autoProceed: boolean = true) => {
     setPassage(selectedPassage);
-    if (autoSubmit) {
-      setIsLoading(true);
-      try {
-        const initialReport = await generateInitialPostenReport(selectedPassage, profile, selectedMood);
-        setCurrentReport(initialReport);
-        saveReport(initialReport);
-        setSavedReports(getStoredReports());
-        setIsLoading(false);
-
-        setTimeout(() => {
-          const reportElement = document.getElementById('lightflow-report');
-          if (reportElement) {
-            reportElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 80);
-
-        await runSequentialPipeline(
-          initialReport,
-          selectedPassage,
-          profile,
-          selectedMood,
-          (updatedReport) => {
-            setCurrentReport(updatedReport);
-            saveReport(updatedReport);
-            setSavedReports(getStoredReports());
-          }
-        );
-      } catch (error) {
-        console.error('Fehler bei der Lichtfluss-Generierung:', error);
-        setIsLoading(false);
-      }
+    if (autoProceed) {
+      setIsMoodPickerOpen(true);
     }
   };
 
@@ -282,8 +255,7 @@ export const App: React.FC = () => {
           passage={passage}
           setPassage={setPassage}
           selectedMood={selectedMood}
-          setSelectedMood={setSelectedMood}
-          onSubmit={handleSubmit}
+          onOpenMoodPicker={() => setIsMoodPickerOpen(true)}
           isLoading={isLoading}
           profile={profile}
           onOpenPicker={() => setIsPickerOpen(true)}
@@ -363,6 +335,15 @@ export const App: React.FC = () => {
         onClose={() => setIsPickerOpen(false)}
         onSelectPassage={handleSelectPassageFromPicker}
         currentPassage={passage}
+      />
+
+      <MoodPickerModal
+        isOpen={isMoodPickerOpen}
+        onClose={() => setIsMoodPickerOpen(false)}
+        passage={passage}
+        onSelectMood={(mood) => {
+          runGenerationWithMood(passage, mood);
+        }}
       />
 
     </div>

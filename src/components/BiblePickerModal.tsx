@@ -395,7 +395,7 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
               >
                 <Check className="w-4 h-4" />
                 <span>
-                  Lichtfluss starten ({getConstructedPassage()})
+                  Auswählen & Weiter ({getConstructedPassage()})
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
