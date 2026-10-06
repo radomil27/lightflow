@@ -17,12 +17,9 @@ interface InputSectionProps {
 
 export const MOOD_CHIPS = [
   'Dankbar & Erfüllt',
-  'Kraftvoll & Bereit',
-  'Zur Ruhe kommen',
-  'Druck abbauen',
-  'Klarheit finden',
-  'Erschöpfung überwinden',
-  'Entscheidung treffen',
+  'Tatendrang & Fokus',
+  'Erschöpfung & Unter Druck',
+  'Orientierung & Rat',
 ];
 
 const INSPIRATION_PASSAGES = [

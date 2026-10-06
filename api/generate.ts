@@ -53,7 +53,7 @@ export default async function handler(req: any, res: any) {
       },
       3: {
         title: '### 3. TAGWERK',
-        prompt: `Reale Anwendung der Kernaussage auf das Berufsfeld (${fullProfession}).\nWie schützt oder leitet dieser Vers den Nutzer heute ganz konkret bei der Arbeit (z. B. bei Zeitdruck, im Umgang mit Kunden/Kollegen, bei Fehlern oder Reibung)?\nGreife die Warnung oder das Prinzip des Textes auf und gib eine handfeste Haltung mit. Umfang: Genau 3 bis 4 vollständige Sätze.`
+        prompt: `Übertragung des Verses auf das Berufsfeld (${fullProfession}):\n1. Einprägsames Merk-Bild: Verknüpfe die Wahrheit des Verses mit einem typischen Werkzeug, Handgriff oder einer konkreten Situation aus dieser Branche, sodass der Nutzer tagsüber sofort an den Vers erinnert wird, wenn er dieses Werkzeug sieht oder nutzt.\n2. Konkrete Handlung: Was kann der Nutzer heute ganz konkret tun oder lassen?\n3. Das geistliche WARUM dahinter: Erkläre glasklar die theologische Begründung (Warum wirkt dieses Prinzip befreiend? Welcher Mechanismus des Reiches Gottes steckt dahinter?).\nUmfang: Genau 3 bis 4 vollständige, kraftvolle Sätze. Funktioniert zu jeder Tageszeit (morgens, mittags, abends).`
       },
       4: {
         title: '### 4. FREIRAUM',
