@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Settings,
   Type,
+  RefreshCw,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -259,11 +260,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Version der App</span>
             </div>
             <span className="font-mono text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-              v1.4.2 (PWA Live)
+              v1.5.0 (PWA Live)
             </span>
           </div>
 
-          {/* 6. Zu unterst: Privat & werbefrei */}
+          {/* 6. Wartung: App-Cache leeren & neu laden */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={async () => {
+                if (window.confirm('Möchtest du den App-Cache leeren und Lightflow frisch neu laden? (Gespeicherte Favoriten bleiben erhalten)')) {
+                  try {
+                    // Caches leeren
+                    if ('caches' in window) {
+                      const keys = await caches.keys();
+                      await Promise.all(keys.map((k) => caches.delete(k)));
+                    }
+                    // Service Worker unregistrieren
+                    if ('serviceWorker' in navigator) {
+                      const registrations = await navigator.serviceWorker.getRegistrations();
+                      for (const reg of registrations) {
+                        await reg.unregister();
+                      }
+                    }
+                    // Temporäre Caches im Storage bereinigen (Cache-Schlüssel der Reports)
+                    Object.keys(localStorage).forEach((key) => {
+                      if (key.startsWith('lf_cache_')) {
+                        localStorage.removeItem(key);
+                      }
+                    });
+                  } catch (e) {
+                    console.warn('Cache-Bereinigung:', e);
+                  }
+                  window.location.reload();
+                }
+              }}
+              className="w-full p-3 rounded-2xl bg-stone-100/80 hover:bg-red-500/10 text-stone-600 hover:text-red-600 dark:bg-slate-900/60 dark:hover:bg-red-500/20 dark:text-stone-400 dark:hover:text-red-400 border border-stone-200 dark:border-slate-800 hover:border-red-500/30 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer font-medium"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>App-Cache leeren & neu laden</span>
+            </button>
+          </div>
+
+          {/* 7. Zu unterst: Privat & werbefrei */}
           <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
             <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="leading-relaxed">

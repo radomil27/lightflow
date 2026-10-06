@@ -1,5 +1,5 @@
 // Lightflow Service Worker - Offline Caching
-const CACHE_NAME = 'lightflow-cache-v1.4.2';
+const CACHE_NAME = 'lightflow-cache-v1.5.0';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

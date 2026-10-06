@@ -173,7 +173,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                 
                 {hasPassage && !hasMood ? (
                   <span className="text-[11px] text-[#B45309] dark:text-[#FDE68A] font-semibold animate-bounce">
-                    👉 Wie geht es dir heute? Bitte wähle deine Stimmung:
+                    👉 Wie geht es dir heute? Wähle deine Stimmung für den passenden Zuspruch:
                   </span>
                 ) : (
                   <span className="text-[11px] text-[#B45309] dark:text-[#FDE68A] font-medium">
