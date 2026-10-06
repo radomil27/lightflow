@@ -19,7 +19,6 @@ import {
   Square,
   Loader2,
   Share2,
-  Edit3,
 } from 'lucide-react';
 import { BibleTextViewer } from './BibleTextViewer';
 
@@ -30,6 +29,7 @@ interface ReportViewProps {
   onSaveNotes: (id: string, notes: string) => void;
   onFontSizeChange?: (size: 'sm' | 'md' | 'lg') => void;
   onEditPassage?: () => void;
+  onOpenBiblePicker?: () => void;
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({
@@ -39,6 +39,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
   onSaveNotes,
   onFontSizeChange,
   onEditPassage,
+  onOpenBiblePicker,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
@@ -52,8 +53,14 @@ export const ReportView: React.FC<ReportViewProps> = ({
     playSection,
     playFullReport,
     stopSpeech,
-    isSupported: isSpeechSupported,
-  } = useSpeechPlayer();
+    isSpeechSupported,
+  } = {
+    ...useSpeechPlayer(),
+    isSpeechSupported: useSpeechPlayer().isSupported,
+  };
+
+  // Callback zum Wechseln der Passage (bevorzugt direkten Picker-Dialog, Fallback auf onEditPassage)
+  const handlePassageClick = onOpenBiblePicker || onEditPassage;
 
   // Accordion-State: Speichert welche Posten aufgeklappt sind (1-basiert: 1 bis 7)
   const [openSections, setOpenSections] = useState<number[]>([1]);
@@ -202,23 +209,29 @@ ${report.leuchtkraft || report.heartGarden}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-stone-200/80 dark:border-slate-800 gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
-              {report.passage}
-            </h2>
+            {handlePassageClick ? (
+              <button
+                type="button"
+                onClick={handlePassageClick}
+                className="group inline-flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-2xl text-left hover:bg-stone-200/50 dark:hover:bg-slate-800/60 active:scale-[0.98] transition-all cursor-pointer select-none"
+                title="Tippen, um andere Bibelstelle auszuwählen"
+              >
+                <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9] group-hover:text-[#B45309] dark:group-hover:text-[#FDE68A] transition-colors">
+                  {report.passage}
+                </h2>
+                <span className="p-1 rounded-lg text-stone-400 group-hover:text-[#E09F3E] group-hover:bg-[#E09F3E]/15 transition-all">
+                  <ChevronDown className="w-5 h-5 transition-transform group-hover:translate-y-0.5" />
+                </span>
+              </button>
+            ) : (
+              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
+                {report.passage}
+              </h2>
+            )}
             {report.mood && (
               <span className="px-2.5 py-1 rounded-xl bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] text-xs font-medium border border-[#E09F3E]/25">
                 🌿 {report.mood}
               </span>
-            )}
-            {onEditPassage && (
-              <button
-                type="button"
-                onClick={onEditPassage}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors cursor-pointer"
-                title="Bibelstelle oder Stimmung neu anpassen"
-              >
-                <Edit3 className="w-4 h-4 text-[#E09F3E]" />
-              </button>
             )}
           </div>
         </div>

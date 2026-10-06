@@ -281,6 +281,7 @@ export const App: React.FC = () => {
                 setIsEditingPassage(true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              onOpenBiblePicker={() => setIsPickerOpen(true)}
             />
           </div>
         )}
