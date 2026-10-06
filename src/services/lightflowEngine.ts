@@ -217,6 +217,7 @@ export function generateLocalReport(
   const lowerPassage = passage.toLowerCase();
   const profession = profile.profession;
   const isHandwerk = profession.toLowerCase().includes('handwerk') || profession.toLowerCase().includes('monteur') || profession.toLowerCase().includes('küche') || profession.toLowerCase().includes('bau');
+  const namePrefix = profile.displayName && profile.displayName.trim().length > 0 ? `${profile.displayName.trim()}, ` : '';
 
   // 1. Spezieller Deep-Report für Matthäus 20 (Arbeiter im Weinberg: Gnade vs. Leistungsdruck & Vergleich)
   if (lowerPassage.includes('matthäus 20') || lowerPassage.includes('matt 20') || lowerPassage.includes('weinberg') || lowerPassage.includes('denar')) {
@@ -227,7 +228,7 @@ export function generateLocalReport(
       timestamp: Date.now(),
       profileSnapshot: { ...profile },
       mood,
-      lichtfunke: 'Hör auf, deinen Wert an den Stunden oder an der Leistung der anderen zu messen. Bei mir bist du kein Tagelöhner, der um Anerkennung betteln muss. Meine Güte steht fest, bevor dein Tag überhaupt beginnt.',
+      lichtfunke: `${namePrefix}hör auf, deinen Wert an den Stunden oder an der Leistung der anderen zu messen. Bei mir bist du kein Tagelöhner, der um Anerkennung betteln muss. Meine Güte steht fest, bevor dein Tag überhaupt beginnt.`,
       klarblick: 'Die Arbeiter der ersten Stunde erliegen dem ältesten Fehlschluss der Menschheit: Sie verwechseln vertragliche Gerechtigkeit mit göttlicher Barmherzigkeit. Sie murren nicht, weil sie zu wenig bekamen – denn sie erhielten exakt den vereinbarten Tagelohn –, sondern weil der Hausherr den Zu-Spät-Gekommenen dieselbe Würde und denselben vollen Lebensunterhalt schenkt. Die Warnung Jesu ist radikal: Wer das Reich Gottes wie eine Stechuhr betrachtet, vergiftet sein eigenes Herz mit Missgunst und Neid. Die befreiende Wahrheit lautet: Gottes Großzügigkeit nimmt dir nichts weg, sondern befreit dich vom ständigen Vergleich.',
       tagwerk: `Im Berufsalltag als ${profLabel} begegnen dir ständig Leistungstabellen, Stundensätze und der stumme Vergleich, wer mehr geschafft oder weniger geleistet hat. Wenn der Termindruck wächst und die Kräfte schwinden, kriecht schnell das Gefühl hoch, zu kurz zu kommen oder sich aufreiben zu müssen.\n\nKonkrete Handlung für deinen Werktag: Wenn du heute merkst, dass du die Arbeit oder Pausen anderer bewertest, atme aus. Verrichte dein Werk gewissenhaft aus Freude am Handwerk, aber ziehe deinen Selbstwert nicht aus dem Vorsprung vor deinen Kollegen.`,
       freiraum: `Wenn der Feierabend anbricht, endet die Abrechnung. Du musst vor Gott keine Überstunden nachweisen, um dich ausruhen zu dürfen. Der volle Denar des Friedens liegt bereits auf deinem Tisch – ganz gleich, wie mühsam oder zäh sich der Arbeitstag angefühlt hat. Lege die gedankliche Stechuhr ab und lass den Feierabend ein echtes Geschenk der Gnade sein.`,
@@ -359,8 +360,8 @@ export function generateLocalReport(
   const isPositiveMood = (mood || '').toLowerCase().includes('dankbar') || (mood || '').toLowerCase().includes('kraftvoll') || (mood || '').toLowerCase().includes('freude');
 
   const defaultLichtfunke = isPositiveMood
-    ? `Ich freue mich an deiner Freude und an dem, was heute gelungen ist! Dein Fleiß und dein Herzschlag haben gute Spuren hinterlassen. Geh getrost weiter – meine Kraft fließt mit dir.`
-    : `Ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`;
+    ? `${namePrefix}ich freue mich an deiner Freude und an dem, was heute gelungen ist! Dein Fleiß und dein Herzschlag haben gute Spuren hinterlassen. Geh getrost weiter – meine Kraft fließt mit dir.`
+    : `${namePrefix}ich bin mitten in deinem Tag da – nicht als Richter, sondern als dein Beistand. Dieser Text aus ${passage || 'der Schrift'} ist mein persönlicher Zuspruch für dich: Lass dich aufrichten und fass neuen Mut.`;
 
   const defaultLeuchtkraft = isPositiveMood
     ? `Im Garten deines Herzens blüht die Dankbarkeit auf. Sieh auf das Gelungene des heutigen Tages und bringe es mit offenem Herzen vor Gott.\n\nHerzensgebet:\n„Herr, mein Herz ist voll Dank für deine Treue und die Kraft, die du mir heute geschenkt hast. Danke für gelungene Handgriffe, gute Worte und die Bewahrung mitten im Tag. Lass diese Freude in meinen Feierabend hineinstrahlen. Amen.“`

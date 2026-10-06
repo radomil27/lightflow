@@ -13,6 +13,7 @@ const STORAGE_KEYS = {
 } as const;
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
+  displayName: '',
   profession: 'Küchenmonteur / Handwerk',
   professionDetail: 'Küchenmonteur für anspruchsvolle Endmontage & Passleisten',
   mindset: 'Lösungsorientiert & Analytisch',

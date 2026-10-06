@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { UserProfile } from '../types';
-import { X, Check, Briefcase, Brain, Heart, Compass, Sparkles, Search, Plus } from 'lucide-react';
+import { X, Check, Briefcase, Brain, Heart, Compass, Sparkles, Search, Plus, User } from 'lucide-react';
 import { PROFESSIONS_DATA, ProfessionItem } from '../data/professionsData';
 
 interface ProfileModalProps {
@@ -155,6 +155,26 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         </p>
 
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Rufname / Vorname (optional) */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
+              <User className="w-4 h-4 text-[#E09F3E]" />
+              Dein Rufname / Vorname (optional)
+            </label>
+            <div className="flex items-center px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50 focus-within:border-[#E09F3E] transition-all">
+              <input
+                type="text"
+                value={formData.displayName || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
+                placeholder="z. B. Radovan"
+                className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+              Damit die Zusage dich persönlich und vertraut ansprechen kann.
+            </p>
+          </div>
+
           {/* 1. Beruf / Smartes Autocomplete */}
           <div className="space-y-3" ref={dropdownRef}>
             <div className="flex items-center justify-between">

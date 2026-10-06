@@ -34,6 +34,7 @@ export default async function handler(req: any, res: any) {
   try {
     const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
     const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
+    const userName = profile.displayName && profile.displayName.trim().length > 0 ? profile.displayName.trim() : '';
     const fullProfession = profile.professionDetail && profile.professionDetail.trim().length > 0
       ? `${profile.profession} (Konkrete Tätigkeit & Alltag: ${profile.professionDetail.trim()})`
       : profile.profession;
@@ -44,7 +45,7 @@ export default async function handler(req: any, res: any) {
     const sectionDescriptions: Record<number, { title: string; prompt: string }> = {
       1: {
         title: '### 1. LICHTFUNKE',
-        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er fasst das Herzstück und die Hauptaussage dieses konkreten Verses (${passage}) zusammen. Keine allgemeine Seelsorge-Floskel, sondern das, was ER in diesem Text wirklich sagt – sei es ein befreiender Zuspruch, eine ernste Ermutigung oder ein Weckruf. Umfang: Genau 2 bis 3 vollständige Sätze.`
+        prompt: `Jesus spricht den Nutzer direkt und persönlich an.${userName ? ` Er darf den Nutzer genau EINMAL zu Beginn mit seinem Vornamen (${userName}) ansprechen (z. B. 'Komm erst einmal an, ${userName}...').` : ''} Er fasst das Herzstück und die Hauptaussage dieses konkreten Verses (${passage}) zusammen. Keine allgemeine Seelsorge-Floskel, sondern das, was ER in diesem Text wirklich sagt – sei es ein befreiender Zuspruch, eine ernste Ermutigung oder ein Weckruf. Umfang: Genau 2 bis 3 vollständige Sätze.`
       },
       2: {
         title: '### 2. KLARBLICK',
@@ -80,13 +81,17 @@ export default async function handler(req: any, res: any) {
    - Der eingegebene Bibeltext (${passage}) bestimmt das Thema, die Schärfe und die Tonalität.
    - KEIN generischer Wellness-Einheitsbrei: Wenn der Text warnt (z. B. vor Heuchelei, Habgier, Trägheit, falscher Sicherheit), decke die Warnung schonungslos und klar auf. Wenn der Text tröstet, tröste. Wenn der Text zur Umkehr oder Tat ruft, formuliere einen klaren Handlungsauftrag.
    - Beziehe jede Aussage, jedes Bild und jedes Gebet direkt auf den Inhalt, die Personen und die Ereignisse dieser konkreten Bibelstelle.
-2. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
+2. PERSÖNLICHE ANREDE & NAMENS-DOSIERUNG:
+   ${userName ? `- Der Nutzer heißt ${userName}. Jesus darf den Nutzer in Posten 1 (LICHTFUNKE) genau EINMAL zu Beginn persönlich beim Vornamen ansprechen (z. B. 'Komm erst einmal an, ${userName}...').
+   - In den übrigen Posten (2 bis 6) wird der Name NICHT künstlich wiederholt (keine ständige Nennung wie ein Verkäufer).
+   - In Posten 7 (Gebet) spricht der Nutzer zu Gott – dort wird der eigene Name ebenfalls NICHT genannt.` : '- Es ist kein Vorname hinterlegt. Sprich den Nutzer direkt mit „du“ / „dir“ an, ohne künstliche Anrede.'}
+3. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
    - Pragmatisch/Lösungsorientiert/Analytisch: Direkte Kausalität, schnörkellose Sätze, praktische Logik statt verschachtelter Poesie.
    - Bildhaft/Emotional/Beziehungsorientiert: Warme Vergleiche, emotionale Resonanz und Raum zum Fühlen.
-3. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
+4. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-4. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
+5. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
 
     if (selectedPosten) {
       maxTokens = 1200;
@@ -96,7 +101,7 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN (UNSICHTBARER MASSANZUG):
-- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
+${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
 - Weg mit Jesus: ${journey}
@@ -128,7 +133,7 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN (UNSICHTBARER MASSANZUG):
-- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
+${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
 - Weg mit Jesus: ${journey}
