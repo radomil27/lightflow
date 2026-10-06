@@ -28,6 +28,8 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+
   const parsed = parsePassageReference(passage);
 
   const handleSelectTranslation = (newTrans: 'SCH' | 'LUT') => {
@@ -63,7 +65,7 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
       .catch((err) => {
         if (!isMounted) return;
         console.warn('Bibeltext Abruffehler:', err);
-        setError('Bibeltext konnte nicht geladen werden (Offline oder Netzwerk blockiert).');
+        setError('Bibeltext konnte nicht geladen werden (Offline oder Netzwerk-Verbindung gestört).');
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -72,15 +74,17 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [isOpen, translation, parsed.bookNumber, parsed.chapter]);
+  }, [isOpen, translation, parsed.bookNumber, parsed.chapter, reloadTrigger]);
 
   // Gefilterte Verse basierend auf Start- und Endvers
   const displayVerses = verses.filter((v) => {
-    if (parsed.startVerse && parsed.endVerse) {
+    if (parsed.isFullChapter) return true;
+    if (parsed.startVerse !== undefined && parsed.endVerse !== undefined) {
       return v.verse >= parsed.startVerse && v.verse <= parsed.endVerse;
     }
-    if (parsed.startVerse) {
-      return v.verse >= parsed.startVerse;
+    if (parsed.startVerse !== undefined) {
+      // Exakter Einzelvers (z. B. Johannes 3:16)
+      return v.verse === parsed.startVerse;
     }
     return true;
   });
@@ -99,7 +103,7 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm font-semibold font-serif text-stone-800 dark:text-stone-200">
-                📖 Bibeltext anzeigen ({parsed.book.name} {parsed.chapter})
+                📖 Bibeltext anzeigen ({parsed.formattedDisplay})
               </span>
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-slate-700">
                 {translation === 'SCH' ? 'Schlachter 1951' : 'Luther 1912'}
@@ -168,10 +172,17 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
             </div>
           )}
 
-          {/* Fehleranzeige */}
+          {/* Fehleranzeige mit Retry-Button */}
           {!loading && error && (
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
-              {error}
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={() => setReloadTrigger((prev) => prev + 1)}
+                className="px-3 py-1.5 bg-[#E09F3E] text-slate-950 font-semibold rounded-lg hover:bg-[#D97706] transition-colors cursor-pointer self-start sm:self-auto shrink-0"
+              >
+                Erneut versuchen
+              </button>
             </div>
           )}
 
@@ -189,9 +200,15 @@ export const BibleTextViewer: React.FC<BibleTextViewerProps> = ({
             </div>
           )}
 
+          {!loading && !error && displayVerses.length === 0 && (
+            <div className="py-4 text-center text-xs text-stone-400">
+              Keine Verse für diese Auswahl gefunden ({parsed.formattedDisplay}).
+            </div>
+          )}
+
           <div className="mt-3 pt-2 border-t border-stone-100 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-stone-400">
             <span>Gemeinfrei (Public Domain)</span>
-            <span>{parsed.book.name} {parsed.chapter}{parsed.startVerse ? `:${parsed.startVerse}${parsed.endVerse ? `-${parsed.endVerse}` : ''}` : ''}</span>
+            <span>{parsed.formattedDisplay}</span>
           </div>
         </div>
       )}

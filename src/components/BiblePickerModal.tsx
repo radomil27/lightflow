@@ -48,11 +48,17 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
     'Römer 8:31-39',
   ];
 
-  // Gefilterte Bücher
+  // Gefilterte Bücher (unterstützt Suche nach Name, Kurzform und allen Aliasen)
   const currentBooks = testamentTab === 'NT' ? NEW_TESTAMENT_BOOKS : OLD_TESTAMENT_BOOKS;
-  const filteredBooks = currentBooks.filter((b) =>
-    b.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBooks = currentBooks.filter((b) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      b.name.toLowerCase().includes(q) ||
+      b.shortName.toLowerCase().includes(q) ||
+      b.aliases.some((alias) => alias.toLowerCase().includes(q))
+    );
+  });
 
   // Buch auswählen
   const handleSelectBook = (book: BibleBook) => {
