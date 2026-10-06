@@ -44,31 +44,31 @@ export default async function handler(req: any, res: any) {
     const sectionDescriptions: Record<number, { title: string; prompt: string }> = {
       1: {
         title: '### 1. LICHTFUNKE',
-        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er nimmt den zentralen Gedanken oder das Hauptbild des Bibeltextes (${passage}) auf und formuliert daraus einen unmittelbaren Zuspruch auf Augenhöhe. Keine allgemeine Seelsorge-Floskel, sondern der Kern dieser konkreten Bibelstelle als befreiende Zusage. WICHTIG BEI POSITIVER STIMMUNG (z. B. 'Dankbar & Erfüllt', 'Kraftvoll & Bereit'): Wenn der Tag gelungen ist oder die Stimmung positiv ist, formuliere keinen Krisen-Trost, sondern feiere das Gelingen und die Freude gemeinsam mit dem Nutzer auf Augenhöhe! Umfang: Genau 2 bis 3 vollständige Sätze.`
+        prompt: `Jesus spricht den Nutzer direkt und persönlich an. Er fasst das Herzstück und die Hauptaussage dieses konkreten Verses (${passage}) zusammen. Keine allgemeine Seelsorge-Floskel, sondern das, was ER in diesem Text wirklich sagt – sei es ein befreiender Zuspruch, eine ernste Ermutigung oder ein Weckruf. Umfang: Genau 2 bis 3 vollständige Sätze.`
       },
       2: {
         title: '### 2. KLARBLICK',
-        prompt: `Exegese abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die menschliche Falle oder der Irrtum in dieser Geschichte/diesem Text?\n2. Was ist das befreiende Prinzip des Reiches Gottes (Gnade, Vertrauen, Gottes Handeln statt menschlicher Krampf)?\nKein theologischer Fachjargon, sondern eine logisch einleuchtende Erklärung in 3 bis 4 vollständigen Sätzen.`
+        prompt: `Präzise Exegese und Warnungs-Analyse, abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wo liegt die konkrete WARNUNG, die Stolperfalle oder der menschliche Denkfehler, den der Text aufdeckt?\n3. Was ist die göttliche Lösung oder der Ausweg, den Jesus anbietet?\nGlasklare, logische Erklärung in 3 bis 4 vollständigen Sätzen.`
       },
       3: {
         title: '### 3. TAGWERK',
-        prompt: `1:1-Übertragung in die konkrete Praxiswelt (${fullProfession}).\nNutze reale Fachbegriffe, typische Werkzeuge und Handgriffe. Zeige auf, wie das biblische Prinzip greift, wenn Zeitdruck herrscht, Dinge nicht passen oder Reibung entsteht. Keine Wellness-Tipps wie 'tief atmen', sondern eine handfeste Haltung für saubere Arbeit ohne Verbissenheit. Umfang: Genau 3 bis 4 vollständige Sätze.`
+        prompt: `Reale Anwendung der Kernaussage auf das Berufsfeld (${fullProfession}).\nWie schützt oder leitet dieser Vers den Nutzer heute ganz konkret bei der Arbeit (z. B. bei Zeitdruck, im Umgang mit Kunden/Kollegen, bei Fehlern oder Reibung)?\nGreife die Warnung oder das Prinzip des Textes auf und gib eine handfeste Haltung mit. Umfang: Genau 3 bis 4 vollständige Sätze.`
       },
       4: {
         title: '### 4. FREIRAUM',
-        prompt: 'Feierabend und Loslassen. Wenn das Werkzeug verstaut und die Arbeit beendet ist: Warum darf der Nutzer ohne schlechtes Gewissen Feierabend machen? Verankere das Prinzip, dass der menschliche Wert nicht an der unfertigen To-Do-Liste hängt. Umfang: 3 vollständige Sätze.'
+        prompt: `Übertragung auf den Feierabend, die Gedankenwelt und die Freizeit.\nWas sagt dieser Vers über den Umgang mit Sorgen, freien Stunden oder falschen Prioritäten? Wie befreit dieser Text von innerem Druck oder falscher Selbstgerechtigkeit nach getaner Arbeit? Umfang: Genau 3 vollständige Sätze.`
       },
       5: {
         title: '### 5. STANDPUNKT',
-        prompt: `Bezug auf das reale Lebensumfeld (${profile.relationshipStatus}). Gesunde Grenzen, Annahme und Entlastung im Miteinander oder Alleinsein. Umfang: 3 vollständige Sätze.`
+        prompt: `Wirkung auf den Lebensstand (${profile.relationshipStatus}) und das Miteinander.\nWelche Verhaltensweise oder Haltung fordert bzw. schenkt der Vers im persönlichen Umfeld (z. B. Wahrheit in Liebe sagen, Vergebung, gesunde Grenzen, Treue)? Umfang: Genau 3 vollständige Sätze.`
       },
       6: {
         title: '### 6. SPIEGEL',
-        prompt: `Ein kurzer Einleitungssatz über Barmherzigkeit und Echtheit im Miteinander, gefolgt von exakt 2 nummerierten, ehrlichen Reflexionsfragen für die persönliche Stille (z. B. "1. Wo versuchst du gerade..." und "2. Welchen Druck kannst du heute...").`
+        prompt: `Ein kurzer Satz zur Notwendigkeit ehrlicher Selbstprüfung vor Gott, gefolgt von exakt 2 nummerierten, scharfen Fragen:\n1. Eine Frage zur konkreten WARNUNG des Textes (z. B. '1. Wo bist du in Gefahr, denselben Irrtum/Fehler zu begehen wie...').\n2. Eine Frage zur praktischen UMSETZUNG (z. B. '2. Welchen konkreten Schritt verlangt diese Wahrheit heute von dir?').`
       },
       7: {
         title: '### 7. LEUCHTKRAFT',
-        prompt: `Ein kurzer Satz des Ankommens in Gottes Gegenwart, gefolgt von einer Leerzeile und einem bodenständigen, unverkrampften Herzensgebet (4 bis 5 Sätze), das die Themen des Tages und der Bibelstelle aufgreift und mit "Amen." abschließt. WICHTIG BEI POSITIVER STIMMUNG (z. B. 'Dankbar & Erfüllt', 'Kraftvoll & Bereit'): Formuliere ein ehrliches, erdnahes DANK- und Lobgebet (Danke für Kraft, Gelingen der Handgriffe, gute Begegnungen, Freude am Werk).`
+        prompt: `Ein kurzer Einleitungssatz der Stille, gefolgt von einer Leerzeile und einem bodenständigen Herzensgebet (4 bis 5 Sätze), das eine direkte Antwort auf DIESEN Bibeltext ist:\n- Dank für die konkrete Wahrheit des Verses.\n- Bitte um Wachsamkeit gegenüber der aufgedeckten Warnung.\n- Bitte um Kraft für die Umsetzung im Alltag.\nAbschluss mit 'Amen.'.`
       }
     };
 
@@ -76,15 +76,16 @@ export default async function handler(req: any, res: any) {
     let maxTokens = 2600;
 
     const synthesisInstruction = `GANZHEITLICHE PERSÖNLICHKEITS-SYNTHESE (VOR DER GENERIERUNG DURCHFÜHREN):
-1. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
+1. STRIKTE TEXTTREUE & KLARE KANTE (ABSOLUTE PRIORITÄT):
+   - Der eingegebene Bibeltext (${passage}) bestimmt das Thema, die Schärfe und die Tonalität.
+   - KEIN generischer Wellness-Einheitsbrei: Wenn der Text warnt (z. B. vor Heuchelei, Habgier, Trägheit, falscher Sicherheit), decke die Warnung schonungslos und klar auf. Wenn der Text tröstet, tröste. Wenn der Text zur Umkehr oder Tat ruft, formuliere einen klaren Handlungsauftrag.
+   - Beziehe jede Aussage, jedes Bild und jedes Gebet direkt auf den Inhalt, die Personen und die Ereignisse dieser konkreten Bibelstelle.
+2. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
    - Pragmatisch/Lösungsorientiert/Analytisch: Direkte Kausalität, schnörkellose Sätze, praktische Logik statt verschachtelter Poesie.
    - Bildhaft/Emotional/Beziehungsorientiert: Warme Vergleiche, emotionale Resonanz und Raum zum Fühlen.
-2. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
+3. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-3. RESONANZBODEN ("GUTER TAG" vs. "BELASTETER TAG"): Die Tagesverfassung (${currentMood}) bestimmt das TEMPERAMENT.
-   - Wenn der Nutzer 'Dankbar & Erfüllt', 'Kraftvoll & Bereit' oder eine positive Stimmung gewählt hat: Formuliere keinen Krisen-Trost! Nimm das Gelingen des Tages auf. In Posten 1 feiert Jesus das Gelingen und die Frucht mit dem Nutzer. In Posten 7 (Leuchtkraft) wird ein ehrliches, erdnahes DANK- und Lobgebet formuliert (Danke für Kraft, Gelingen der Handgriffe, gute Begegnungen).
-   - Wenn der Nutzer 'Unter Druck / Erschöpft', 'Druck abbauen' oder 'Müde' gewählt hat: Kurze, entlastende Gedanken, kein intellektueller Ballast, maximale Gnade, Entspannung und Sauerstoff.
 4. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
 
     if (selectedPosten) {
@@ -104,6 +105,7 @@ NUTZER-DATEN (UNSICHTBARER MASSANZUG):
 ${synthesisInstruction}
 
 WICHTIGE LEITLINIEN:
+- STRIKTE TEXTTREUE: Der Bibeltext (${passage}) ist der Chef. Wenn der Text warnt, richte die Warnung auf. Wenn er tröstet, tröste. Kein seichtes "Alles wird gut"-Schema.
 - Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}) mit ihren echten Werkzeugen, typischen Herausforderungen und Situationen.
 - KEINE KÜNSTLICHEN ABBRÜCHE: Schreibe mit vollem Tiefgang, lebendiger Sprache und in vollständigen, grammatikalisch perfekten Sätzen.
 - Jeder Gedanke muss rund und vollendet sein. Beende jeden Satz mit einem Satzzeichen (. ! ?).
@@ -135,11 +137,12 @@ NUTZER-DATEN (UNSICHTBARER MASSANZUG):
 ${synthesisInstruction}
 
 STRIKTE LEITLINIEN:
-1. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
-2. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern.
-3. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
-4. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
-5. AUTHENTISCH & GNADENVOLL: Keine religiösen Phrasen, kein Leistungsdruck.
+1. STRIKTE TEXTTREUE & KLARE KANTE: Der Bibeltext (${passage}) bestimmt Inhalt und Tonart. Wenn der Text warnt, richte die Warnung auf. Wenn er tröstet, tröste. Kein seichter Wellness-Einheitsbrei!
+2. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
+3. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern.
+4. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
+5. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
+6. AUTHENTISCH & KRAFTVOLL: Keine religiösen Phrasen, aber auch keine Verwässerung biblischer Klarheit.
 
 AUSGABE-FORMAT:
 Die Ausgabe MUSS exakt in diesen 7 Abschnitten mit diesen Überschriften erfolgen und jeden Posten vollständig beenden:

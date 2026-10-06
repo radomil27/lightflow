@@ -285,6 +285,75 @@ export function generateLocalReport(
     };
   }
 
+  // 4. Spezieller Deep-Report für Lukas 12:15-21 (Der reiche Kornbauer & die Warnung vor Habgier)
+  if (lowerPassage.includes('lukas 12') || lowerPassage.includes('luk 12') || lowerPassage.includes('kornbauer') || lowerPassage.includes('scheunen')) {
+    const profLabel = profile.professionDetail || profile.profession;
+    return {
+      id: 'lf_' + Date.now(),
+      passage: passage.trim() || 'Lukas 12:15-21 (Die Warnung vor Habgier & Der reiche Kornbauer)',
+      timestamp: Date.now(),
+      profileSnapshot: { ...profile },
+      mood,
+      isFallback: true,
+      source: 'local_fallback',
+      fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
+      lichtfunke: 'Hüte dich vor jeder Form von Habgier und falscher Sicherheit! Dein Leben besteht nicht darin, dass du Güter im Überfluss anhäufst, während deine Seele verarmt. Sei reich in Gott – das ist der einzige Reichtum, der die Nacht überdauert.',
+      klarblick: 'Jesus spricht hier keinen wohligen Trost, sondern eine messerscharfe Warnung: Der reiche Kornbauer scheitert nicht an Fleiß oder wirtschaftlicher Klugheit, sondern an seiner radikalen Ich-Bezogenheit („meine Ernte, meine Scheunen, meine Seele“). Der tödliche Denkfehler besteht im Wahn, das Leben durch materielle Absicherung kontrollieren zu können, während die unausweichliche Endlichkeit vor der Tür steht. Gottes Urteil („Du Narr!“) entlarvt die Illusion: Wer Vorräte für sich selbst hortet, aber arm ist gegenüber Gott und Mitmenschen, verliert am Ende alles.',
+      tagwerk: `Im Berufsalltag als ${profLabel} locken Überstunden, Leistungsboni und das ständige Streben nach mehr Besitz und Absicherung. Wenn die Arbeit zum Selbstzweck wird und nur noch darum kreist, den eigenen Status abzusichern, verhärtet sich das Herz gegenüber Kollegen und Bedürftigen.\n\nKonkrete Haltung für deinen Werktag: Setze heute eine bewusste Grenze gegen Gier und Geiz. Verrichte deine Arbeit exzellent, aber mache deinen Kontostand oder Auftragsvolumen nicht zu deinem Götzen.`,
+      freiraum: `Wenn die Arbeit ruht, nützt dir keine vergrößerte Scheune etwas, wenn deine Seele leer bleibt. Reiß dich am Feierabend los von der ständigen Jagd nach mehr Konsum oder finanzieller Absicherung. Wahre Freiheit beginnt dort, wo du loslassen kannst und weißt: Mein Fundament steht in Gott, nicht auf dem Bankkonto.`,
+      standpunkt: `In deinem Lebensumfeld (${profile.relationshipStatus}) deckt dieser Text auf, ob du Beziehungen wie Geschäftsabschlüsse führst oder bereit bist, großzügig zu teilen. Wer nicht reich ist in Gott, neigt dazu, Menschen emotional oder materiell zu instrumentalisieren.`,
+      spiegel: `Dieser Text zwingt zu schonungsloser Ehrlichkeit vor dem Schöpfer:\n1. Wo bist du in Gefahr, denselben Irrtum wie der Kornbauer zu begehen und dein Vertrauen auf deine Scheunen statt auf Gott zu setzen?\n2. Welchen konkreten Schritt der Großzügigkeit und des Teilens verlangt diese Wahrheit heute von dir?`,
+      leuchtkraft: `Stille vor Gott entlarvt alle falschen Sicherheiten.\n\nHerzensgebet:\n„Herr Jesus, bewahre mich vor der subtilen Falle der Habgier und dem Wahn, mein Leben selbst absichern zu können. Vergib mir, wo ich auf irdische Vorräte statt auf deine Gnade gebaut habe. Mache mein Herz reich in dir und schenke mir den Mut, loszulassen und großzügig zu leben. Amen.“`,
+      favorite: false,
+    };
+  }
+
+  // 5. Spezieller Deep-Report für Matthäus 7:21-23 (Nicht jeder, der Herr sagt & Warnung vor Selbstbetrug)
+  if (lowerPassage.includes('matthäus 7:21') || lowerPassage.includes('matt 7:21') || lowerPassage.includes('scheinfromm') || lowerPassage.includes('nie gekannt')) {
+    const profLabel = profile.professionDetail || profile.profession;
+    return {
+      id: 'lf_' + Date.now(),
+      passage: passage.trim() || 'Matthäus 7:21-23 (Warnung vor Selbstbetrug & Der Wille des Vaters)',
+      timestamp: Date.now(),
+      profileSnapshot: { ...profile },
+      mood,
+      isFallback: true,
+      source: 'local_fallback',
+      fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
+      lichtfunke: 'Nicht wohlklingende Bekenntnisse oder fromme Worte öffnen das Himmelreich, sondern wer den Willen meines Vaters tut. Ich suche keine Lippenbekenntnisse, sondern ein gehorsames, ungeteiltes Herz in deiner echten Lebenspraxis.',
+      klarblick: 'Jesus zertrümmert jede religiöse Selbstgefälligkeit: Selbst charismatische Werke, Prophezeiungen oder Dämonenaustreibungen im Namen Jesu sind wertlos, wenn sie nicht aus einer lebendigen Beziehung des Gehorsams zum Vater entspringen. Die furchterregende Warnung („Ich habe euch nie gekannt; weicht von mir!“) richtet sich an diejenigen, die Frömmigkeit als Fassade nutzten, während ihr praktisches Handeln gesetzlos blieb. Der Ausweg ist radikale Echtheit: Buße, Unterordnung unter Gottes Willen und gelebte Nachfolge statt bloßem Schein.',
+      tagwerk: `Als ${profLabel} kennst du den Unterschied zwischen blendender Fassade und echter solider Bauqualität: Pfusch unter der Verkleidung fliegt auf. Genauso verabscheut Gott heuchlerische Lippenbekenntnisse am Arbeitsplatz, wenn Ehrlichkeit, Pünktlichkeit und faire Handgriffe fehlen.\n\nKonkrete Haltung für deinen Werktag: Sei im Verborgenen genauso gewissenhaft und integer wie vor den Augen deines Chefs oder Kunden. Lass dein Werk deine Echtheit bezeugen.`,
+      freiraum: `Am Feierabend fällt die Maske. Du musst Gott nichts vorspielen und dich nicht hinter frommen Phrasen verstecken. Er kennt dein Herz durch und durch. Nutze den Abend, um echte Umkehr zu tun, wo du dich selbst belogen hast, und kehre um zu aufrichtiger Nachfolge.`,
+      standpunkt: `Im persönlichen Lebensraum (${profile.relationshipStatus}) fordert dieser Text schonungslose Wahrhaftigkeit. Worte ohne Taten vergiften Beziehungen. Lebe das, was du bekennst, in Treue und Dienstbereitschaft.`,
+      spiegel: `Ehrliche Selbstprüfung im Licht der Ewigkeit:\n1. Wo besteht die Gefahr, dass deine Frömmigkeit oder deine Werte nur Fassade sind, während im Alltag Gesetzlosigkeit herrscht?\n2. Welchen konkreten Schritt des Gehorsams gegen Gottes Willen schiebst du seit Tagen auf?`,
+      leuchtkraft: `Tritt aus dem Schatten aller Heuchelei in das helle Licht Gottes.\n\nHerzensgebet:\n„Heiliger Gott, durchforsche mein Herz und reiße jede Maske der Selbstgerechtigkeit von mir ab. Vergib mir, wo ich mit Lippenbekenntnissen geglänzt, aber deinen Willen im Alltag ignoriert habe. Schenke mir ein ungeteiltes, aufrichtiges Herz, das dich liebt und deine Gebote in Tat und Wahrheit lebt. Amen.“`,
+      favorite: false,
+    };
+  }
+
+  // 6. Spezieller Deep-Report für Johannes 14:1-3 (Echter Trost gegen Angst & Die Wohnungen beim Vater)
+  if (lowerPassage.includes('johannes 14') || lowerPassage.includes('joh 14') || lowerPassage.includes('euer herz erschrecke nicht')) {
+    const profLabel = profile.professionDetail || profile.profession;
+    return {
+      id: 'lf_' + Date.now(),
+      passage: passage.trim() || 'Johannes 14:1-3 (Euer Herz erschrecke nicht & Wohnungen beim Vater)',
+      timestamp: Date.now(),
+      profileSnapshot: { ...profile },
+      mood,
+      isFallback: true,
+      source: 'local_fallback',
+      fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
+      lichtfunke: 'Euer Herz erschrecke nicht! Vertraut auf Gott und vertraut auf mich. Ich bereite euch eine ewige Stätte und ich komme wieder, um euch zu mir zu holen, damit ihr seid, wo ich bin.',
+      klarblick: 'Angesichts des bevorstehenden Kreuzes und des drohenden Abschieds fängt Jesus die lähmende Panik seiner Jünger auf: Die Anfechtung der Furcht wird nicht geleugnet, aber durch eine unerschütterliche Zusage überwunden. Das himmlische Vaterhaus ist keine vage Metapher, sondern die ewige, vorbereitete Heimat der Erlösten. Der Trost gründet nicht in menschlicher Standfestigkeit, sondern in der persönlichen Treue Jesu, der den Weg durch den Tod gebahnt hat.',
+      tagwerk: `Wenn im Arbeitsalltag als ${profLabel} Zukunftsängste, Krisengerüchte oder unkontrollierbare Umstände den Atem abschnüren, darfst du dich an dieser Zusage festhalten.\n\nKonkrete Haltung für deinen Werktag: Lass dich von aufkeimender Panik nicht in hektischen Aktionismus treiben. Verrichte deine Aufgaben im tiefen Bewusstsein, dass dein Leben ewig geborgen ist.`,
+      freiraum: `Wenn du den Feierabend betrittst, lass die Nachrichten und Sorgen dieser Welt hinter dir. Deine Zukunft hängt nicht an den Wechselfällen der Wirtschaft, sondern ruht in der ewigen Wohnung bei Gott. Atme tief durch und finde Ruhe in seiner Zusage.`,
+      standpunkt: `In deinem Lebensumfeld (${profile.relationshipStatus}) schenkt dieser Friede die Kraft, auch anderen Hoffnungsträger zu sein. Wo andere von Angst getrieben werden, darfst du Ruhe und Zuversicht ausstrahlen.`,
+      spiegel: `Prüfe dein Herz im Angesicht der Verheißung:\n1. Wo lässt du zu, dass Angst und Schrecken die Herrschaft über deine Gedanken übernehmen, statt Jesu Wort zu vertrauen?\n2. Wie kannst du heute einem ängstlichen Menschen in deinem Umfeld diesen Frieden weitergeben?`,
+      leuchtkraft: `Geborgenheit im ewigen Vaterhaus.\n\nHerzensgebet:\n„Herr Jesus, danke, dass du mir den Platz beim Vater bereitet hast und mein Leben fest in deinen Händen hältst. Nimm alle Furcht aus meinem Herzen und fülle mich mit deinem unerschütterlichen Frieden. Ich vertraue dir mein Heute und meine Ewigkeit an. Amen.“`,
+      favorite: false,
+    };
+  }
+
   // 4. Universeller, dynamisch interpolierter Ausleger ohne Meta-Talk
   const profName = profile.professionDetail || profile.profession;
   const isPositiveMood = (mood || '').toLowerCase().includes('dankbar') || (mood || '').toLowerCase().includes('kraftvoll') || (mood || '').toLowerCase().includes('freude');
