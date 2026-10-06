@@ -4,6 +4,7 @@ import {
   OLD_TESTAMENT_BOOKS,
   NEW_TESTAMENT_BOOKS,
   getVerseCount,
+  parsePassageReference,
 } from '../data/bibleData';
 import { X, Search, ChevronLeft, Sparkles, Check, Bookmark, ArrowRight } from 'lucide-react';
 
@@ -59,6 +60,13 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
       b.aliases.some((alias) => alias.toLowerCase().includes(q))
     );
   });
+
+  // Direkte Passagen-Erkennung aus dem Suchfeld (z. B. "Lukas 1:45-80" oder "Mt 26,36-75")
+  const parsedSearchPassage = React.useMemo(() => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed || !/\d/.test(trimmed)) return null;
+    return parsePassageReference(trimmed);
+  }, [searchTerm]);
 
   // Buch auswählen
   const handleSelectBook = (book: BibleBook) => {
@@ -261,6 +269,30 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
                   Altes Testament (39)
                 </button>
               </div>
+
+              {/* Direkte Stellen-Auswahl (z. B. "Lukas 1:45-80" sofort übernehmen) */}
+              {parsedSearchPassage && (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => handleConfirm(parsedSearchPassage.formattedDisplay)}
+                    className="w-full p-2.5 rounded-xl bg-gradient-to-r from-[#E09F3E]/20 to-amber-500/20 border border-[#E09F3E] text-stone-900 dark:text-amber-200 text-left flex items-center justify-between hover:bg-[#E09F3E]/30 transition-all cursor-pointer group shadow-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#E09F3E] shrink-0" />
+                      <div>
+                        <div className="text-[10px] uppercase font-bold tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                          Direkte Bibelstelle erkannt
+                        </div>
+                        <div className="font-serif font-bold text-sm text-stone-900 dark:text-white">
+                          „{parsedSearchPassage.formattedDisplay}“ sofort übernehmen
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#E09F3E] group-hover:translate-x-1 transition-transform shrink-0" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Bücher-Liste */}

@@ -4,6 +4,10 @@
  * vollständigen deutschen Alias-Namen / Abkürzungen und verifizierten Kapitelanzahlen.
  */
 
+import VERSE_COUNTS_DATA from './verseCounts.json';
+
+export const VERSE_COUNTS: Record<string, Record<number, number>> = VERSE_COUNTS_DATA;
+
 export interface BibleBook {
   id: string;              // Standard-ID (z. B. 'gen', 'matt')
   bookNumber: number;      // 1-basierte Bolls-Life-ID (1 bis 66)
@@ -782,9 +786,13 @@ export function parsePassageReference(passage: string): ParsedPassage {
 }
 
 /**
- * Gibt die Versanzahl eines Kapitels zurück (mit verlässlicher Mindestgrenze)
+ * Gibt die exakte, reelle Versanzahl eines Kapitels zurück.
+ * Nutzt die vollständige Kanon-Tabelle aller 1189 Kapitel der 66 Bücher.
  */
 export function getVerseCount(book: BibleBook, chapter: number): number {
+  if (VERSE_COUNTS[book.id] && VERSE_COUNTS[book.id][chapter]) {
+    return VERSE_COUNTS[book.id][chapter];
+  }
   if (book.versesPerChapter && book.versesPerChapter[chapter]) {
     return book.versesPerChapter[chapter];
   }
