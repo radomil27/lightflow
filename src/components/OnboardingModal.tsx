@@ -6,9 +6,9 @@ import {
   ArrowLeft,
   Check,
   User,
-  Briefcase,
   Search,
-  X
+  X,
+  Info
 } from 'lucide-react';
 import { PROFESSIONS_DATA, ProfessionItem } from '../data/professionsData';
 
@@ -34,10 +34,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     (initialProfile?.faithStage as FaithStage) || undefined
   );
 
-  // Schritt 3 State: Arbeitswelt / Lebenssituation mit Smart Input & Autocomplete
+  // Schritt 3 State: 1 einziges Eingabefeld mit Autocomplete & Info-Tooltip
   const [professionInput, setProfessionInput] = useState<string>(initialProfile?.profession || '');
-  const [professionDetail, setProfessionDetail] = useState<string>(initialProfile?.professionDetail || '');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [showInfoTooltip, setShowInfoTooltip] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Schritt 4 State: Lebensrahmen
@@ -56,7 +56,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Schnelle Filterung relevanter Vorschläge (inkl. Lehre, Arbeitssuchend, Hausfrau, etc.)
+  // Schnelle Filterung relevanter Vorschläge
   const filteredProfessions = useMemo(() => {
     const query = professionInput.trim().toLowerCase();
     if (query.length < 1) return [];
@@ -67,8 +67,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Validierung für 4 lineare Schritte (Weiter-Button stets disabled bis Pflichtauswahl erfolgt)
-  // Schritt 3: Aktiv sobald mindestens 2 Zeichen im Feld stehen
+  const isStep3Valid = professionInput.trim().length >= 2;
+
+  // Validierung für 4 lineare Schritte
   const isCurrentStepValid = (): boolean => {
     switch (step) {
       case 1:
@@ -76,7 +77,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       case 2:
         return faithStage !== undefined;
       case 3:
-        return professionInput.trim().length >= 2;
+        return isStep3Valid;
       case 4:
         return relationshipStatus.trim().length > 0;
       default:
@@ -104,7 +105,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         // Standard-Denktyp für schnellen Einstieg ohne Reibung:
         mindset: initialProfile?.mindset?.trim() || 'Lösungsorientiert & Pragmatisch',
         profession: finalProfession,
-        professionDetail: professionDetail.trim() || undefined,
+        professionDetail: '',
         relationshipStatus: relationshipStatus.trim(),
         dailyMood: 'Unter Druck / Erschöpft',
         hasCompletedOnboarding: true,
@@ -322,34 +323,53 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           )}
 
           {/* ========================================================
-              SCHRITT 3: ARBEITSWELT / SMART INPUT MIT DROPDOWN & FREITEXT
+              SCHRITT 3: RADIKAL-CLEANUP – 1 FELD, INFO-ICON (ℹ️), GRÜNES SOFORT-FEEDBACK
               ======================================================== */}
           {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
               <div>
-                <h3 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
-                  Was tust oder lernst du aktuell?
-                </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                  Egal ob Beruf, Ausbildung, Mehrfachrolle oder Pause – Lightflow schöpft daraus deine Alltags-Bilder.
-                </p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
+                    Was ist dein Beruf oder Alltag?
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowInfoTooltip(!showInfoTooltip)}
+                    className="p-1 rounded-full text-stone-400 hover:text-[#E09F3E] hover:bg-stone-200/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Hinweis anzeigen"
+                    aria-label="Info anzeigen"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Kompakte Info-Box bei Klick auf (ℹ️) */}
+                {showInfoTooltip && (
+                  <div className="mt-2.5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-stone-700 dark:text-stone-300 space-y-1.5 animate-in fade-in duration-150">
+                    <p className="font-medium text-[#B45309] dark:text-[#FDE68A]">
+                      Es gibt kein Richtig oder Falsch!
+                    </p>
+                    <p className="leading-relaxed">
+                      Schreibe einfach rein, was du machst – egal ob Beruf, Ausbildung, Mehrfachrolle oder Pause.
+                    </p>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 italic">
+                      Beispiele: ‚Küchenmonteur‘, ‚Hausfrau & Teilzeit Büro‘, ‚in Lehre als Elektriker‘, ‚arbeitssuchend‘.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Smart Autocomplete Input */}
+              {/* Smart Autocomplete Input – Nur 1 einziges Feld mit visuellem Feedback */}
               <div className="space-y-2" ref={dropdownRef}>
-                <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-[#E09F3E]" />
-                    Tätigkeit, Berufsfeld oder Situation
-                  </span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">
-                    {professionInput.trim().length >= 2 ? '✓ Gültig' : 'Min. 2 Zeichen'}
-                  </span>
-                </label>
-
                 <div className="relative">
-                  <div className="flex items-center px-3.5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50 focus-within:border-[#E09F3E] transition-all">
-                    <Search className="w-4 h-4 text-stone-400 mr-2.5 shrink-0" />
+                  <div className={`flex items-center px-3.5 py-3.5 rounded-2xl bg-white dark:bg-slate-900 border transition-all ${
+                    isStep3Valid
+                      ? 'border-emerald-500 ring-2 ring-emerald-500/30 dark:border-emerald-500/80'
+                      : 'border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50 focus-within:border-[#E09F3E]'
+                  }`}>
+                    <Search className={`w-4 h-4 mr-2.5 shrink-0 transition-colors ${
+                      isStep3Valid ? 'text-emerald-500' : 'text-stone-400'
+                    }`} />
                     <input
                       type="text"
                       value={professionInput}
@@ -362,9 +382,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                           setIsDropdownOpen(true);
                         }
                       }}
-                      placeholder="z. B. Küchenmonteur, in Lehre, arbeitssuchend, Hausfrau & Teilzeit..."
+                      placeholder="z. B. Küchenmonteur, Hausfrau & Teilzeit, in Lehre..."
                       className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none"
                     />
+
+                    {/* Visueller Bestätigungs-Haken bei Gültigkeit */}
+                    {isStep3Valid && (
+                      <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg mr-1 shrink-0 animate-in fade-in duration-150">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Gültig</span>
+                      </span>
+                    )}
+
                     {professionInput && (
                       <button
                         type="button"
@@ -372,7 +401,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                           setProfessionInput('');
                           setIsDropdownOpen(false);
                         }}
-                        className="p-1 rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                        className="p-1 rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer shrink-0"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -383,7 +412,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   {isDropdownOpen && filteredProfessions.length > 0 && (
                     <div className="absolute z-30 left-0 right-0 mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 shadow-xl py-1.5 animate-in fade-in duration-150">
                       <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500">
-                        Passende Vorschläge (antippen zum Übernehmen):
+                        Vorschläge (antippen zum Übernehmen):
                       </div>
                       {filteredProfessions.map((item) => (
                         <button
@@ -402,27 +431,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       ))}
                     </div>
                   )}
-                </div>
-
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
-                  💡 <strong>Freitext-Freiheit:</strong> Du kannst jeden beliebigen Begriff oder jede Rollen-Kombination eintippen. Lightflow übernimmt exakt deinen Text.
-                </p>
-              </div>
-
-              {/* Detail-Feld optional */}
-              <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-[#E09F3E]" />
-                  Genaue Tätigkeit / Spezialisierung (optional)
-                </label>
-                <div className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50">
-                  <input
-                    type="text"
-                    value={professionDetail}
-                    onChange={(e) => setProfessionDetail(e.target.value)}
-                    placeholder="z. B. 2. Lehrjahr Schreiner, Bewerbungsphase, Altbau-Sanierung..."
-                    className="w-full bg-transparent text-xs text-stone-800 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none"
-                  />
                 </div>
               </div>
             </div>
@@ -497,7 +505,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             onClick={handleNext}
             disabled={!isCurrentStepValid()}
             className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md ${
-              isCurrentStepValid()
+              step === 3 && isStep3Valid
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 active:scale-[0.98]'
+                : isCurrentStepValid()
                 ? 'bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] active:scale-[0.98]'
                 : 'bg-stone-200 dark:bg-slate-800 text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
             }`}

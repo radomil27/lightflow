@@ -19,7 +19,7 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   faithStage: 'disciple',
   journeyStage: 'Mitten im Alltag & Nachfolge',
   profession: 'Handwerk, Montage & Bau',
-  professionDetail: 'Handwerker / Montagespezialist auf der Baustelle',
+  professionDetail: '',
   mindset: 'Lösungsorientiert & Pragmatisch',
   relationshipStatus: 'Single / Alleinlebend',
   dailyMood: 'Unter Druck / Erschöpft',

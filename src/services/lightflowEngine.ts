@@ -79,9 +79,12 @@ GANZHEITLICHE PERSÖNLICHKEITS-SYNTHESE (VOR DER GENERIERUNG DURCHFÜHREN):
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
 8. ALLTAGSKONTEXT & METAPHERN-INTELLIGENZ (${fullProfession}):
-   - Egal ob spezifisches Handwerk, Ausbildung/Lehre, Mehrfachbelastung (z. B. Familie + Teilzeitjob) oder Arbeitssuche: Nimm die reale Lebenssituation vollkommen ernst. Schöpfe deine Alltagsbilder, Metaphern und Gehorsamsschritte in Posten 3 präzise aus diesem realen Spannungsfeld.
-   - Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Lebens- und Arbeitswelt organisch im Text (ohne Belehrung).
-   - Baue in Posten 3 zwingend ein handfestes Merk-Bild / Werkzeug ein und stelle das konkrete Alltagsszenario dar (Reaktion im Fleisch vs. Handeln im Geist mit theologischem Warum).
+   BERUFSFELD-TOLERANZ & AUTOKORREKTUR:
+   1. Korrigiere eventuelle Tippfehler im eingegebenen Berufs- oder Alltagstext des Nutzers stillschweigend im Hintergrund (z. B. ‚Küchmonteur‘ -> ‚Küchenmonteur‘).
+   2. Verstehe Kombinations-Angaben (z. B. ‚Hausfrau & 40% Reinigung‘) als organische Gesamtheit und leite typische Herausforderungen beider Lebenswelten ab.
+   3. Egal ob spezifisches Handwerk, Ausbildung/Lehre, Mehrfachbelastung (z. B. Familie + Teilzeitjob) oder Arbeitssuche: Nimm die reale Lebenssituation vollkommen ernst.
+   4. Schöpfe deine Alltagsbilder, Metaphern und Gehorsamsschritte in Posten 3 treffsicher und präzise aus diesem Alltag und Spannungsfeld.
+   5. Baue in Posten 3 zwingend ein handfestes Merk-Bild / Werkzeug ein und stelle das konkrete Alltagsszenario dar (Reaktion im Fleisch vs. Handeln im Geist mit theologischem Warum).
 9. MULTIDIMENSIONALE TEXT-ANALYSE & BIBLISCHE KAUSALKETTE:
    BIBLISCHE TEXT-DIMENSIONEN:
    Analysiere die gegebene Bibelstelle (${passage}) vorab auf ihre enthaltenen Wirkkräfte. Identifiziere primäre und sekundäre Dimensionen aus dem 7-teiligen Spektrum der Schrift:
