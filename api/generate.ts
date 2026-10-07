@@ -49,11 +49,11 @@ export default async function handler(req: any, res: any) {
       },
       2: {
         title: '### 2. KLARBLICK',
-        prompt: `Präzise Exegese und Warnungs-Analyse, abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wo liegt die konkrete WARNUNG, die Stolperfalle oder der menschliche Denkfehler, den der Text aufdeckt?\n3. Was ist die göttliche Lösung oder der Ausweg, den Jesus anbietet?\nGlasklare, logische Erklärung in 3 bis 4 vollständigen Sätzen.`
+        prompt: `Reine Schrifterklärung und theologische Tiefenschärfe, abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wie hat Gott es gedacht? Welche biblische Wahrheit oder göttliche Absicht liegt zugrunde?\n3. Wo liegt die konkrete Warnung, die Stolperfalle oder der menschliche Denkfehler, den der Text aufdeckt?\nGlasklare, theologische und logische Erklärung in 3 bis 4 vollständigen Sätzen – ohne jedes psychologische Coaching-Sprech.`
       },
       3: {
         title: '### 3. TAGWERK',
-        prompt: `Übertragung des Verses auf das Berufsfeld (${fullProfession}):\n1. Einprägsames Merk-Bild: Verknüpfe die Wahrheit des Verses mit einem typischen Werkzeug, Handgriff oder einer konkreten Situation aus dieser Branche, sodass der Nutzer tagsüber sofort an den Vers erinnert wird, wenn er dieses Werkzeug sieht oder nutzt.\n2. Konkrete Handlung: Was kann der Nutzer heute ganz konkret tun oder lassen?\n3. Das geistliche WARUM dahinter: Erkläre glasklar die theologische Begründung (Warum wirkt dieses Prinzip befreiend? Welcher Mechanismus des Reiches Gottes steckt dahinter?).\nUmfang: Genau 3 bis 4 vollständige, kraftvolle Sätze. Funktioniert zu jeder Tageszeit (morgens, mittags, abends).`
+        prompt: `Konkreter Gehorsam und praktische Nachfolge im Berufsfeld (${fullProfession}) – kein allgemeiner Karriere-Tipp:\n1. Einprägsames Merk-Bild: Verknüpfe die Wahrheit des Verses mit einem typischen Werkzeug, Handgriff oder einer konkreten Situation aus dieser Branche, sodass der Nutzer tagsüber sofort an den Vers erinnert wird.\n2. Konkrete Handlung / Gehorsam: Wie setzt man diesen göttlichen Gedanken heute am Arbeitsplatz konkret in die Tat um? Was tun oder lassen wir im Licht dieses Wortes?\n3. Das theologische WARUM (Gehorsam & Gottes Reich): Erkläre glasklar die theologische Begründung (Nicht zur Selbstoptimierung, sondern aus Ehrfurcht und Liebe zu Christus – welcher Mechanismus des Reiches Gottes steckt dahinter?).\nUmfang: Genau 3 bis 4 vollständige, kraftvolle Sätze. Funktioniert zu jeder Tageszeit.`
       },
       4: {
         title: '### 4. FREIRAUM',
@@ -65,7 +65,7 @@ export default async function handler(req: any, res: any) {
       },
       6: {
         title: '### 6. SPIEGEL',
-        prompt: `Ein kurzer Satz zur Notwendigkeit ehrlicher Selbstprüfung vor Gott, gefolgt von exakt 2 nummerierten, scharfen Fragen:\n1. Eine Frage zur konkreten WARNUNG des Textes (z. B. '1. Wo bist du in Gefahr, denselben Irrtum/Fehler zu begehen wie...').\n2. Eine Frage zur praktischen UMSETZUNG (z. B. '2. Welchen konkreten Schritt verlangt diese Wahrheit heute von dir?').`
+        prompt: `Ein kurzer Satz zur ehrlichen Selbstprüfung des Herzens vor Gottes heiligem Wort, gefolgt von exakt 2 nummerierten, scharfen Fragen:\n1. Eine Frage zur Abweichung / Warnung: Wo weiche ich im Alltag von Gottes Maßstab oder Gedanken in diesem Vers ab?\n2. Eine Frage zum konkreten Gehorsam / Nachfolge: Welchen praktischen Glaubensschritt oder Gehorsamsschritt verlangt dieses Wort heute unverzüglich von mir?`
       },
       7: {
         title: '### 7. LEUCHTKRAFT',
@@ -81,17 +81,21 @@ export default async function handler(req: any, res: any) {
    - Der eingegebene Bibeltext (${passage}) bestimmt das Thema, die Schärfe und die Tonalität.
    - KEIN generischer Wellness-Einheitsbrei: Wenn der Text warnt (z. B. vor Heuchelei, Habgier, Trägheit, falscher Sicherheit), decke die Warnung schonungslos und klar auf. Wenn der Text tröstet, tröste. Wenn der Text zur Umkehr oder Tat ruft, formuliere einen klaren Handlungsauftrag.
    - Beziehe jede Aussage, jedes Bild und jedes Gebet direkt auf den Inhalt, die Personen und die Ereignisse dieser konkreten Bibelstelle.
-2. PERSÖNLICHE ANREDE & NAMENS-DOSIERUNG:
+2. VERBOT VON LEBENSRATGEBER-FLOSKELN:
+   - Formuliere KEINE psychologischen Coaching-Tipps, Achtsamkeits-Ratschläge oder säkularen Motivationssprüche (z. B. kein 'atme tief durch', kein 'achte auf deine Selbstfürsorge', kein 'gönn dir Pausen um Kraft zu schöpfen', kein Wellness-Vokabular).
+   - Lightflow ist kein Lebenshilfe-Blog, sondern ein geistliches Werkzeug: Du bist Schriftausleger und geistlicher Wegweiser, der das Wort Gottes unverfälscht erklärt.
+   - Jede praktische Anwendung MUSS zwingend und logisch aus der biblischen Aussage des Verses abgeleitet sein (Indikativ führt zum Imperativ: Weil Gott so ist / weil Christus das getan hat, handeln wir so).
+3. PERSÖNLICHE ANREDE & NAMENS-DOSIERUNG:
    ${userName ? `- Der Nutzer heißt ${userName}. Jesus darf den Nutzer in Posten 1 (LICHTFUNKE) genau EINMAL zu Beginn persönlich beim Vornamen ansprechen (z. B. 'Komm erst einmal an, ${userName}...').
    - In den übrigen Posten (2 bis 6) wird der Name NICHT künstlich wiederholt (keine ständige Nennung wie ein Verkäufer).
    - In Posten 7 (Gebet) spricht der Nutzer zu Gott – dort wird der eigene Name ebenfalls NICHT genannt.` : '- Es ist kein Vorname hinterlegt. Sprich den Nutzer direkt mit „du“ / „dir“ an, ohne künstliche Anrede.'}
-3. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
+4. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
    - Pragmatisch/Lösungsorientiert/Analytisch: Direkte Kausalität, schnörkellose Sätze, praktische Logik statt verschachtelter Poesie.
    - Bildhaft/Emotional/Beziehungsorientiert: Warme Vergleiche, emotionale Resonanz und Raum zum Fühlen.
-4. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
+5. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-5. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
+6. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).`;
 
     if (selectedPosten) {
       maxTokens = 1200;
@@ -110,7 +114,8 @@ ${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Beruf / Tätigkeitsfeld
 ${synthesisInstruction}
 
 WICHTIGE LEITLINIEN:
-- STRIKTE TEXTTREUE: Der Bibeltext (${passage}) ist der Chef. Wenn der Text warnt, richte die Warnung auf. Wenn er tröstet, tröste. Kein seichtes "Alles wird gut"-Schema.
+- STRIKTE TEXTTREUE & AUSLEGUNG: Der Bibeltext (${passage}) ist der Chef. Wenn der Text warnt, richte die Warnung auf. Wenn er tröstet, tröste. Kein seichtes "Alles wird gut"-Schema.
+- VERBOT VON LEBENSRATGEBER-FLOSKELN: Kein psychologisches Coaching, keine Achtsamkeits-Ratschläge, kein Wellness-Vokabular. Reines Auslegen von Gottes Wort und praktischer Glaubensgehorsam (Indikativ führt zum Imperativ).
 - Beziehe dich zu 100% auf die konkrete Arbeits- und Lebenswelt des Nutzers (${fullProfession}) mit ihren echten Werkzeugen, typischen Herausforderungen und Situationen.
 - KEINE KÜNSTLICHEN ABBRÜCHE: Schreibe mit vollem Tiefgang, lebendiger Sprache und in vollständigen, grammatikalisch perfekten Sätzen.
 - Jeder Gedanke muss rund und vollendet sein. Beende jeden Satz mit einem Satzzeichen (. ! ?).
@@ -143,11 +148,12 @@ ${synthesisInstruction}
 
 STRIKTE LEITLINIEN:
 1. STRIKTE TEXTTREUE & KLARE KANTE: Der Bibeltext (${passage}) bestimmt Inhalt und Tonart. Wenn der Text warnt, richte die Warnung auf. Wenn er tröstet, tröste. Kein seichter Wellness-Einheitsbrei!
-2. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
-3. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern.
-4. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
-5. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
-6. AUTHENTISCH & KRAFTVOLL: Keine religiösen Phrasen, aber auch keine Verwässerung biblischer Klarheit.
+2. VERBOT VON LEBENSRATGEBER-FLOSKELN: Kein psychologisches Coaching, keine Achtsamkeits-Ratschläge, kein Wellness-Vokabular. Reines Auslegen von Gottes Wort und praktischer Glaubensgehorsam (Indikativ führt zum Imperativ).
+3. ABSOLUTE VOLLSTÄNDIGKEIT: Fasse jeden einzelnen der 7 Posten prägnant in vollständigen, tiefgründigen Sätzen zusammen. Beende ausnahmslos jeden Satz mit einem Satzzeichen (. ! ?). Höre NIEMALS mitten im Wort oder Satz auf!
+4. MASSANZUG DES BERUFS: Nutze die konkrete Arbeitswelt (${fullProfession}), deren echte Werkzeuge, Montage-Situationen oder typische Herausforderungen als lebensnahe Metaphern.
+5. 100% BEZUG ZUM BIBELTEXT: Erkläre die Botschaft, Warnung und befreiende Wahrheit der Bibelstelle glasklar.
+6. KEIN META-TALK: Erwähne niemals Phrasen wie "Weil du Handwerker bist..." oder "Aus der Perspektive deines Denkstils...". Webe die Realität unsichtbar ein.
+7. AUTHENTISCH & KRAFTVOLL: Keine religiösen Phrasen, aber auch keine Verwässerung biblischer Klarheit.
 
 AUSGABE-FORMAT:
 Die Ausgabe MUSS exakt in diesen 7 Abschnitten mit diesen Überschriften erfolgen und jeden Posten vollständig beenden:
