@@ -226,6 +226,13 @@ export const App: React.FC = () => {
     }
   };
 
+  // Report wiederherstellen (Rückgängig-Funktion)
+  const handleRestoreReport = (report: LightflowReport) => {
+    saveReport(report);
+    setSavedReports(getStoredReports());
+    setCurrentReport(report);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] dark:bg-[#12161A] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-300">
       
@@ -341,6 +348,7 @@ export const App: React.FC = () => {
         reports={savedReports}
         onSelectReport={handleSelectReport}
         onDeleteReport={handleDeleteReport}
+        onRestoreReport={handleRestoreReport}
       />
 
       <SettingsModal

@@ -20,9 +20,25 @@
     <!-- Google Fonts: Lora (Serif) & Plus Jakarta Sans (Grotesk) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Inline Theme Initializer (verhindert weißes Aufflackern beim Laden) -->
+    <script>
+      (function() {
+        try {
+          var settings = localStorage.getItem('lightflow_app_settings_v1');
+          var theme = settings ? JSON.parse(settings).theme : 'dark';
+          var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-[#FAF9F6] dark:bg-[#12161A] text-[#1E293B] dark:text-[#F1F5F9] antialiased selection:bg-[#E09F3E]/20 transition-colors duration-300">
+  <body class="bg-[#FAF9F6] dark:bg-[#12161A] text-[#1E293B] dark:text-[#F1F5F9] antialiased selection:bg-[#E09F3E]/20 transition-colors duration-300 overflow-x-hidden w-full max-w-full touch-pan-y">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>

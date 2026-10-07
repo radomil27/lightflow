@@ -237,7 +237,7 @@ ${report.leuchtkraft || report.heartGarden}
   };
 
   return (
-    <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-in fade-in duration-500">
+    <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-in fade-in duration-500 overflow-x-hidden max-w-full touch-pan-y break-words">
       
       {/* Report Kopfzeile mit Metadaten & Aktionsleiste */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-stone-200/80 dark:border-slate-800 gap-4">
