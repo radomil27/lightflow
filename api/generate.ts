@@ -123,8 +123,9 @@ export default async function handler(req: any, res: any) {
 7. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-8. METAPHERN-INTELLIGENZ & POSTEN 3 REGEL:
-   - Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).
+8. ALLTAGSKONTEXT & METAPHERN-INTELLIGENZ (${fullProfession}):
+   - Egal ob spezifisches Handwerk, Ausbildung/Lehre, Mehrfachbelastung (z. B. Familie + Teilzeitjob) oder Arbeitssuche: Nimm die reale Lebenssituation vollkommen ernst. Schöpfe deine Alltagsbilder, Metaphern und Gehorsamsschritte in Posten 3 präzise aus diesem realen Spannungsfeld.
+   - Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Lebens- und Arbeitswelt organisch im Text (ohne Belehrung).
    - Baue in Posten 3 zwingend ein handfestes Merk-Bild / Werkzeug ein und stelle das konkrete Alltagsszenario dar (Reaktion im Fleisch vs. Handeln im Geist mit theologischem Warum).
 9. MULTIDIMENSIONALE TEXT-ANALYSE & BIBLISCHE KAUSALKETTE:
    BIBLISCHE TEXT-DIMENSIONEN:

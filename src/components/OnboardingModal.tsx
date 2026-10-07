@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { UserProfile, Gender, FaithStage } from '../types';
 import {
   Sparkles,
@@ -6,8 +6,11 @@ import {
   ArrowLeft,
   Check,
   User,
-  Briefcase
+  Briefcase,
+  Search,
+  X
 } from 'lucide-react';
+import { PROFESSIONS_DATA, ProfessionItem } from '../data/professionsData';
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -31,20 +34,41 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     (initialProfile?.faithStage as FaithStage) || undefined
   );
 
-  // Schritt 3 State: Arbeitswelt / Berufsfeld
-  const [profession, setProfession] = useState<string>(initialProfile?.profession || '');
-  const [customProfession, setCustomProfession] = useState<string>('');
+  // Schritt 3 State: Arbeitswelt / Lebenssituation mit Smart Input & Autocomplete
+  const [professionInput, setProfessionInput] = useState<string>(initialProfile?.profession || '');
   const [professionDetail, setProfessionDetail] = useState<string>(initialProfile?.professionDetail || '');
-  const [isCustomProfessionSelected, setIsCustomProfessionSelected] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Schritt 4 State: Lebensrahmen
   const [relationshipStatus, setRelationshipStatus] = useState<string>(
     initialProfile?.relationshipStatus || ''
   );
 
+  // Klick außerhalb des Dropdowns schließt Vorschläge
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Schnelle Filterung relevanter Vorschläge (inkl. Lehre, Arbeitssuchend, Hausfrau, etc.)
+  const filteredProfessions = useMemo(() => {
+    const query = professionInput.trim().toLowerCase();
+    if (query.length < 1) return [];
+    return PROFESSIONS_DATA.filter((p) =>
+      p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query)
+    ).slice(0, 8);
+  }, [professionInput]);
+
   if (!isOpen) return null;
 
   // Validierung für 4 lineare Schritte (Weiter-Button stets disabled bis Pflichtauswahl erfolgt)
+  // Schritt 3: Aktiv sobald mindestens 2 Zeichen im Feld stehen
   const isCurrentStepValid = (): boolean => {
     switch (step) {
       case 1:
@@ -52,10 +76,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       case 2:
         return faithStage !== undefined;
       case 3:
-        if (isCustomProfessionSelected) {
-          return customProfession.trim().length > 0;
-        }
-        return profession.trim().length > 0;
+        return professionInput.trim().length >= 2;
       case 4:
         return relationshipStatus.trim().length > 0;
       default:
@@ -69,7 +90,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       setStep((prev) => prev + 1);
     } else {
       // Abschluss nach Schritt 4
-      const finalProfession = isCustomProfessionSelected ? customProfession.trim() : profession.trim();
+      const finalProfession = professionInput.trim();
       const finalProfile: UserProfile = {
         displayName: displayName.trim() || undefined,
         gender: gender || 'male',
@@ -98,14 +119,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     }
   };
 
-  const selectProfessionPreset = (preset: string) => {
-    setIsCustomProfessionSelected(false);
-    setProfession(preset);
-  };
-
-  const selectCustomProfessionMode = () => {
-    setIsCustomProfessionSelected(true);
-    setProfession('');
+  const handleSelectSuggestion = (item: ProfessionItem) => {
+    setProfessionInput(item.name);
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -306,79 +322,92 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           )}
 
           {/* ========================================================
-              SCHRITT 3: ARBEITSWELT / BERUFSFELD
+              SCHRITT 3: ARBEITSWELT / SMART INPUT MIT DROPDOWN & FREITEXT
               ======================================================== */}
           {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
               <div>
                 <h3 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
-                  In welcher Arbeitswelt bewegst du dich?
+                  Was tust oder lernst du aktuell?
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                  Daraus schöpft Lightflow reale Werkzeuge und Merk-Bilder für Posten 3 (Tagwerk).
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                  Egal ob Beruf, Ausbildung, Mehrfachrolle oder Pause – Lightflow schöpft daraus deine Alltags-Bilder.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {[
-                  { name: 'Handwerk, Montage & Bau', icon: '🔨' },
-                  { name: 'Büro, IT & Verwaltung', icon: '💻' },
-                  { name: 'Pflege, Gesundheit & Soziales', icon: '🏥' },
-                  { name: 'Logistik, Transport & Unterwegs', icon: '🚛' },
-                  { name: 'Haushalt, Familie & Erziehung', icon: '🏠' },
-                ].map((item) => {
-                  const isSelected = !isCustomProfessionSelected && profession === item.name;
-                  return (
-                    <button
-                      type="button"
-                      key={item.name}
-                      onClick={() => selectProfessionPreset(item.name)}
-                      className={`p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#E09F3E]/15 border-[#E09F3E] ring-2 ring-[#E09F3E]/40 font-semibold text-[#B45309] dark:text-[#FDE68A]'
-                          : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700 text-stone-800 dark:text-stone-200'
-                      }`}
-                    >
-                      <span className="text-xl">{item.icon}</span>
-                      <span className="text-xs leading-snug flex-1">{item.name}</span>
-                      {isSelected && <Check className="w-4 h-4 text-[#E09F3E] shrink-0" />}
-                    </button>
-                  );
-                })}
+              {/* Smart Autocomplete Input */}
+              <div className="space-y-2" ref={dropdownRef}>
+                <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+                    Tätigkeit, Berufsfeld oder Situation
+                  </span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">
+                    {professionInput.trim().length >= 2 ? '✓ Gültig' : 'Min. 2 Zeichen'}
+                  </span>
+                </label>
 
-                {/* Freitext-Kachel */}
-                <button
-                  type="button"
-                  onClick={selectCustomProfessionMode}
-                  className={`p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                    isCustomProfessionSelected
-                      ? 'bg-[#E09F3E]/15 border-[#E09F3E] ring-2 ring-[#E09F3E]/40 font-semibold text-[#B45309] dark:text-[#FDE68A]'
-                      : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700 text-stone-800 dark:text-stone-200'
-                  }`}
-                >
-                  <span className="text-xl">✏️</span>
-                  <span className="text-xs leading-snug flex-1">Anderes Berufsfeld...</span>
-                  {isCustomProfessionSelected && <Check className="w-4 h-4 text-[#E09F3E] shrink-0" />}
-                </button>
-              </div>
-
-              {/* Freitext-Eingabe wenn 'Anderes' gewählt */}
-              {isCustomProfessionSelected && (
-                <div className="space-y-1.5 animate-in fade-in duration-200 pt-1">
-                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    Dein Berufsfeld eingeben:
-                  </label>
-                  <div className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50">
+                <div className="relative">
+                  <div className="flex items-center px-3.5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50 focus-within:border-[#E09F3E] transition-all">
+                    <Search className="w-4 h-4 text-stone-400 mr-2.5 shrink-0" />
                     <input
                       type="text"
-                      value={customProfession}
-                      onChange={(e) => setCustomProfession(e.target.value)}
-                      placeholder="z. B. Landwirtschaft, Vertrieb, Gastronomie..."
-                      className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none"
+                      value={professionInput}
+                      onChange={(e) => {
+                        setProfessionInput(e.target.value);
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={() => {
+                        if (professionInput.trim().length >= 1) {
+                          setIsDropdownOpen(true);
+                        }
+                      }}
+                      placeholder="z. B. Küchenmonteur, in Lehre, arbeitssuchend, Hausfrau & Teilzeit..."
+                      className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none"
                     />
+                    {professionInput && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProfessionInput('');
+                          setIsDropdownOpen(false);
+                        }}
+                        className="p-1 rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
+
+                  {/* Dynamisches Dropdown für Vorschläge */}
+                  {isDropdownOpen && filteredProfessions.length > 0 && (
+                    <div className="absolute z-30 left-0 right-0 mt-1.5 max-h-56 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 shadow-xl py-1.5 animate-in fade-in duration-150">
+                      <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                        Passende Vorschläge (antippen zum Übernehmen):
+                      </div>
+                      {filteredProfessions.map((item) => (
+                        <button
+                          type="button"
+                          key={item.name}
+                          onClick={() => handleSelectSuggestion(item)}
+                          className="w-full text-left px-3.5 py-2 hover:bg-[#E09F3E]/10 dark:hover:bg-slate-800 flex items-center justify-between text-xs transition-colors cursor-pointer group"
+                        >
+                          <span className="text-stone-800 dark:text-stone-200 font-medium group-hover:text-[#B45309] dark:group-hover:text-[#FDE68A]">
+                            {item.name}
+                          </span>
+                          <span className="text-[10px] text-stone-400 dark:text-stone-500">
+                            {item.category}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                  💡 <strong>Freitext-Freiheit:</strong> Du kannst jeden beliebigen Begriff oder jede Rollen-Kombination eintippen. Lightflow übernimmt exakt deinen Text.
+                </p>
+              </div>
 
               {/* Detail-Feld optional */}
               <div className="space-y-1.5 pt-2">
@@ -391,7 +420,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                     type="text"
                     value={professionDetail}
                     onChange={(e) => setProfessionDetail(e.target.value)}
-                    placeholder="z. B. Granit auf Gehrung montieren, Silikonfugen, Kundendienst..."
+                    placeholder="z. B. 2. Lehrjahr Schreiner, Bewerbungsphase, Altbau-Sanierung..."
                     className="w-full bg-transparent text-xs text-stone-800 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none"
                   />
                 </div>

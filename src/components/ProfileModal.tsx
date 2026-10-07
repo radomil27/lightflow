@@ -241,7 +241,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     }
                   }}
                   onBlur={handleCustomProfessionBlur}
-                  placeholder="Tippe deinen Beruf (z. B. Pilot, Pflege, Monteur, Lehrer)..."
+                  placeholder="z. B. Küchenmonteur, in Lehre, arbeitssuchend, Hausfrau & Teilzeit..."
                   className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none"
                 />
                 {searchTerm && (

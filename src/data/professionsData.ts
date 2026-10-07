@@ -539,4 +539,35 @@ export const PROFESSIONS_DATA: ProfessionItem[] = [
     category: 'Dienstleistung & Kreatives',
     chips: ['Pionierarbeit & Beziehungsaufbau', 'Kulturelle Anpassung', 'Unterstützerkreis & Finanzen', 'Geduld ohne schnelle Früchte', 'Leben für andere'],
   },
+  // --- Ausbildung, Übergang & Lebensphasen ---
+  {
+    name: 'In Berufslehre / Ausbildung',
+    category: 'Ausbildung & Übergang',
+    chips: ['Lernen im Betrieb & Berufsschule', 'Prüfungsstress & Fachberichte', 'Als Lehrling unterordnen', 'Fehler machen & daraus lernen', 'Zukunftsperspektive aufbauen'],
+  },
+  {
+    name: 'Student / Studium',
+    category: 'Ausbildung & Übergang',
+    chips: ['Vorlesungen & Klausurenphase', 'Finanzieller Engpass & Nebenjob', 'Selbstdisziplin & Deadlines', 'Bachelor-/Masterarbeit', 'Zukunftsausrichtung'],
+  },
+  {
+    name: 'Arbeitssuchend / Auf Jobsuche',
+    category: 'Ausbildung & Übergang',
+    chips: ['Bewerbungen & Absagen aushalten', 'Warten & Ungewissheit', 'Selbstwert nicht an Leistung binden', 'Tagesstruktur bewahren', 'Finanzielle Sorgen ablegen'],
+  },
+  {
+    name: 'Hausfrau / Familienmanagement',
+    category: 'Familie & Lebensphase',
+    chips: ['Familienalltag & Kinderversorgung', 'Haushalt & ständige Wiederholungen', 'Unsichtbare Arbeit', 'Wenig Eigenzeit', 'Kombination mit Teilzeitjob'],
+  },
+  {
+    name: 'Mutter / Vater in Elternzeit',
+    category: 'Familie & Lebensphase',
+    chips: ['Schlafmangel & Dauereinsatz', 'Bindung zum Kind', 'Berufliche Pause', 'Geduld im Kleinen', 'Körperliche Erschöpfung'],
+  },
+  {
+    name: 'Im Ruhestand / Pension',
+    category: 'Familie & Lebensphase',
+    chips: ['Neuordnung des Alltags', 'Loslassen früherer Verantwortung', 'Zeit für Gebet & Weitergabe', 'Körperliche Grenzen annehmen', 'Segen für die nächste Generation'],
+  },
 ];
