@@ -8,6 +8,8 @@ import {
   deleteReport,
   getStoredSettings,
   saveStoredSettings,
+  getStoredOnboardingStatus,
+  setStoredOnboardingStatus,
 } from './services/storage';
 import {
   generateLocalReport,
@@ -22,6 +24,7 @@ import { SavedReportsModal } from './components/SavedReportsModal';
 import { SettingsModal } from './components/SettingsModal';
 import { BiblePickerModal } from './components/BiblePickerModal';
 import { MoodPickerModal } from './components/MoodPickerModal';
+import { OnboardingModal } from './components/OnboardingModal';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -45,6 +48,9 @@ export const App: React.FC = () => {
   const [isEditingPassage, setIsEditingPassage] = useState<boolean>(false);
 
   // Modals
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
+    return !getStoredOnboardingStatus();
+  });
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isSavedOpen, setIsSavedOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -111,6 +117,17 @@ export const App: React.FC = () => {
   const handleSaveProfile = (updatedProfile: UserProfile) => {
     setProfile(updatedProfile);
     saveStoredProfile(updatedProfile);
+  };
+
+  // Onboarding abschließen
+  const handleCompleteOnboarding = (completedProfile: UserProfile) => {
+    setProfile(completedProfile);
+    saveStoredProfile(completedProfile);
+    setStoredOnboardingStatus(true);
+    setIsOnboardingOpen(false);
+    // Erzeuge passgenauen Initial-Report mit den neuen Onboarding-Parametern
+    const initial = generateLocalReport(passage, completedProfile, selectedMood);
+    setCurrentReport(initial);
   };
 
   // Settings speichern
@@ -305,6 +322,12 @@ export const App: React.FC = () => {
       </footer>
 
       {/* Modale Dialoge */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onComplete={handleCompleteOnboarding}
+        initialProfile={profile}
+      />
+
       <ProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}

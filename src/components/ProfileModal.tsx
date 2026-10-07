@@ -11,25 +11,23 @@ interface ProfileModalProps {
 }
 
 const PRESET_MINDSETS = [
-  'Lösungsorientiert & Analytisch',
-  'Bildhaft & Praktisch',
-  'Beziehungsorientiert & Feinfühlig',
-  'Systemisch & Technisch hinterfragend',
+  'Analytisch & Lösungsorientiert',
+  'Emotional & Beziehungsorientiert',
+  'Pragmatisch & Macher',
+  'Reflektiert & Tiefgründig',
 ];
 
 const PRESET_RELATIONSHIPS = [
+  'Verheiratet / Feste Partnerschaft',
   'Single / Alleinlebend',
-  'In Partnerschaft',
-  'Familie mit Kindern',
-  'Alleinerziehend',
+  'Familie / Kinder im Haus',
+  'In Umbruch / Aufarbeitung',
 ];
 
-const PRESET_JOURNEY_STAGES = [
-  'Neugierig & Entdecker',
-  'Erste Schritte / Neu unterwegs',
-  'Schon länger auf dem Weg',
-  'Im Zweifel & Sucht Antworten',
-  'Müde & Ausgelaugt (Brauche Ruhe)',
+const FAITH_STAGES = [
+  { id: 'seeker', label: '🌱 Am Suchen & Zweifeln', desc: 'Offene Fragen, Fundamentsuche' },
+  { id: 'disciple', label: '⚒️ Mitten im Alltag & Nachfolge', desc: 'Ringen Fleisch vs. Geist, Täter des Wortes' },
+  { id: 'exhausted', label: '🛡️ Müde & Ausgebrannt', desc: 'Gnade, Entlastung, Ruhen in Christus' },
 ];
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({
@@ -173,6 +171,39 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <p className="text-[11px] text-stone-500 dark:text-stone-400">
               Damit die Zusage dich persönlich und vertraut ansprechen kann.
             </p>
+          </div>
+
+          {/* Geschlecht */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+              Geschlecht (Führung & Tonalität)
+            </label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, gender: 'male' }))}
+                className={`p-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  formData.gender === 'male' || (!formData.gender)
+                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                    : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                }`}
+              >
+                <span className="text-base">🧔</span>
+                <span>Mann</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, gender: 'female' }))}
+                className={`p-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  formData.gender === 'female'
+                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                    : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                }`}
+              >
+                <span className="text-base">👩</span>
+                <span>Frau</span>
+              </button>
+            </div>
           </div>
 
           {/* 1. Beruf / Smartes Autocomplete */}
@@ -347,27 +378,40 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
           </div>
 
-          {/* 4. DEIN WEG MIT JESUS */}
+          {/* 4. DEIN WEG MIT JESUS / GLAUBENSPHASE */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
               <Compass className="w-4 h-4 text-[#E09F3E]" />
-              4. DEIN WEG MIT JESUS
+              4. Deine Glaubensphase
             </label>
-            <div className="flex flex-wrap gap-2">
-              {PRESET_JOURNEY_STAGES.map((stage) => {
-                const isSelected = (formData.journeyStage || formData.faithStage) === stage;
+            <div className="grid grid-cols-1 gap-2">
+              {FAITH_STAGES.map((stage) => {
+                const currentStage = (formData.faithStage || '').toLowerCase();
+                const isSelected =
+                  currentStage === stage.id ||
+                  (stage.id === 'seeker' && (currentStage.includes('such') || currentStage.includes('zweifel'))) ||
+                  (stage.id === 'exhausted' && (currentStage.includes('müde') || currentStage.includes('ausgelaugt') || currentStage.includes('ausgebrannt'))) ||
+                  (stage.id === 'disciple' && (currentStage.includes('alltag') || currentStage.includes('nachfolge') || (!currentStage.includes('such') && !currentStage.includes('müde'))));
+
                 return (
                   <button
                     type="button"
-                    key={stage}
-                    onClick={() => setFormData({ ...formData, journeyStage: stage, faithStage: stage })}
-                    className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+                    key={stage.id}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        faithStage: stage.id,
+                        journeyStage: stage.label,
+                      })
+                    }
+                    className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#3E6B56]/20 text-[#2A483A] dark:text-[#A7F3D0] border-[#3E6B56] font-medium'
-                        : 'bg-white dark:bg-slate-900 text-stone-700 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                        ? 'bg-[#E09F3E]/15 border-[#E09F3E] text-[#92400E] dark:text-[#FDE68A] font-semibold ring-1 ring-[#E09F3E]/40'
+                        : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-slate-800'
                     }`}
                   >
-                    {stage}
+                    <div className="text-xs font-bold">{stage.label}</div>
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400 font-normal mt-0.5">{stage.desc}</div>
                   </button>
                 );
               })}

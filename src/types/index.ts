@@ -3,15 +3,20 @@
  * Definiert das Verbindungsprofil ("User Matrix") und die 6-Stufen-Report-Struktur
  */
 
+export type Gender = 'male' | 'female';
+export type FaithStage = 'seeker' | 'disciple' | 'exhausted';
+
 export interface UserProfile {
   displayName?: string;      // Optionaler persönlicher Rufname / Vorname (z.B. "Radovan")
-  profession: string;        // z.B. "Küchenmonteur / Handwerk", "IT & Code", "Pflege"
+  gender?: Gender;           // 'male' | 'female' (Pflichtauswahl im Onboarding)
+  faithStage?: FaithStage | string; // 'seeker' | 'disciple' | 'exhausted' (abwärtskompatibel)
+  journeyStage?: string;     // Abwärtskompatibel
+  profession: string;        // z.B. "Handwerk, Montage & Bau", "Büro, IT & Verwaltung", "Pflege"
   professionDetail?: string;  // Freitext für genaue Tätigkeit (z.B. "Küchenmonteur für anspruchsvolle Endmontage")
-  mindset: string;           // "Lösungsorientiert & Analytisch", "Bildhaft", "Beziehungsorientiert"
-  relationshipStatus: string;// "Single / Alleinlebend", "Partnerschaft", "Familie"
-  faithStage?: string;       // Abwärtskompatibel
-  journeyStage?: string;     // 4. DEIN WEG MIT JESUS: "Neugierig & Entdecker", etc.
+  mindset: string;           // "Analytisch & Lösungsorientiert", "Emotional & Beziehungsorientiert", etc.
+  relationshipStatus: string;// "Verheiratet / Feste Partnerschaft", "Single / Alleinlebend", etc.
   dailyMood?: string;        // "Unter Druck / Erschöpft", "Suche Klarheit", "Dankbar"
+  hasCompletedOnboarding?: boolean; // Kennzeichen für abgeschlossenes Onboarding
 }
 
 export interface LightflowReport {

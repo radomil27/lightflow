@@ -10,18 +10,45 @@ const STORAGE_KEYS = {
   PROFILE: 'lightflow_user_profile_v1',
   REPORTS: 'lightflow_saved_reports_v1',
   SETTINGS: 'lightflow_app_settings_v1',
+  ONBOARDING: 'lightflow_onboarding_completed_v1',
 } as const;
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
   displayName: '',
-  profession: 'Küchenmonteur / Handwerk',
-  professionDetail: 'Küchenmonteur für anspruchsvolle Endmontage & Passleisten',
-  mindset: 'Lösungsorientiert & Analytisch',
+  gender: 'male',
+  faithStage: 'disciple',
+  journeyStage: 'Mitten im Alltag & Nachfolge',
+  profession: 'Handwerk, Montage & Bau',
+  professionDetail: 'Handwerker / Montagespezialist auf der Baustelle',
+  mindset: 'Analytisch & Lösungsorientiert',
   relationshipStatus: 'Single / Alleinlebend',
-  faithStage: 'Im Zweifel & Sucht Antworten',
-  journeyStage: 'Im Zweifel & Sucht Antworten',
   dailyMood: 'Unter Druck / Erschöpft',
+  hasCompletedOnboarding: false,
 };
+
+export function normalizeFaithStage(stage?: string | null): 'seeker' | 'disciple' | 'exhausted' {
+  if (!stage) return 'disciple';
+  const lower = stage.toLowerCase();
+  if (lower === 'seeker' || lower.includes('such') || lower.includes('zweifel')) return 'seeker';
+  if (lower === 'exhausted' || lower.includes('müde') || lower.includes('ausgebrannt') || lower.includes('ausgelaugt')) return 'exhausted';
+  return 'disciple';
+}
+
+export function getStoredOnboardingStatus(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.ONBOARDING) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setStoredOnboardingStatus(completed: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.ONBOARDING, completed ? 'true' : 'false');
+  } catch (e) {
+    console.error('Fehler beim Speichern des Onboarding-Status:', e);
+  }
+}
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',

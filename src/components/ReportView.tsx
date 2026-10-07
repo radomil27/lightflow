@@ -21,6 +21,37 @@ import {
   Share2,
 } from 'lucide-react';
 import { BibleTextViewer } from './BibleTextViewer';
+import { normalizeFaithStage } from '../services/storage';
+
+export const POSTEN_SUBTITLES: Record<'seeker' | 'disciple' | 'exhausted', Record<number, string>> = {
+  seeker: {
+    1: 'Die Zusage an dich',
+    2: 'Vorurteil vs. Realität',
+    3: 'Der Praxistest',
+    4: 'Kopf frei kriegen',
+    5: 'Begegnung auf Augenhöhe',
+    6: 'Ehrlicher Realitäts-Check',
+    7: 'Offenes Wort vor Gott',
+  },
+  disciple: {
+    1: 'Königliche Zusage',
+    2: 'Falsch vs. Echt (Die Entlarvung)',
+    3: 'Fleisch vs. Geist (Die Tat)',
+    4: 'Dienst statt Opfer-Haltung',
+    5: 'Fels statt Wind',
+    6: 'Herzensprüfung & Umkehr',
+    7: 'Feste Entscheidung & Hingabe',
+  },
+  exhausted: {
+    1: 'Bedingungsloser Schutz',
+    2: 'Gottes Maßstab vs. Leistungsdruck',
+    3: 'Arbeiten ohne Ausbrennen',
+    4: 'Sabbat-Ruhe & Entlastung',
+    5: 'Gesunde Grenzen in Liebe',
+    6: 'Wo machst du dich selbst kaputt?',
+    7: 'Fallenlassen beim Vater',
+  },
+};
 
 interface ReportViewProps {
   report: LightflowReport;
@@ -61,6 +92,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
 
   // Callback zum Wechseln der Passage (bevorzugt direkten Picker-Dialog, Fallback auf onEditPassage)
   const handlePassageClick = onOpenBiblePicker || onEditPassage;
+
+  // Aktive Glaubensphase für dynamische Posten-Linsen (Untertitel)
+  const activeFaithStage = normalizeFaithStage(report.profileSnapshot?.faithStage);
 
   // Accordion-State: Speichert welche Posten aufgeklappt sind (1-basiert: 1 bis 7)
   const [openSections, setOpenSections] = useState<number[]>([1]);
@@ -401,10 +435,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(1)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
-                <Sparkles className="w-4 h-4 text-[#E09F3E]" />
-                <span>1. LICHTFUNKE</span>
-                {renderSectionStatus(1, report.lichtfunke || report.coreConduit)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                  <Sparkles className="w-4 h-4 text-[#E09F3E]" />
+                  <span>1. LICHTFUNKE</span>
+                  {renderSectionStatus(1, report.lichtfunke || report.coreConduit)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][1]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -485,10 +524,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(2)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Cpu className="w-4 h-4 text-[#E09F3E]" />
-                <span>2. KLARBLICK</span>
-                {renderSectionStatus(2, report.klarblick || report.systemDecoded)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Cpu className="w-4 h-4 text-[#E09F3E]" />
+                  <span>2. KLARBLICK</span>
+                  {renderSectionStatus(2, report.klarblick || report.systemDecoded)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][2]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -569,10 +613,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(3)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Wrench className="w-4 h-4 text-[#E09F3E]" />
-                <span>3. TAGWERK</span>
-                {renderSectionStatus(3, report.tagwerk || report.workBench)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Wrench className="w-4 h-4 text-[#E09F3E]" />
+                  <span>3. TAGWERK</span>
+                  {renderSectionStatus(3, report.tagwerk || report.workBench)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][3]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -653,10 +702,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(4)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Home className="w-4 h-4 text-[#E09F3E]" />
-                <span>4. FREIRAUM</span>
-                {renderSectionStatus(4, report.freiraum || report.dailyFreedom)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Home className="w-4 h-4 text-[#E09F3E]" />
+                  <span>4. FREIRAUM</span>
+                  {renderSectionStatus(4, report.freiraum || report.dailyFreedom)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][4]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -737,10 +791,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(5)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Briefcase className="w-4 h-4 text-[#E09F3E]" />
-                <span>5. STANDPUNKT</span>
-                {renderSectionStatus(5, report.standpunkt || report.profileSnapshot.relationshipStatus)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+                  <span>5. STANDPUNKT</span>
+                  {renderSectionStatus(5, report.standpunkt || report.profileSnapshot.relationshipStatus)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][5]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -821,10 +880,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(6)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Sprout className="w-4 h-4 text-[#E09F3E]" />
-                <span>6. SPIEGEL</span>
-                {renderSectionStatus(6, report.spiegel)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  <Sprout className="w-4 h-4 text-[#E09F3E]" />
+                  <span>6. SPIEGEL</span>
+                  {renderSectionStatus(6, report.spiegel)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][6]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (
@@ -907,10 +971,15 @@ ${report.leuchtkraft || report.heartGarden}
               onClick={() => toggleSection(7)}
               className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
             >
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
-                <Wind className="w-4 h-4 text-[#E09F3E]" />
-                <span>7. LEUCHTKRAFT</span>
-                {renderSectionStatus(7, report.leuchtkraft || report.heartGarden)}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
+                  <Wind className="w-4 h-4 text-[#E09F3E]" />
+                  <span>7. LEUCHTKRAFT</span>
+                  {renderSectionStatus(7, report.leuchtkraft || report.heartGarden)}
+                </div>
+                <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
+                  • {POSTEN_SUBTITLES[activeFaithStage][7]}
+                </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {isSpeechSupported && (

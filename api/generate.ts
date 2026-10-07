@@ -32,7 +32,25 @@ export default async function handler(req: any, res: any) {
   console.log('RECEIVED_PROFILE:', JSON.stringify(profile));
 
   try {
-    const journey = profile.journeyStage || profile.faithStage || 'Im Zweifel & Sucht Antworten';
+    const userGender = profile.gender === 'female' ? 'female' : 'male';
+    const genderLabel = userGender === 'female' ? 'Frau' : 'Mann';
+
+    const rawFaithStage = (profile.faithStage || profile.journeyStage || '').toLowerCase();
+    const faithStageKey: 'seeker' | 'disciple' | 'exhausted' =
+      rawFaithStage.includes('such') || rawFaithStage.includes('zweifel') || rawFaithStage === 'seeker'
+        ? 'seeker'
+        : rawFaithStage.includes('müde') || rawFaithStage.includes('ausgelaugt') || rawFaithStage.includes('ausgebrannt') || rawFaithStage === 'exhausted'
+        ? 'exhausted'
+        : 'disciple';
+
+    const faithStageLabel =
+      faithStageKey === 'seeker'
+        ? 'Am Suchen & Zweifeln (Fundamentsuche, Skepsis)'
+        : faithStageKey === 'exhausted'
+        ? 'Müde & Ausgebrannt (Braucht Gnade & Entlastung)'
+        : 'Mitten im Alltag & Nachfolge (Ringen Fleisch vs. Geist, Gehorsam)';
+
+    const journey = faithStageLabel;
     const currentMood = mood || profile.dailyMood || 'Suche Klarheit';
     const userName = profile.displayName && profile.displayName.trim().length > 0 ? profile.displayName.trim() : '';
     const fullProfession = profile.professionDetail && profile.professionDetail.trim().length > 0
@@ -49,11 +67,11 @@ export default async function handler(req: any, res: any) {
       },
       2: {
         title: '### 2. KLARBLICK',
-        prompt: `Reine Schrifterklärung und theologische Tiefenschärfe, abgestimmt auf den Denkstil (${profile.mindset}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wie hat Gott es gedacht? Welche biblische Wahrheit oder göttliche Absicht liegt zugrunde?\n3. Wo liegt die konkrete Warnung, die Stolperfalle oder der menschliche Denkfehler, den der Text aufdeckt?\nGlasklare, theologische und logische Erklärung in 3 bis 4 vollständigen Sätzen – ohne jedes psychologische Coaching-Sprech.`
+        prompt: `Reine Schrifterklärung und theologische Tiefenschärfe, abgestimmt auf den Denkstil (${profile.mindset}) und die Glaubensphase (${faithStageKey}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wie hat Gott es gedacht? Welche biblische Wahrheit oder göttliche Absicht liegt zugrunde?\n3. Wo liegt die konkrete Warnung, die Stolperfalle oder der menschliche Denkfehler, den der Text aufdeckt?\nGlasklare, theologische und logische Erklärung in 3 bis 4 vollständigen Sätzen – ohne jedes psychologische Coaching-Sprech.`
       },
       3: {
         title: '### 3. TAGWERK',
-        prompt: `Konkreter Gehorsam und praktische Nachfolge im Berufsfeld (${fullProfession}) – kein allgemeiner Karriere-Tipp:\n1. Einprägsames Merk-Bild: Verknüpfe die Wahrheit des Verses mit einem typischen Werkzeug, Handgriff oder einer konkreten Situation aus dieser Branche, sodass der Nutzer tagsüber sofort an den Vers erinnert wird.\n2. Konkrete Handlung / Gehorsam: Wie setzt man diesen göttlichen Gedanken heute am Arbeitsplatz konkret in die Tat um? Was tun oder lassen wir im Licht dieses Wortes?\n3. Das theologische WARUM (Gehorsam & Gottes Reich): Erkläre glasklar die theologische Begründung (Nicht zur Selbstoptimierung, sondern aus Ehrfurcht und Liebe zu Christus – welcher Mechanismus des Reiches Gottes steckt dahinter?).\nUmfang: Genau 3 bis 4 vollständige, kraftvolle Sätze. Funktioniert zu jeder Tageszeit.`
+        prompt: `Konkreter Gehorsam und praktische Nachfolge im Berufsfeld (${fullProfession}) – kein allgemeiner Karriere-Tipp:\n1. Einprägsames Merk-Bild / Werkzeug: Verknüpfe die Wahrheit des Verses mit einem typischen Werkzeug, Handgriff oder einer konkreten Situation aus dieser Branche, sodass der Nutzer tagsüber sofort an den Vers erinnert wird.\n2. Konkretes Alltagsszenario & Entscheidung (Fleisch vs. Geist): Wie würde man im alten Fleisch reagieren (Ärger, Druck, Rechthaberei, Ausbrennen) – und wie handelt man als Nachfolger Jesu im Geist?\n3. Das theologische WARUM (Gehorsam & Gottes Reich): Erkläre glasklar die theologische Begründung (Nicht zur Selbstoptimierung, sondern aus Ehrfurcht und Liebe zu Christus – welcher Mechanismus des Reiches Gottes steckt dahinter?).\nUmfang: Genau 3 bis 4 vollständige, kraftvolle Sätze. Funktioniert zu jeder Tageszeit.`
       },
       4: {
         title: '### 4. FREIRAUM',
@@ -85,18 +103,30 @@ export default async function handler(req: any, res: any) {
    - Formuliere KEINE psychologischen Coaching-Tipps, Achtsamkeits-Ratschläge oder säkularen Motivationssprüche (z. B. kein 'atme tief durch', kein 'achte auf deine Selbstfürsorge', kein 'gönn dir Pausen um Kraft zu schöpfen', kein Wellness-Vokabular).
    - Lightflow ist kein Lebenshilfe-Blog, sondern ein geistliches Werkzeug: Du bist Schriftausleger und geistlicher Wegweiser, der das Wort Gottes unverfälscht erklärt.
    - Jede praktische Anwendung MUSS zwingend und logisch aus der biblischen Aussage des Verses abgeleitet sein (Indikativ führt zum Imperativ: Weil Gott so ist / weil Christus das getan hat, handeln wir so).
-3. PERSÖNLICHE ANREDE & NAMENS-DOSIERUNG:
+3. GESCHLECHTSSPEZIFISCHE FÜHRUNG (${genderLabel.toUpperCase()}):
+   ${userGender === 'male' ? `- Der Nutzer ist ein MANN:
+     - Fokus auf Selbstbeherrschung statt Wut, Trotz oder verletztem Ego.
+     - Wahre Männlichkeit als königliche Stärke durch Demut, Dienen und Treue zu Gottes Wort.
+     - Verantwortung tragen, Fels in der Brandung sein, kein Jammern und keine Opfer-Haltung.` : `- Die Nutzerin ist eine FRAU:
+     - Fokus auf innere Ruhe und Vertrauen statt Grübeln, Kontrollzwang oder Getriebenheit.
+     - Echte Würde in Christus statt Anpassung an Erwartungen anderer Menschen.
+     - Klare Grenzen in Liebe setzen, emotionale Lasten an Gott abgeben, geborgene Stärke.`}
+4. PHASEN-STEUERUNG DER GLAUBENSPHASE (${faithStageKey.toUpperCase()}):
+   ${faithStageKey === 'seeker' ? `- Phase SEEKER (Am Suchen & Zweifeln): Kein theologischer Insider-Jargon. Fokus auf logische Erklärung, biblische Fakten und den Beweis im echten Leben.` : faithStageKey === 'exhausted' ? `- Phase EXHAUSTED (Müde & Ausgebrannt): Fokus auf Gnade, das vollbrachte Werk Christi am Kreuz und Ablegen fremder Lasten. Baue KEINE moralischen Forderungen oder Druck auf; schenke geistlichen Sauerstoff.` : `- Phase DISCIPLE (Mitten im Alltag & Nachfolge): Konkrete Szenarien mit Vorher-Nachher-Kontrast (Altes Fleisch vs. Neuer Geist), klare wörtliche Rede und greifbare Gehorsamsschritte.`}
+5. PERSÖNLICHE ANREDE & NAMENS-DOSIERUNG:
    ${userName ? `- Der Nutzer heißt ${userName}. Jesus darf den Nutzer in Posten 1 (LICHTFUNKE) genau EINMAL zu Beginn persönlich beim Vornamen ansprechen (z. B. 'Komm erst einmal an, ${userName}...').
    - In den übrigen Posten (2 bis 6) wird der Name NICHT künstlich wiederholt (keine ständige Nennung wie ein Verkäufer).
    - In Posten 7 (Gebet) spricht der Nutzer zu Gott – dort wird der eigene Name ebenfalls NICHT genannt.` : '- Es ist kein Vorname hinterlegt. Sprich den Nutzer direkt mit „du“ / „dir“ an, ohne künstliche Anrede.'}
-4. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
+6. SPRACHE & ARGUMENTATION: Der Denkstil (${profile.mindset}) bestimmt, WIE du sprichst.
    - Pragmatisch/Lösungsorientiert/Analytisch: Direkte Kausalität, schnörkellose Sätze, praktische Logik statt verschachtelter Poesie.
    - Bildhaft/Emotional/Beziehungsorientiert: Warme Vergleiche, emotionale Resonanz und Raum zum Fühlen.
-5. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
+7. BEZIEHUNGSRAUM: Der Lebensstand (${profile.relationshipStatus}) bestimmt den lebenspraktischen Rahmen.
    - Familie/Kinder: Wenig Zeit für sich, Trubel, Verantwortung, Erwartungsdruck von außen.
    - Single/Alleinlebend: Die Stille der eigenen vier Wände am Abend, Autonomie, das Verarbeiten des Tages ohne Gegenüber.
-6. METAPHERN-INTELLIGENZ: Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).
-7. MULTIDIMENSIONALE TEXT-ANALYSE & BIBLISCHE KAUSALKETTE:
+8. METAPHERN-INTELLIGENZ & POSTEN 3 REGEL:
+   - Nutze das Berufsfeld (${fullProfession}) als intuitive Metaphernquelle. Verwende die spezifischen Fachbegriffe, Werkzeuge, Handgriffe und typischen Reibungspunkte dieser Branche organisch im Text (ohne Belehrung).
+   - Baue in Posten 3 zwingend ein handfestes Merk-Bild / Werkzeug ein und stelle das konkrete Alltagsszenario dar (Reaktion im Fleisch vs. Handeln im Geist mit theologischem Warum).
+9. MULTIDIMENSIONALE TEXT-ANALYSE & BIBLISCHE KAUSALKETTE:
    BIBLISCHE TEXT-DIMENSIONEN:
    Analysiere die gegebene Bibelstelle (${passage}) vorab auf ihre enthaltenen Wirkkräfte. Identifiziere primäre und sekundäre Dimensionen aus dem 7-teiligen Spektrum der Schrift:
    1. Zuspruch & Verheißung (Gottes Treue, Gnade, Zusage)
@@ -128,10 +158,11 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN (UNSICHTBARER MASSANZUG):
-${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
+${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Geschlecht: ${genderLabel}
+- Glaubensphase: ${faithStageLabel}
+- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
-- Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
 
 ${synthesisInstruction}
@@ -162,10 +193,11 @@ BIBELTEXT:
 ${passage}
 
 NUTZER-DATEN (UNSICHTBARER MASSANZUG):
-${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
+${userName ? `- Vorname / Rufname: ${userName}\n` : ''}- Geschlecht: ${genderLabel}
+- Glaubensphase: ${faithStageLabel}
+- Beruf / Tätigkeitsfeld & Praxiswelt: ${fullProfession}
 - Denkstil / Stärken: ${profile.mindset}
 - Lebenssituation: ${profile.relationshipStatus}
-- Weg mit Jesus: ${journey}
 - Heutige Tagesverfassung: ${currentMood}
 
 ${synthesisInstruction}
