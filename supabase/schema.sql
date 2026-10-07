@@ -74,3 +74,68 @@ create policy "Benutzer können eigene Berichte löschen"
 -- Indizes für schnelle Abfragen
 create index if not exists idx_saved_reports_user_id on public.saved_reports(user_id);
 create index if not exists idx_saved_reports_favorite on public.saved_reports(favorite);
+
+-- ==============================================================================
+-- 3. Tabelle: Nutzer & Viral-Referrals (v1.9.0)
+-- ==============================================================================
+create table if not exists public.users (
+  id text primary key,
+  name text not null default 'Freund',
+  referral_code text unique not null,
+  referred_by_code text,
+  reports_count integer default 0 not null,
+  last_active_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- RLS für users aktivieren
+alter table public.users enable row level security;
+
+-- Anonyme Leserechte & Upsert-Rechte für PWA Clients
+create policy "Jeder kann Referral-Status und Nutzer abfragen"
+  on public.users for select
+  using (true);
+
+create policy "Jeder kann seinen Status synchronisieren"
+  on public.users for insert
+  with check (true);
+
+create policy "Jeder kann seinen Status aktualisieren"
+  on public.users for update
+  using (true);
+
+-- Indizes
+create index if not exists idx_users_referral_code on public.users(referral_code);
+create index if not exists idx_users_referred_by on public.users(referred_by_code);
+create index if not exists idx_users_last_active on public.users(last_active_at);
+
+-- ==============================================================================
+-- 4. Tabelle: Feedback-Kanal (v1.9.0)
+-- ==============================================================================
+create table if not exists public.feedbacks (
+  id uuid primary key default gen_random_uuid(),
+  user_name text not null,
+  message text not null,
+  status text not null default 'new',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- RLS für feedbacks aktivieren
+alter table public.feedbacks enable row level security;
+
+create policy "Jeder kann Feedback einreichen"
+  on public.feedbacks for insert
+  with check (true);
+
+create policy "Jeder kann Feedbacks einsehen (oder über Service Role)"
+  on public.feedbacks for select
+  using (true);
+
+create policy "Status von Feedbacks aktualisieren"
+  on public.feedbacks for update
+  using (true);
+
+create policy "Feedbacks löschen"
+  on public.feedbacks for delete
+  using (true);
+

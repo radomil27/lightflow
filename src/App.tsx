@@ -10,7 +10,9 @@ import {
   saveStoredSettings,
   getStoredOnboardingStatus,
   setStoredOnboardingStatus,
+  setStoredReferredBy,
 } from './services/storage';
+import { syncCurrentUser } from './services/adminService';
 import {
   generateLocalReport,
   generateInitialPostenReport,
@@ -83,6 +85,20 @@ export const App: React.FC = () => {
 
   // PWA Install Event Listener
   useEffect(() => {
+    // 1. Referral-Parameter aus URL auslesen (?ref=...)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) {
+        setStoredReferredBy(ref);
+      }
+    } catch (e) {
+      console.warn('Fehler beim Auslesen des Referral-Parameters:', e);
+    }
+
+    // 2. Nutzer-Status & Heartbeat synchronisieren
+    syncCurrentUser(profile);
+
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -128,6 +144,7 @@ export const App: React.FC = () => {
   const handleSaveProfile = (updatedProfile: UserProfile) => {
     setProfile(updatedProfile);
     saveStoredProfile(updatedProfile);
+    syncCurrentUser(updatedProfile);
   };
 
   // Onboarding abschließen
@@ -136,6 +153,7 @@ export const App: React.FC = () => {
     saveStoredProfile(completedProfile);
     setStoredOnboardingStatus(true);
     setIsOnboardingOpen(false);
+    syncCurrentUser(completedProfile);
     // Erzeuge passgenauen Initial-Report mit den neuen Onboarding-Parametern
     const initial = generateLocalReport(passage, completedProfile, selectedMood);
     setCurrentReport(initial);
@@ -372,6 +390,7 @@ export const App: React.FC = () => {
         onOpenSaved={() => setIsSavedOpen(true)}
         savedCount={savedReports.length}
         onThemeChange={handleThemeChange}
+        userName={profile.displayName}
       />
 
       <BiblePickerModal

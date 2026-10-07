@@ -72,3 +72,21 @@ export interface InspirationPassage {
   tagline: string;
   recommendedFor: string;
 }
+
+export interface AppUser {
+  id: string;
+  name: string;
+  referral_code: string;
+  referred_by_code?: string | null;
+  reports_count: number;
+  last_active_at: string;
+  created_at: string;
+}
+
+export interface AppFeedback {
+  id: string;
+  user_name: string;
+  message: string;
+  created_at: string;
+  status: 'new' | 'read' | 'resolved';
+}

@@ -11,6 +11,10 @@ const STORAGE_KEYS = {
   REPORTS: 'lightflow_saved_reports_v1',
   SETTINGS: 'lightflow_app_settings_v1',
   ONBOARDING: 'lightflow_onboarding_completed_v1',
+  MY_REFERRAL_CODE: 'lightflow_my_referral_code_v1',
+  REFERRED_BY: 'lightflow_referred_by_code_v1',
+  FEEDBACKS_LOCAL: 'lightflow_feedbacks_v1',
+  USERS_LOCAL: 'lightflow_users_v1',
 } as const;
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
@@ -149,3 +153,42 @@ export function saveStoredSettings(settings: AppSettings): void {
     console.error('Fehler beim Speichern der Settings:', e);
   }
 }
+
+// Generiere oder lade den persönlichen Referral-Code
+export function getOrCreateReferralCode(displayName?: string): string {
+  try {
+    let code = localStorage.getItem(STORAGE_KEYS.MY_REFERRAL_CODE);
+    if (!code) {
+      const cleanName = (displayName || 'freund')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .slice(0, 8);
+      const rand = Math.floor(100 + Math.random() * 900);
+      code = `${cleanName || 'flow'}${rand}`;
+      localStorage.setItem(STORAGE_KEYS.MY_REFERRAL_CODE, code);
+    }
+    return code;
+  } catch {
+    return 'flow777';
+  }
+}
+
+// Auslesen des Referrers, falls der Nutzer über einen Einladungs-Link kam
+export function getStoredReferredBy(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.REFERRED_BY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredReferredBy(code: string): void {
+  try {
+    if (!localStorage.getItem(STORAGE_KEYS.REFERRED_BY)) {
+      localStorage.setItem(STORAGE_KEYS.REFERRED_BY, code);
+    }
+  } catch (e) {
+    console.error('Fehler beim Speichern des Referrers:', e);
+  }
+}
+
