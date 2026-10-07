@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppSettings } from '../types';
 import {
   X,
@@ -14,6 +14,11 @@ import {
   Settings,
   Type,
   RefreshCw,
+  Volume2,
+  Eye,
+  EyeOff,
+  Key,
+  Check,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -37,6 +42,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   savedCount,
   onThemeChange,
 }) => {
+  const [speechEnabled, setSpeechEnabled] = useState(settings.speechEnabled ?? false);
+  const [speechProvider, setSpeechProvider] = useState<'google' | 'openai'>(settings.speechProvider ?? 'google');
+  const [speechApiKey, setSpeechApiKey] = useState(settings.speechApiKey ?? '');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [speechSaved, setSpeechSaved] = useState(false);
+
+  useEffect(() => {
+    setSpeechEnabled(settings.speechEnabled ?? false);
+    setSpeechProvider(settings.speechProvider ?? 'google');
+    setSpeechApiKey(settings.speechApiKey ?? '');
+  }, [settings]);
+
   if (!isOpen) return null;
 
   const handleSelectTheme = (theme: 'light' | 'dark' | 'system') => {
@@ -253,7 +270,149 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          {/* 5. Version der App */}
+          {/* 5. Sprachausgabe (Optional & Experimentell) */}
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 rounded-lg bg-amber-500/10 text-[#E09F3E]">
+                  <Volume2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-stone-800 dark:text-stone-100">
+                    Sprachausgabe (Optional)
+                  </div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400">
+                    Bring Your Own Key • Experimentell
+                  </div>
+                </div>
+              </div>
+
+              {/* Toggle Switch */}
+              <button
+                type="button"
+                onClick={() => {
+                  const nextState = !speechEnabled;
+                  setSpeechEnabled(nextState);
+                  onSaveSettings({
+                    ...settings,
+                    speechEnabled: nextState,
+                    speechProvider,
+                    speechApiKey,
+                  });
+                }}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  speechEnabled ? 'bg-[#E09F3E]' : 'bg-stone-300 dark:bg-slate-700'
+                }`}
+                role="switch"
+                aria-checked={speechEnabled}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    speechEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Provider and API-Key Settings: Grayed out and disabled when toggle is off */}
+            <div
+              className={`space-y-3 transition-opacity duration-200 ${
+                !speechEnabled ? 'opacity-40 pointer-events-none select-none' : ''
+              }`}
+            >
+              {/* Provider Selection */}
+              <div>
+                <label className="block text-[11px] font-medium text-stone-600 dark:text-stone-300 mb-1">
+                  KI-Sprachdienst
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={!speechEnabled}
+                    onClick={() => setSpeechProvider('google')}
+                    className={`py-2 px-2.5 rounded-xl border text-xs font-medium text-left transition-all ${
+                      speechProvider === 'google'
+                        ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                        : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60'
+                    }`}
+                  >
+                    Google Cloud TTS
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!speechEnabled}
+                    onClick={() => setSpeechProvider('openai')}
+                    className={`py-2 px-2.5 rounded-xl border text-xs font-medium text-left transition-all ${
+                      speechProvider === 'openai'
+                        ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
+                        : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60'
+                    }`}
+                  >
+                    OpenAI TTS
+                  </button>
+                </div>
+              </div>
+
+              {/* API-Key Input */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-medium text-stone-600 dark:text-stone-300 flex items-center gap-1">
+                    <Key className="w-3 h-3 text-stone-400" />
+                    <span>{speechProvider === 'google' ? 'Google Cloud API-Key' : 'OpenAI API-Key'}</span>
+                  </label>
+                  <span className="text-[10px] text-stone-400">Lokal gesichert</span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={speechApiKey}
+                    disabled={!speechEnabled}
+                    onChange={(e) => setSpeechApiKey(e.target.value)}
+                    placeholder={speechProvider === 'google' ? 'AIzaSy...' : 'sk-proj-...'}
+                    className="w-full px-3 py-2 pr-10 text-xs rounded-xl bg-stone-50 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:border-[#E09F3E]"
+                  />
+                  <button
+                    type="button"
+                    disabled={!speechEnabled}
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors"
+                  >
+                    {showApiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Speichern Button */}
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  disabled={!speechEnabled}
+                  onClick={() => {
+                    onSaveSettings({
+                      ...settings,
+                      speechEnabled,
+                      speechProvider,
+                      speechApiKey: speechApiKey.trim(),
+                    });
+                    setSpeechSaved(true);
+                    setTimeout(() => setSpeechSaved(false), 2000);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium rounded-xl bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {speechSaved ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Gespeichert</span>
+                    </>
+                  ) : (
+                    <span>Konfiguration speichern</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Version der App */}
           <div className="p-3 rounded-2xl bg-stone-100/70 dark:bg-slate-900/50 border border-stone-200/60 dark:border-slate-800 flex items-center justify-between text-xs text-stone-600 dark:text-stone-300">
             <div className="flex items-center space-x-2">
               <Info className="w-4 h-4 text-stone-400" />

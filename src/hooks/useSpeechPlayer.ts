@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { LightflowReport } from '../types';
+import { LightflowReport, AppSettings } from '../types';
+import { fetchOpenAiTts, fetchGoogleTts } from '../services/ttsService';
 
 export interface UseSpeechPlayerResult {
   isPlaying: boolean;
@@ -55,12 +56,23 @@ function splitTextIntoSentences(text: string): string[] {
   return units;
 }
 
-export function useSpeechPlayer(): UseSpeechPlayerResult {
+export function useSpeechPlayer(settings?: AppSettings): UseSpeechPlayerResult {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentPlayingStep, setCurrentPlayingStep] = useState<number | null>(null);
 
-  const isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  // Audio-Element für Cloud-TTS (OpenAI / Google Cloud Audio-Stream)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Basis-Verfügbarkeit: Sprachausgabe ist aktiv, wenn der User sie aktiviert hat und ein API-Key da ist
+  // ODER WebSpeech verfügbar ist (wird aber im Report durch isSpeechEnabled gesteuert)
+  const isWebSpeechAvailable = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const isCloudTts = Boolean(
+    settings?.speechEnabled &&
+    settings?.speechApiKey &&
+    settings.speechApiKey.trim().length > 0
+  );
+  const isSupported = isCloudTts || isWebSpeechAvailable;
 
   // Queue von Chunks: Jeder Eintrag hat den vorzulesenden Text und den zugehörigen Posten (1-7)
   const queueRef = useRef<{ text: string; step: number; isHeader?: boolean }[]>([]);
@@ -71,37 +83,25 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
   // Wähle die beste deutsche Stimme aus dem System (iOS Siri/Anna/Helena/Enhanced, Android Google/Natural)
   const pickGermanVoice = useCallback(() => {
-    if (!isSupported) return;
+    if (!isWebSpeechAvailable) return;
     const voices = window.speechSynthesis.getVoices();
-    // Priorität: Deutsche Stimmen (de-DE, de-CH, de-AT)
     const germanVoices = voices.filter(
       (v) => v.lang.startsWith('de') || v.lang.startsWith('de-')
     );
 
     if (germanVoices.length === 0) return;
 
-    // Bewertungs-Score für höchste Natürlichkeit:
-    // Höchste Punkte für Premium / Enhanced / Siri / bekannte hochwertige deutsche Stimmen
     const scoreVoice = (v: SpeechSynthesisVoice): number => {
       let score = 0;
       const name = v.name.toLowerCase();
 
-      // iOS & macOS Premium/Enhanced Stimmen
       if (name.includes('enhanced') || name.includes('premium')) score += 30;
       if (name.includes('siri')) score += 25;
       if (name.includes('anna') || name.includes('helena') || name.includes('katja') || name.includes('martin')) score += 20;
-
-      // Google Natural & Google Stimmen (Android / Chrome)
       if (name.includes('natural')) score += 22;
       if (name.includes('google')) score += 15;
-
-      // Standard de-DE bevorzugen
       if (v.lang === 'de-DE') score += 5;
-
-      // Lokale Stimmen (kein Netzwerk-Delay) bevorzugen
       if (v.localService) score += 3;
-
-      // Unliebsame monotone Stimmen de-priorisieren
       if (name.includes('compact') || name.includes('robotic')) score -= 15;
 
       return score;
@@ -109,16 +109,15 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
     const sorted = [...germanVoices].sort((a, b) => scoreVoice(b) - scoreVoice(a));
     selectedVoiceRef.current = sorted[0];
-  }, [isSupported]);
+  }, [isWebSpeechAvailable]);
 
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isWebSpeechAvailable) return;
     pickGermanVoice();
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = pickGermanVoice;
     }
 
-    // Unmount Cleanup: Sofort stoppen & Timeout leeren
     return () => {
       if (breathTimeoutRef.current) {
         clearTimeout(breathTimeoutRef.current);
@@ -126,19 +125,41 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
-  }, [isSupported, pickGermanVoice]);
+  }, [isWebSpeechAvailable, pickGermanVoice]);
 
-  // Spielt den nächsten Chunk aus der Queue mit natürlicher Atempause (350-450ms)
-  const speakNextChunk = useCallback(() => {
-    if (!isSupported || !isPlayingRef.current) return;
+  // Stoppt alle laufenden Sprachausgaben & Timer
+  const stopSpeech = useCallback(() => {
+    if (breathTimeoutRef.current) {
+      clearTimeout(breathTimeoutRef.current);
+      breathTimeoutRef.current = null;
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    if (isWebSpeechAvailable) {
+      window.speechSynthesis.cancel();
+    }
+    isPlayingRef.current = false;
+    queueRef.current = [];
+    currentIndexRef.current = 0;
+    setIsPlaying(false);
+    setIsPaused(false);
+    setCurrentPlayingStep(null);
+  }, [isWebSpeechAvailable]);
+
+  // Spielt den nächsten Chunk per lokaler WebSpeech API ab
+  const speakNextWebChunk = useCallback(() => {
+    if (!isWebSpeechAvailable || !isPlayingRef.current) return;
 
     if (currentIndexRef.current >= queueRef.current.length) {
-      // Vorlesen komplett beendet
-      isPlayingRef.current = false;
-      setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentPlayingStep(null);
+      stopSpeech();
       return;
     }
 
@@ -147,8 +168,6 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
     const utterance = new SpeechSynthesisUtterance(item.text);
     utterance.lang = selectedVoiceRef.current?.lang || 'de-DE';
-    
-    // Getragenes Andachtstempo: Ruhig, bedacht & warm
     utterance.rate = 0.90;
     utterance.pitch = 0.98;
 
@@ -158,48 +177,76 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
     utterance.onend = () => {
       currentIndexRef.current += 1;
-      // Natürliche Sinn- und Atempause: Nach Überschrift 500ms, nach Sätzen 380ms
       const pauseDuration = item.isHeader ? 500 : 380;
       breathTimeoutRef.current = setTimeout(() => {
         if (isPlayingRef.current) {
-          speakNextChunk();
+          speakNextWebChunk();
         }
       }, pauseDuration);
     };
 
     utterance.onerror = (e) => {
-      // Ignoriere gewollte Abbrüche durch cancel()
       if (e.error === 'canceled' || e.error === 'interrupted') return;
       console.warn('[useSpeechPlayer] Utterance-Fehler:', e.error);
       currentIndexRef.current += 1;
-      speakNextChunk();
+      speakNextWebChunk();
     };
 
     window.speechSynthesis.speak(utterance);
-  }, [isSupported]);
+  }, [isWebSpeechAvailable, stopSpeech]);
 
-  // Stoppt alle laufenden Sprachausgaben & Timer
-  const stopSpeech = useCallback(() => {
-    if (!isSupported) return;
-    if (breathTimeoutRef.current) {
-      clearTimeout(breathTimeoutRef.current);
-      breathTimeoutRef.current = null;
-    }
-    isPlayingRef.current = false;
-    queueRef.current = [];
-    currentIndexRef.current = 0;
-    window.speechSynthesis.cancel();
-    setIsPlaying(false);
-    setIsPaused(false);
-    setCurrentPlayingStep(null);
-  }, [isSupported]);
+  // Spielt eine Queue per Cloud-TTS (OpenAI / Google) ab
+  const playQueueWithCloudTts = useCallback(
+    async (queue: { text: string; step: number; isHeader?: boolean }[]) => {
+      if (!settings?.speechApiKey) return;
+      const provider = settings.speechProvider || 'google';
+      const key = settings.speechApiKey.trim();
+
+      // Kombiniere die Texte des Abschnitts für eine flüssige, hochqualitative Cloud-Generierung
+      const fullText = queue.map((q) => q.text).join(' ');
+      const step = queue[0]?.step || 1;
+
+      try {
+        setCurrentPlayingStep(step);
+        setIsPlaying(true);
+        isPlayingRef.current = true;
+
+        let audioUrl = '';
+        if (provider === 'openai') {
+          audioUrl = await fetchOpenAiTts(fullText, key);
+        } else {
+          audioUrl = await fetchGoogleTts(fullText, key);
+        }
+
+        if (!isPlayingRef.current) return; // Wurde zwischenzeitlich gestoppt
+
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          stopSpeech();
+        };
+
+        audio.onerror = (err) => {
+          console.error('[useSpeechPlayer] Audio Playback Fehler:', err);
+          stopSpeech();
+        };
+
+        await audio.play();
+      } catch (error: any) {
+        console.error('[useSpeechPlayer] Cloud TTS API Fehler:', error);
+        alert(`Sprachausgabe-Fehler (${provider}): ${error.message || 'Prüfe deinen API-Schlüssel in den Einstellungen.'}`);
+        stopSpeech();
+      }
+    },
+    [settings?.speechApiKey, settings?.speechProvider, stopSpeech]
+  );
 
   // Einzelnen Posten vorlesen
   const playSection = useCallback(
     (stepNum: number, title: string, text: string) => {
-      if (!isSupported || !text) return;
+      if (!text) return;
 
-      // Wenn genau dieser Posten bereits läuft -> anhalten
       if (isPlayingRef.current && currentPlayingStep === stepNum) {
         stopSpeech();
         return;
@@ -207,7 +254,6 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
       stopSpeech();
 
-      // Erstelle Chunks: Ansage des Titels, dann der Inhalt
       const sentenceChunks = splitTextIntoSentences(text);
       const queue = [
         { text: `${title}.`, step: stepNum, isHeader: true },
@@ -221,16 +267,18 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
       setIsPaused(false);
       setCurrentPlayingStep(stepNum);
 
-      speakNextChunk();
+      if (isCloudTts) {
+        playQueueWithCloudTts(queue);
+      } else {
+        speakNextWebChunk();
+      }
     },
-    [isSupported, currentPlayingStep, stopSpeech, speakNextChunk]
+    [isCloudTts, currentPlayingStep, stopSpeech, playQueueWithCloudTts, speakNextWebChunk]
   );
 
   // Gesamten Report sequenziell vorlesen
   const playFullReport = useCallback(
     (report: LightflowReport) => {
-      if (!isSupported) return;
-
       if (isPlayingRef.current) {
         stopSpeech();
         return;
@@ -268,22 +316,34 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
       setIsPaused(false);
       setCurrentPlayingStep(fullQueue[0].step);
 
-      speakNextChunk();
+      if (isCloudTts) {
+        playQueueWithCloudTts(fullQueue);
+      } else {
+        speakNextWebChunk();
+      }
     },
-    [isSupported, stopSpeech, speakNextChunk]
+    [isCloudTts, stopSpeech, playQueueWithCloudTts, speakNextWebChunk]
   );
 
   const pauseSpeech = useCallback(() => {
-    if (!isSupported || !isPlayingRef.current) return;
-    window.speechSynthesis.pause();
+    if (!isPlayingRef.current) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+    } else if (isWebSpeechAvailable) {
+      window.speechSynthesis.pause();
+    }
     setIsPaused(true);
-  }, [isSupported]);
+  }, [isWebSpeechAvailable]);
 
   const resumeSpeech = useCallback(() => {
-    if (!isSupported || !isPaused) return;
-    window.speechSynthesis.resume();
+    if (!isPaused) return;
+    if (audioRef.current) {
+      audioRef.current.play();
+    } else if (isWebSpeechAvailable) {
+      window.speechSynthesis.resume();
+    }
     setIsPaused(false);
-  }, [isSupported, isPaused]);
+  }, [isPaused, isWebSpeechAvailable]);
 
   return {
     isPlaying,

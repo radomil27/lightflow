@@ -59,6 +59,11 @@ export interface AppSettings {
   customApiKey?: string;
   apiProvider?: 'gemini' | 'openai';
   selectedModel?: string;
+  // Optionale Sprachausgabe mit eigenem API-Key
+  speechEnabled?: boolean;
+  speechProvider?: 'google' | 'openai';
+  speechApiKey?: string;
+  speechModel?: string;
 }
 
 export interface InspirationPassage {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LightflowReport } from '../types';
+import { LightflowReport, AppSettings } from '../types';
 import { useSpeechPlayer } from '../hooks/useSpeechPlayer';
 import {
   Sparkles,
@@ -55,6 +55,7 @@ export const POSTEN_SUBTITLES: Record<'seeker' | 'disciple' | 'exhausted', Recor
 
 interface ReportViewProps {
   report: LightflowReport;
+  settings?: AppSettings;
   fontSize?: 'sm' | 'md' | 'lg';
   onToggleFavorite: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
@@ -65,6 +66,7 @@ interface ReportViewProps {
 
 export const ReportView: React.FC<ReportViewProps> = ({
   report,
+  settings,
   fontSize = 'md',
   onToggleFavorite,
   onSaveNotes,
@@ -77,18 +79,23 @@ export const ReportView: React.FC<ReportViewProps> = ({
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
 
-  // Robuster Speech-Player mit Satz-Chunking und Per-Posten-Unterstützung
+  // Audio-Player ist standardmäßig deaktiviert (komplett unsichtbar).
+  // Erst wenn Sprachausgabe in den Einstellungen aktiv ist UND ein gültiger API-Key hinterlegt wurde,
+  // erscheint der Audio-Player-/Play-Button im Bericht.
+  const isAudioAvailable = Boolean(
+    settings?.speechEnabled &&
+    settings?.speechApiKey &&
+    settings.speechApiKey.trim().length > 0
+  );
+
+  // Speech-Player Hook (nutzt Cloud-TTS mit API-Key oder Fallback)
   const {
     isPlaying,
     currentPlayingStep,
     playSection,
     playFullReport,
     stopSpeech,
-    isSpeechSupported,
-  } = {
-    ...useSpeechPlayer(),
-    isSpeechSupported: useSpeechPlayer().isSupported,
-  };
+  } = useSpeechPlayer(settings);
 
   // Callback zum Wechseln der Passage (bevorzugt direkten Picker-Dialog, Fallback auf onEditPassage)
   const handlePassageClick = onOpenBiblePicker || onEditPassage;
@@ -263,7 +270,7 @@ ${report.leuchtkraft || report.heartGarden}
 
         {/* Aktionsleiste (Audio, Favorit, Kopieren, Notiz) */}
         <div className="flex items-center space-x-2 shrink-0">
-          {isSpeechSupported && (
+          {isAudioAvailable && (
             <button
               onClick={() => {
                 if (isPlaying) {
@@ -437,7 +444,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -526,7 +533,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -615,7 +622,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -704,7 +711,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -793,7 +800,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -882,7 +889,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -973,7 +980,7 @@ ${report.leuchtkraft || report.heartGarden}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isSpeechSupported && (
+                {isAudioAvailable && (
                   <button
                     type="button"
                     onClick={(e) => {

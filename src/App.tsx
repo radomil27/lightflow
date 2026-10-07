@@ -304,6 +304,7 @@ export const App: React.FC = () => {
           <div id="lightflow-report">
             <ReportView
               report={currentReport}
+              settings={settings}
               fontSize={settings.fontSize || 'md'}
               onFontSizeChange={(size) => {
                 const upd = { ...settings, fontSize: size };

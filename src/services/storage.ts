@@ -56,6 +56,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   bibleTranslation: 'SCH',
   apiProvider: 'gemini',
   selectedModel: 'gemini-1.5-flash',
+  speechEnabled: false,
+  speechProvider: 'google',
+  speechApiKey: '',
 };
 
 // Profil abrufen
