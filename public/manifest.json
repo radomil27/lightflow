@@ -4,20 +4,36 @@
   "description": "Deine direkte Versorgungsleitung nach oben: Frischer Sauerstoff, klares Licht und unverfälschte Wahrheit für deinen Alltag.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#12161A",
-  "theme_color": "#12161A",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.svg",
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],

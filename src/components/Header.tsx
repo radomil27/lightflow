@@ -27,29 +27,12 @@ export const Header: React.FC<HeaderProps> = ({
         
         {/* Logo & Marken-Metapher */}
         <div className="flex items-center space-x-3.5 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-b from-[#1E293B] to-[#0F172A] p-1.5 shadow-md shadow-[#E09F3E]/10 flex items-center justify-center border border-[#E09F3E]/30 overflow-hidden">
-            {/* Sanftes Glühen im Hintergrund */}
-            <div className="absolute inset-0 bg-[#E09F3E]/10 blur-sm rounded-xl"></div>
-            
-            {/* Feine vertikale Lichtleiter-Linie */}
-            <svg viewBox="0 0 40 40" className="w-full h-full relative z-10" fill="none">
-              <path
-                d="M 20 4 C 20 12, 24 16, 24 22 C 24 28, 16 30, 16 34"
-                stroke="url(#headerWaveGrad)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              <circle cx="20" cy="4" r="1.5" fill="#FFFBEB" />
-              <circle cx="16" cy="34" r="3" fill="#F59E0B" className="animate-light-pulse" />
-              <circle cx="16" cy="34" r="1.5" fill="#FFFBEB" />
-              <defs>
-                <linearGradient id="headerWaveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#FFFBEB" />
-                  <stop offset="60%" stop-color="#F59E0B" />
-                  <stop offset="100%" stop-color="#E09F3E" />
-                </linearGradient>
-              </defs>
-            </svg>
+          <div className="relative w-10 h-10 rounded-2xl bg-white dark:bg-stone-900 p-1 shadow-md shadow-[#E09F3E]/10 flex items-center justify-center border border-stone-200 dark:border-stone-800 overflow-hidden group-hover:scale-105 transition-transform duration-200">
+            <img
+              src="/icon-192x192.png"
+              alt="Lightflow Logo"
+              className="w-full h-full object-contain rounded-xl"
+            />
           </div>
 
           <div>

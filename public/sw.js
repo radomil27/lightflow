@@ -1,9 +1,15 @@
 // Lightflow Service Worker - Offline Caching
-const CACHE_NAME = 'lightflow-cache-v1.9.0';
+const CACHE_NAME = 'lightflow-cache-v1.9.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/favicon.ico',
+  '/favicon.svg',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/maskable-icon-512x512.png',
+  '/apple-touch-icon.png',
   '/logo.svg',
 ];
 
