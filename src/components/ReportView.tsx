@@ -96,30 +96,22 @@ export const ReportView: React.FC<ReportViewProps> = ({
   // Aktive Glaubensphase für dynamische Posten-Linsen (Untertitel)
   const activeFaithStage = normalizeFaithStage(report.profileSnapshot?.faithStage);
 
-  // Accordion-State: Speichert welche Posten aufgeklappt sind (1-basiert: 1 bis 7)
-  const [openSections, setOpenSections] = useState<number[]>([1]);
+  // Accordion-State: Immer nur genau ein Posten geöffnet (Single-Accordion, 1 bis 7 oder null wenn alle zu)
+  const [activeSection, setActiveSection] = useState<number | null>(1);
   const activeReportIdRef = React.useRef<string | null>(null);
 
-  // Wenn ein Posten vorgelesen wird, klappe ihn automatisch auf
+  // Wenn ein Posten vorgelesen wird, klappe ihn automatisch auf und schließe die anderen
   React.useEffect(() => {
     if (currentPlayingStep !== null) {
-      setOpenSections((prev) =>
-        prev.includes(currentPlayingStep) ? prev : [...prev, currentPlayingStep]
-      );
+      setActiveSection(currentPlayingStep);
     }
   }, [currentPlayingStep]);
 
   React.useEffect(() => {
-    // Bei neuem Report startet Posten 1 offen, Posten 2-7 bleiben geschlossen für ruhiges Lesen
+    // Bei neuem Report startet Posten 1 offen für ruhiges, fokussiertes Lesen
     if (activeReportIdRef.current !== report.id) {
       activeReportIdRef.current = report.id;
-      // Ältere Reports aus dem Archiv (vor mehr als 1 Minute gespeichert) komplett aufgeklappt anzeigen
-      const isArchived = Date.now() - report.timestamp > 60000;
-      if (isArchived) {
-        setOpenSections([1, 2, 3, 4, 5, 6, 7]);
-      } else {
-        setOpenSections([1]);
-      }
+      setActiveSection(1);
     }
 
     return () => {
@@ -127,10 +119,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
     };
   }, [report.id, report.timestamp, stopSpeech]);
 
+  // Single-Accordion Umschalter: Wenn der aktive angetippt wird, zuklappen (null), sonst den angetippten öffnen
   const toggleSection = (stepNum: number) => {
-    setOpenSections((prev) =>
-      prev.includes(stepNum) ? prev.filter((s) => s !== stepNum) : [...prev, stepNum]
-    );
+    setActiveSection((prev) => (prev === stepNum ? null : stepNum));
   };
 
   // Statusanzeige für sequentielle Hintergrund-Generierung (1 bis 7)
@@ -489,13 +480,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(1) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 1 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(1) && (
+            {activeSection === 1 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-500/15">
                 <p className={`font-serif ${lichtfunkeTextClass} font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic`}>
                   „{report.lichtfunke || report.coreConduit}“
@@ -512,7 +503,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(2)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(2) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+              activeSection === 2 ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
             2
@@ -578,13 +569,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 2 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(2) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 2 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(2) && (
+            {activeSection === 2 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.klarblick || report.systemDecoded}
@@ -601,7 +592,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(3)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(3) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+              activeSection === 3 ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
             3
@@ -667,13 +658,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 3 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(3) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 3 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(3) && (
+            {activeSection === 3 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.tagwerk || report.workBench}
@@ -690,7 +681,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(4)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(4) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+              activeSection === 4 ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
             4
@@ -756,13 +747,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 4 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(4) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 4 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(4) && (
+            {activeSection === 4 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.freiraum || report.dailyFreedom}
@@ -779,7 +770,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(5)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(5) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+              activeSection === 5 ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
             5
@@ -845,13 +836,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 5 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(5) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 5 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(5) && (
+            {activeSection === 5 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.standpunkt || report.profileSnapshot.relationshipStatus}
@@ -868,7 +859,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(6)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(6) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
+              activeSection === 6 ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
             6
@@ -934,13 +925,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 6 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(6) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 6 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(6) && (
+            {activeSection === 6 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.spiegel}
@@ -957,7 +948,7 @@ ${report.leuchtkraft || report.heartGarden}
           <div 
             onClick={() => toggleSection(7)}
             className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
-              openSections.includes(7) ? 'bg-[#F59E0B] text-slate-950 shadow-[#F59E0B]/40 animate-light-pulse' : 'bg-slate-700 text-stone-300'
+              activeSection === 7 ? 'bg-[#F59E0B] text-slate-950 shadow-[#F59E0B]/40 animate-light-pulse' : 'bg-slate-700 text-stone-300'
             }`}
           >
             7
@@ -1025,13 +1016,13 @@ ${report.leuchtkraft || report.heartGarden}
                   <span className="text-[10px] hidden sm:inline">{copiedSection === 7 ? 'Kopiert' : 'Kopieren'}</span>
                 </button>
                 <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {openSections.includes(7) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {activeSection === 7 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
               </div>
             </div>
 
             {/* Ausgeklappter Inhalt */}
-            {openSections.includes(7) && (
+            {activeSection === 7 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-200/50 dark:border-amber-900/30">
                 <div className={`${lichtfunkeTextClass} text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2`}>
                   {report.leuchtkraft || report.heartGarden}
