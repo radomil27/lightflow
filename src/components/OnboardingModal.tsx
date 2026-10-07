@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Check,
   User,
-  Brain,
   Briefcase
 } from 'lucide-react';
 
@@ -23,32 +22,29 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 }) => {
   const [step, setStep] = useState<number>(1);
 
-  // Schritt 1 State
+  // Schritt 1 State: Identität (Rufname & Geschlecht)
   const [displayName, setDisplayName] = useState<string>(initialProfile?.displayName || '');
   const [gender, setGender] = useState<Gender | undefined>(initialProfile?.gender);
 
-  // Schritt 2 State
+  // Schritt 2 State: Glaubensphase
   const [faithStage, setFaithStage] = useState<FaithStage | undefined>(
     (initialProfile?.faithStage as FaithStage) || undefined
   );
 
-  // Schritt 3 State
-  const [mindset, setMindset] = useState<string>(initialProfile?.mindset || '');
-
-  // Schritt 4 State
+  // Schritt 3 State: Arbeitswelt / Berufsfeld
   const [profession, setProfession] = useState<string>(initialProfile?.profession || '');
   const [customProfession, setCustomProfession] = useState<string>('');
   const [professionDetail, setProfessionDetail] = useState<string>(initialProfile?.professionDetail || '');
   const [isCustomProfessionSelected, setIsCustomProfessionSelected] = useState<boolean>(false);
 
-  // Schritt 5 State
+  // Schritt 4 State: Lebensrahmen
   const [relationshipStatus, setRelationshipStatus] = useState<string>(
     initialProfile?.relationshipStatus || ''
   );
 
   if (!isOpen) return null;
 
-  // Validierung für linearen Flow (Weiter-Button stets disabled bis Pflichtauswahl erfolgt)
+  // Validierung für 4 lineare Schritte (Weiter-Button stets disabled bis Pflichtauswahl erfolgt)
   const isCurrentStepValid = (): boolean => {
     switch (step) {
       case 1:
@@ -56,13 +52,11 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       case 2:
         return faithStage !== undefined;
       case 3:
-        return mindset.trim().length > 0;
-      case 4:
         if (isCustomProfessionSelected) {
           return customProfession.trim().length > 0;
         }
         return profession.trim().length > 0;
-      case 5:
+      case 4:
         return relationshipStatus.trim().length > 0;
       default:
         return false;
@@ -71,10 +65,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   const handleNext = () => {
     if (!isCurrentStepValid()) return;
-    if (step < 5) {
+    if (step < 4) {
       setStep((prev) => prev + 1);
     } else {
-      // Abschluss
+      // Abschluss nach Schritt 4
       const finalProfession = isCustomProfessionSelected ? customProfession.trim() : profession.trim();
       const finalProfile: UserProfile = {
         displayName: displayName.trim() || undefined,
@@ -86,7 +80,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             : faithStage === 'exhausted'
             ? 'Müde & Ausgebrannt'
             : 'Mitten im Alltag & Nachfolge',
-        mindset: mindset.trim(),
+        // Standard-Denktyp für schnellen Einstieg ohne Reibung:
+        mindset: initialProfile?.mindset?.trim() || 'Lösungsorientiert & Pragmatisch',
         profession: finalProfession,
         professionDetail: professionDetail.trim() || undefined,
         relationshipStatus: relationshipStatus.trim(),
@@ -117,7 +112,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg bg-[#FAF9F6] dark:bg-[#151B22] border border-stone-200 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-7 flex flex-col max-h-[92vh] overflow-hidden">
         
-        {/* Header mit Fortschritt */}
+        {/* Header mit Fortschritt (4 Schritte) */}
         <div className="pb-4 border-b border-stone-200 dark:border-slate-800">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] uppercase font-bold tracking-wider text-[#E09F3E] flex items-center gap-1.5">
@@ -125,13 +120,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               Verbindungsprofil einrichten
             </span>
             <span className="text-xs font-mono font-semibold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-stone-200/60 dark:border-slate-700/60">
-              Schritt {step} von 5
+              Schritt {step} von 4
             </span>
           </div>
 
-          {/* 5-Segment Fortschrittsbalken */}
-          <div className="grid grid-cols-5 gap-1.5">
-            {[1, 2, 3, 4, 5].map((s) => (
+          {/* 4-Segment Fortschrittsbalken */}
+          <div className="grid grid-cols-4 gap-1.5">
+            {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -183,7 +178,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </p>
               </div>
 
-              {/* Geschlecht (Pflicht) */}
+              {/* Geschlecht (Pflicht) - Radikal entschlackt OHNE Vorurteile/Untertitel */}
               <div className="space-y-2 pt-2">
                 <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center justify-between">
                   <span>Dein Geschlecht (Pflicht)</span>
@@ -195,36 +190,30 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setGender('male')}
-                    className={`p-4 rounded-2xl border text-left flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`py-5 px-4 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                       gender === 'male'
                         ? 'bg-[#E09F3E]/15 border-[#E09F3E] shadow-md shadow-[#E09F3E]/10 ring-2 ring-[#E09F3E]/40'
                         : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700'
                     }`}
                   >
                     <span className="text-3xl">🧔</span>
-                    <span className={`text-sm font-semibold ${gender === 'male' ? 'text-[#B45309] dark:text-[#FDE68A]' : 'text-stone-800 dark:text-stone-200'}`}>
+                    <span className={`text-base font-bold ${gender === 'male' ? 'text-[#B45309] dark:text-[#FDE68A]' : 'text-stone-800 dark:text-stone-200'}`}>
                       Mann
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 text-center">
-                      Fokus auf Stärke, Demut & Selbstbeherrschung
                     </span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setGender('female')}
-                    className={`p-4 rounded-2xl border text-left flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`py-5 px-4 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                       gender === 'female'
                         ? 'bg-[#E09F3E]/15 border-[#E09F3E] shadow-md shadow-[#E09F3E]/10 ring-2 ring-[#E09F3E]/40'
                         : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700'
                     }`}
                   >
                     <span className="text-3xl">👩</span>
-                    <span className={`text-sm font-semibold ${gender === 'female' ? 'text-[#B45309] dark:text-[#FDE68A]' : 'text-stone-800 dark:text-stone-200'}`}>
+                    <span className={`text-base font-bold ${gender === 'female' ? 'text-[#B45309] dark:text-[#FDE68A]' : 'text-stone-800 dark:text-stone-200'}`}>
                       Frau
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 text-center">
-                      Fokus auf innere Ruhe, Würde & geborgene Kraft
                     </span>
                   </button>
                 </div>
@@ -317,79 +306,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           )}
 
           {/* ========================================================
-              SCHRITT 3: DENKTYP-SZENARIOTEST
+              SCHRITT 3: ARBEITSWELT / BERUFSFELD
               ======================================================== */}
           {step === 3 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div>
-                <span className="text-[11px] uppercase font-bold tracking-wider text-[#E09F3E] flex items-center gap-1.5">
-                  <Brain className="w-3.5 h-3.5" />
-                  Szenario-Test
-                </span>
-                <h3 className="text-base sm:text-lg font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9] mt-1">
-                  „Ein Kollege oder Partner kritisiert deine Arbeit unerwartet scharf. Was ist dein erster innerer Impuls?“
-                </h3>
-              </div>
-
-              <div className="space-y-2.5">
-                {[
-                  {
-                    id: 'Analytisch & Lösungsorientiert',
-                    icon: '⚙️',
-                    quote: '„Ich prüfe sachlich die Fakten und suche sofort die technische/logische Lösung.“',
-                    label: 'Analytisch & Lösungsorientiert',
-                  },
-                  {
-                    id: 'Emotional & Beziehungsorientiert',
-                    icon: '🛡️',
-                    quote: '„Es trifft mich emotional oder erzeugt Ärger; ich muss mich erst innerlich sammeln.“',
-                    label: 'Emotional & Beziehungsorientiert',
-                  },
-                  {
-                    id: 'Pragmatisch & Macher',
-                    icon: '🎯',
-                    quote: '„Schuldfrage egal: Wie bringen wir das Projekt jetzt ohne Zeitverlust weiter?“',
-                    label: 'Pragmatisch & Macher',
-                  },
-                  {
-                    id: 'Reflektiert & Tiefgründig',
-                    icon: '🕊️',
-                    quote: '„Ich gehe auf Distanz und frage mich, was zwischenmenschlich dahintersteckt.“',
-                    label: 'Reflektiert & Tiefgründig',
-                  },
-                ].map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => setMindset(item.id)}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                      mindset === item.id
-                        ? 'bg-[#E09F3E]/15 border-[#E09F3E] ring-2 ring-[#E09F3E]/40 shadow-sm'
-                        : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-xl mt-0.5">{item.icon}</span>
-                      <div className="flex-1">
-                        <p className="text-xs italic font-serif text-stone-900 dark:text-stone-100 leading-relaxed">
-                          {item.quote}
-                        </p>
-                        <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A]">
-                          <span>→ Typ: {item.label}</span>
-                          {mindset === item.id && <Check className="w-3.5 h-3.5 text-[#E09F3E]" />}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================
-              SCHRITT 4: BERUFSFELD
-              ======================================================== */}
-          {step === 4 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
               <div>
                 <h3 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
@@ -481,41 +400,25 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           )}
 
           {/* ========================================================
-              SCHRITT 5: LEBENSRAHMEN
+              SCHRITT 4: LEBENSRAHMEN (OHNE SUBTEXTE)
               ======================================================== */}
-          {step === 5 && (
+          {step === 4 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
               <div>
                 <h3 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
                   In welchem Lebensrahmen lebst du?
                 </h3>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                  Steuert Posten 4 (Freiraum) und Posten 5 (Standpunkt im Miteinander).
+                  Steuert den lebenspraktischen Rahmen für Feierabend und Miteinander.
                 </p>
               </div>
 
               <div className="space-y-2.5">
                 {[
-                  {
-                    name: 'Verheiratet / Feste Partnerschaft',
-                    icon: '💍',
-                    desc: 'Gemeinsames Tragen, Verantwortung, partnerschaftliche Rücksicht und Absprache.',
-                  },
-                  {
-                    name: 'Single / Alleinlebend',
-                    icon: '👤',
-                    desc: 'Stille am Abend, Selbstorganisation, Verarbeiten des Tages ohne direktes Gegenüber.',
-                  },
-                  {
-                    name: 'Familie / Kinder im Haus',
-                    icon: '👨‍👧',
-                    desc: 'Wenig Eigenzeit, hohe Taktung, Erwartungsdruck, lebendiger Trubel nach Feierabend.',
-                  },
-                  {
-                    name: 'In Umbruch / Aufarbeitung',
-                    icon: '🌪️',
-                    desc: 'Trennung, Neuorientierung, veränderte Lebensumstände, emotionale Neuordnung.',
-                  },
+                  { name: 'Verheiratet / Feste Partnerschaft', icon: '💍' },
+                  { name: 'Single / Alleinlebend', icon: '👤' },
+                  { name: 'Familie / Kinder im Haus', icon: '👨‍👧' },
+                  { name: 'In Umbruch / Aufarbeitung', icon: '🌪️' },
                 ].map((item) => {
                   const isSelected = relationshipStatus === item.name;
                   return (
@@ -523,22 +426,19 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       type="button"
                       key={item.name}
                       onClick={() => setRelationshipStatus(item.name)}
-                      className={`w-full p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all cursor-pointer ${
+                      className={`w-full p-4 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-[#E09F3E]/15 border-[#E09F3E] ring-2 ring-[#E09F3E]/40 shadow-sm'
                           : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-stone-300 dark:hover:border-slate-700'
                       }`}
                     >
-                      <span className="text-2xl mt-0.5">{item.icon}</span>
-                      <div className="flex-1">
-                        <div className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center justify-between">
-                          <span>{item.name}</span>
-                          {isSelected && <Check className="w-4 h-4 text-[#E09F3E]" />}
-                        </div>
-                        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                          {item.desc}
-                        </p>
+                      <div className="flex items-center gap-3.5">
+                        <span className="text-2xl">{item.icon}</span>
+                        <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                          {item.name}
+                        </span>
                       </div>
+                      {isSelected && <Check className="w-4 h-4 text-[#E09F3E]" />}
                     </button>
                   );
                 })}
@@ -573,7 +473,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 : 'bg-stone-200 dark:bg-slate-800 text-stone-400 dark:text-stone-600 cursor-not-allowed opacity-60'
             }`}
           >
-            <span>{step === 5 ? 'Profil speichern & Lightflow starten' : 'Weiter'}</span>
+            <span>{step === 4 ? 'Profil speichern & Lightflow starten' : 'Weiter'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

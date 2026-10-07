@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { UserProfile } from '../types';
-import { X, Check, Briefcase, Brain, Heart, Compass, Sparkles, Search, Plus, User } from 'lucide-react';
+import { X, Check, Briefcase, Brain, Heart, Compass, Sparkles, Search, Plus, User, Sliders, ChevronDown, ChevronUp } from 'lucide-react';
 import { PROFESSIONS_DATA, ProfessionItem } from '../data/professionsData';
 
 interface ProfileModalProps {
@@ -11,6 +11,7 @@ interface ProfileModalProps {
 }
 
 const PRESET_MINDSETS = [
+  'Lösungsorientiert & Pragmatisch',
   'Analytisch & Lösungsorientiert',
   'Emotional & Beziehungsorientiert',
   'Pragmatisch & Macher',
@@ -39,6 +40,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [formData, setFormData] = useState<UserProfile>({ ...profile });
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [isMindsetFineTuningOpen, setIsMindsetFineTuningOpen] = useState<boolean>(false);
+  const [showScenarioTest, setShowScenarioTest] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Garantiert, dass geänderte Profile aus dem Storage/Props beim Öffnen immer synchronisiert sind
@@ -330,28 +333,108 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
           </div>
 
-          {/* 2. Denkweise */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
-              <Brain className="w-4 h-4 text-[#E09F3E]" />
-              2. Dein Denkstil
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PRESET_MINDSETS.map((m) => (
-                <button
-                  type="button"
-                  key={m}
-                  onClick={() => setFormData({ ...formData, mindset: m })}
-                  className={`text-left p-3 rounded-xl border text-xs transition-all ${
-                    formData.mindset === m
-                      ? 'bg-[#E09F3E]/15 border-[#E09F3E] text-[#92400E] dark:text-[#FDE68A] font-semibold'
-                      : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+          {/* 2. Feinabstimmung (Optional): Denkweise & Sprache verfeinern */}
+          <div className="p-3.5 rounded-2xl bg-stone-100/70 dark:bg-slate-900/60 border border-stone-200/80 dark:border-slate-800 space-y-3">
+            <button
+              type="button"
+              onClick={() => setIsMindsetFineTuningOpen(!isMindsetFineTuningOpen)}
+              className="w-full flex items-center justify-between text-left cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-[#E09F3E]" />
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 block">
+                    Feinabstimmung (Optional): Denkweise & Sprache
+                  </span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                    Aktuell: <strong className="text-[#B45309] dark:text-[#FDE68A]">{formData.mindset || 'Lösungsorientiert & Pragmatisch'}</strong>
+                  </span>
+                </div>
+              </div>
+              <div className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                {isMindsetFineTuningOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+            </button>
+
+            {isMindsetFineTuningOpen && (
+              <div className="pt-2 border-t border-stone-200 dark:border-slate-800 space-y-3 animate-in fade-in duration-200">
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                  Steuert, wie Lightflow theologische Wahrheiten formuliert (eher direkt, technisch-analytisch oder beziehungsorientiert).
+                </p>
+
+                {/* Manuelle Auswahl */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {PRESET_MINDSETS.map((m) => (
+                    <button
+                      type="button"
+                      key={m}
+                      onClick={() => setFormData({ ...formData, mindset: m })}
+                      className={`text-left p-2.5 rounded-xl border text-xs transition-all cursor-pointer ${
+                        formData.mindset === m
+                          ? 'bg-[#E09F3E]/20 border-[#E09F3E] text-[#B45309] dark:text-[#FDE68A] font-semibold'
+                          : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:border-stone-300'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Optionaler 1-Klick Szenariotest */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowScenarioTest(!showScenarioTest)}
+                    className="text-[11px] font-semibold text-[#E09F3E] hover:underline flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Brain className="w-3.5 h-3.5" />
+                    <span>{showScenarioTest ? 'Szenariotest ausblenden' : 'Kurzen 1-Klick-Szenariotest öffnen'}</span>
+                  </button>
+
+                  {showScenarioTest && (
+                    <div className="mt-2.5 p-3 rounded-xl bg-white dark:bg-slate-950 border border-stone-200 dark:border-slate-800 space-y-2 animate-in fade-in duration-150">
+                      <span className="text-[11px] font-bold text-stone-800 dark:text-stone-200 block">
+                        „Ein Kollege kritisiert deine Arbeit unerwartet scharf. Was ist dein erster Impuls?“
+                      </span>
+                      <div className="space-y-1.5">
+                        {[
+                          {
+                            type: 'Analytisch & Lösungsorientiert',
+                            text: '„Ich prüfe sachlich die Fakten und suche sofort die logische Lösung.“',
+                          },
+                          {
+                            type: 'Emotional & Beziehungsorientiert',
+                            text: '„Es trifft mich emotional; ich muss mich erst innerlich sammeln.“',
+                          },
+                          {
+                            type: 'Pragmatisch & Macher',
+                            text: '„Schuldfrage egal: Wie bringen wir das Projekt jetzt ohne Zeitverlust weiter?“',
+                          },
+                          {
+                            type: 'Reflektiert & Tiefgründig',
+                            text: '„Ich gehe auf Distanz und frage mich, was zwischenmenschlich dahintersteckt.“',
+                          },
+                        ].map((scenario) => (
+                          <button
+                            type="button"
+                            key={scenario.type}
+                            onClick={() => {
+                              setFormData({ ...formData, mindset: scenario.type });
+                              setShowScenarioTest(false);
+                            }}
+                            className="w-full text-left p-2 rounded-lg bg-stone-50 dark:bg-slate-900/80 hover:bg-[#E09F3E]/10 border border-stone-200/60 dark:border-slate-800 text-[11px] text-stone-700 dark:text-stone-300 transition-colors cursor-pointer"
+                          >
+                            <span className="italic block mb-0.5">{scenario.text}</span>
+                            <span className="font-semibold text-[#B45309] dark:text-[#FDE68A] text-[10px]">→ Übernehmen: {scenario.type}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            )}
           </div>
 
           {/* 3. Lebenssituation */}
