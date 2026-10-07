@@ -38,7 +38,7 @@ class BiblePickerErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-[#FAF9F6] dark:bg-[#151B22] border border-red-500/30 shadow-2xl text-center space-y-4">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-stone-50 dark:bg-stone-950 border border-red-500/30 shadow-2xl text-center space-y-4">
             <div className="p-3 bg-red-500/10 text-red-500 rounded-2xl inline-flex">
               <Sparkles className="w-6 h-6" />
             </div>
@@ -182,7 +182,7 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg h-[90vh] sm:h-[85vh] max-h-[90vh] flex flex-col rounded-3xl bg-[#FAF9F6] dark:bg-[#151B22] border border-[#E5E0D8] dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-lg h-[90vh] sm:h-[85vh] max-h-[90vh] flex flex-col rounded-3xl bg-stone-50 dark:bg-stone-950 border border-[#E5E0D8] dark:border-slate-800 shadow-2xl overflow-hidden">
         
         {/* Modal Header & Navigation */}
         <div className="p-4 sm:p-5 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between bg-white/70 dark:bg-slate-900/60 backdrop-blur shrink-0">

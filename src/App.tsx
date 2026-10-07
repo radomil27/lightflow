@@ -70,6 +70,17 @@ export const App: React.FC = () => {
     }
   }, [darkMode]);
 
+  // System Theme Listener (falls 'system' gewählt ist)
+  useEffect(() => {
+    if (settings.theme !== 'system') return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      setDarkMode(e.matches);
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [settings.theme]);
+
   // PWA Install Event Listener
   useEffect(() => {
     const handleBeforeInstall = (e: Event) => {
@@ -234,7 +245,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6] dark:bg-[#12161A] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
       
       {/* Header mit Logo, Live-Status & Profil */}
       <Header

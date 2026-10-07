@@ -422,7 +422,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(1)}
-            className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer"
+            className="absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full bg-[#E09F3E] text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-md shadow-[#E09F3E]/30 ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer"
           >
             1
           </div>
@@ -511,7 +511,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(2)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(2) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
@@ -600,7 +600,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(3)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(3) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
@@ -689,7 +689,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(4)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(4) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
@@ -778,7 +778,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(5)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(5) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
@@ -867,7 +867,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(6)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(6) ? 'bg-[#E09F3E] text-slate-950 shadow-[#E09F3E]/30' : 'bg-slate-700 text-stone-300'
             }`}
           >
@@ -956,7 +956,7 @@ ${report.leuchtkraft || report.heartGarden}
         <div className="relative group transition-all duration-300">
           <div 
             onClick={() => toggleSection(7)}
-            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md ring-4 ring-[#FAF9F6] dark:ring-[#12161A] cursor-pointer transition-colors ${
+            className={`absolute -left-6 sm:-left-10 top-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md ring-4 ring-stone-50 dark:ring-stone-950 cursor-pointer transition-colors ${
               openSections.includes(7) ? 'bg-[#F59E0B] text-slate-950 shadow-[#F59E0B]/40 animate-light-pulse' : 'bg-slate-700 text-stone-300'
             }`}
           >

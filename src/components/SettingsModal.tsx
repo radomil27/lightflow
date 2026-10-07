@@ -47,7 +47,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md rounded-3xl bg-[#FAF9F6] dark:bg-[#151B22] border border-[#E5E0D8] dark:border-slate-800 shadow-2xl p-6 sm:p-7 overflow-hidden">
+      <div className="w-full max-w-md rounded-3xl bg-stone-50 dark:bg-stone-950 border border-[#E5E0D8] dark:border-slate-800 shadow-2xl p-6 sm:p-7 overflow-hidden">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-200 dark:border-slate-800">
@@ -260,7 +260,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Version der App</span>
             </div>
             <span className="font-mono text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-              v1.7.7 (PWA Live)
+              v1.7.8 (PWA Live)
             </span>
           </div>
 

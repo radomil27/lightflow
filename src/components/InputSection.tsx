@@ -114,7 +114,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-[#E09F3E]/30 via-[#F59E0B]/20 to-[#3E6B56]/30 rounded-3xl blur-md opacity-40 group-hover:opacity-75 transition-opacity pointer-events-none"></div>
           
-          <div className="relative rounded-3xl bg-white/95 dark:bg-[#151B22]/95 backdrop-blur-xl border border-stone-200/80 dark:border-slate-800 p-2 sm:p-2.5 shadow-xl transition-all">
+          <div className="relative rounded-3xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl border border-stone-200/80 dark:border-slate-800 p-2 sm:p-2.5 shadow-xl transition-all">
             <div
               onClick={onOpenPicker}
               className="flex items-center px-3 pt-1 cursor-pointer group/search"

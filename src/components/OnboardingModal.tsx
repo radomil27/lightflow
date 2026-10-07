@@ -127,7 +127,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#FAF9F6] dark:bg-[#151B22] border border-stone-200 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-7 flex flex-col max-h-[92vh] overflow-hidden">
+      <div className="relative w-full max-w-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-7 flex flex-col max-h-[92vh] overflow-hidden">
         
         {/* Header mit Fortschritt (4 Schritte) */}
         <div className="pb-4 border-b border-stone-200 dark:border-slate-800">

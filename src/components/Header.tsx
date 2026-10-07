@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   savedCount,
 }) => {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#FAF9F6]/90 dark:bg-[#12161A]/90 border-b border-[#E5E0D8]/80 dark:border-[#1E293B] transition-colors duration-200 safe-area-header">
+    <header className="sticky top-0 z-40 backdrop-blur-xl bg-stone-50/90 dark:bg-stone-950/90 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200 safe-area-header">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 sm:py-0 min-h-16 flex items-center justify-between">
         
         {/* Logo & Marken-Metapher */}
