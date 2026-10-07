@@ -17,7 +17,56 @@ interface BiblePickerModalProps {
 
 type PickerStep = 'book' | 'chapter' | 'verse';
 
-export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
+class BiblePickerErrorBoundary extends React.Component<
+  { children: React.ReactNode; onClose: () => void },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode; onClose: () => void }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('BiblePickerModal Render-Crash abgefangen:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-[#FAF9F6] dark:bg-[#151B22] border border-red-500/30 shadow-2xl text-center space-y-4">
+            <div className="p-3 bg-red-500/10 text-red-500 rounded-2xl inline-flex">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
+              Bibel-Navigator kurzzeitig nicht erreichbar
+            </h3>
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Es gab ein Problem beim Rendern der Bibelstellen. Bitte lade die Seite neu oder wähle eine Passage manuell.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                this.setState({ hasError: false });
+                this.props.onClose();
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#E09F3E] text-slate-950 font-bold text-xs"
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
   isOpen,
   onClose,
   onSelectPassage,
@@ -63,9 +112,18 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
 
   // Direkte Passagen-Erkennung aus dem Suchfeld (z. B. "Lukas 1:45-80" oder "Mt 26,36-75")
   const parsedSearchPassage = React.useMemo(() => {
-    const trimmed = searchTerm.trim();
-    if (!trimmed || !/\d/.test(trimmed)) return null;
-    return parsePassageReference(trimmed);
+    try {
+      const trimmed = searchTerm.trim();
+      if (!trimmed || !/\d/.test(trimmed)) return null;
+      const parsed = parsePassageReference(trimmed);
+      // Nur anzeigen, wenn tatsächlich ein Bibelbuch im Suchtext erkannt wurde
+      if (parsed && parsed.matchedExplicitBook) {
+        return parsed;
+      }
+    } catch (e) {
+      console.warn('Fehler beim Erkennen der Passage im Suchfeld:', e);
+    }
+    return null;
   }, [searchTerm]);
 
   // Buch auswählen
@@ -397,7 +455,10 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
               onTouchCancel={handleTouchEnd}
             >
               <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 touch-none">
-                {Array.from({ length: getVerseCount(selectedBook, selectedChapter) }, (_, i) => i + 1).map((v) => {
+                {Array.from(
+                  { length: Math.max(1, getVerseCount(selectedBook, selectedChapter) || 35) },
+                  (_, i) => i + 1
+                ).map((v) => {
                   const isSelected =
                     startVerse !== null &&
                     endVerse !== null &&
@@ -452,5 +513,14 @@ export const BiblePickerModal: React.FC<BiblePickerModalProps> = ({
 
       </div>
     </div>
+  );
+};
+
+export const BiblePickerModal: React.FC<BiblePickerModalProps> = (props) => {
+  if (!props.isOpen) return null;
+  return (
+    <BiblePickerErrorBoundary onClose={props.onClose}>
+      <BiblePickerModalContent {...props} />
+    </BiblePickerErrorBoundary>
   );
 };

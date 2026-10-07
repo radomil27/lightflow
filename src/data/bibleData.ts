@@ -660,6 +660,7 @@ export interface ParsedPassage {
   endVerse?: number;
   isFullChapter: boolean;
   formattedDisplay: string;
+  matchedExplicitBook?: boolean;
 }
 
 /**
@@ -678,6 +679,7 @@ export function parsePassageReference(passage: string): ParsedPassage {
 
   // 1. Suche nach dem passenden Buch (längste Aliase zuerst prüfen)
   let matchedBook: BibleBook = ALL_BIBLE_BOOKS[42]; // Default: Johannes (Buch 43)
+  let matchedExplicitBook = false;
   let remainder = clean;
 
   // Sammle alle (Alias -> Buch)-Paare, sortiert nach absteigender Zeichenlänge
@@ -699,6 +701,7 @@ export function parsePassageReference(passage: string): ParsedPassage {
     const regex = new RegExp(`^${escaped}\\.?(\\s*|(?=\\d))`, 'i');
     if (regex.test(clean)) {
       matchedBook = c.book;
+      matchedExplicitBook = true;
       remainder = clean.replace(regex, '').trim();
       break;
     }
@@ -776,29 +779,48 @@ export function parsePassageReference(passage: string): ParsedPassage {
 
   return {
     book: matchedBook,
-    bookNumber: matchedBook.bookNumber,
+    bookNumber: matchedBook?.bookNumber || 43,
     chapter,
     startVerse,
     endVerse,
     isFullChapter,
     formattedDisplay,
+    matchedExplicitBook,
   };
 }
 
 /**
  * Gibt die exakte, reelle Versanzahl eines Kapitels zurück.
- * Nutzt die vollständige Kanon-Tabelle aller 1189 Kapitel der 66 Bücher.
+ * Absolut defensiv & kugelsicher: Akzeptiert BibleBook, String-ID oder ungültige Werte.
+ * Liefert im Fehlerfall IMMER einen gültigen positiven Zahlenwert (Default: 35).
  */
-export function getVerseCount(book: BibleBook, chapter: number): number {
-  if (VERSE_COUNTS[book.id] && VERSE_COUNTS[book.id][chapter]) {
-    return VERSE_COUNTS[book.id][chapter];
+export function getVerseCount(book: BibleBook | string | null | undefined, chapter: number | null | undefined): number {
+  try {
+    const ch = typeof chapter === 'number' && !isNaN(chapter) && chapter > 0 ? chapter : 1;
+    let bookId: string | undefined;
+
+    if (book && typeof book === 'object' && 'id' in book) {
+      bookId = book.id;
+    } else if (typeof book === 'string') {
+      bookId = book;
+    }
+
+    if (bookId && VERSE_COUNTS?.[bookId]?.[ch]) {
+      const count = VERSE_COUNTS[bookId][ch];
+      if (typeof count === 'number' && count > 0) return count;
+    }
+
+    if (book && typeof book === 'object' && book.versesPerChapter?.[ch]) {
+      const count = book.versesPerChapter[ch];
+      if (typeof count === 'number' && count > 0) return count;
+    }
+
+    if (bookId === 'ps' && ch === 119) {
+      return 176;
+    }
+  } catch (err) {
+    console.warn('Verse count lookup fallback:', err);
   }
-  if (book.versesPerChapter && book.versesPerChapter[chapter]) {
-    return book.versesPerChapter[chapter];
-  }
-  if (book.id === 'ps') {
-    if (chapter === 119) return 176;
-    return 30;
-  }
-  return 35;
+
+  return 35; // Sicherer Fallback-Wert, niemals 0, NaN oder undefined!
 }
