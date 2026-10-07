@@ -28,6 +28,15 @@
     color: #F5F5F4;
   }
 
+  /* 2-Sekunden butterweiche & edle Farbüberblendung für Dark Mode */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 2000ms;
+  }
+
   h1, h2, h3, .font-serif {
     font-family: 'Lora', Georgia, serif;
   }
