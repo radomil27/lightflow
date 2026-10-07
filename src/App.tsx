@@ -27,9 +27,12 @@ import { SettingsModal } from './components/SettingsModal';
 import { BiblePickerModal } from './components/BiblePickerModal';
 import { MoodPickerModal } from './components/MoodPickerModal';
 import { OnboardingModal } from './components/OnboardingModal';
+import { SplashScreen } from './components/SplashScreen';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
+  // Splash Screen Intro bei jedem App-Start / Reload
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   const [profile, setProfile] = useState<UserProfile>(getStoredProfile);
   const [settings, setSettings] = useState<AppSettings>(getStoredSettings);
   const [savedReports, setSavedReports] = useState<LightflowReport[]>(getStoredReports);
@@ -408,6 +411,11 @@ export const App: React.FC = () => {
           runGenerationWithMood(passage, mood);
         }}
       />
+
+      {/* Splash Screen Intro: Bei jedem Start aktiv, per Tap überspringbar */}
+      {showSplash && (
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      )}
 
     </div>
   );

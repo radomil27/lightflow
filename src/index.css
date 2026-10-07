@@ -146,3 +146,53 @@
 .safe-area-footer {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
 }
+
+/* Splash Screen Animationen: Fließendes Wasser & Pulsierende Flamme */
+@keyframes flameGlow {
+  0%, 100% {
+    transform: scale(0.98);
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45)) drop-shadow(0 0 20px rgba(224, 159, 62, 0.25));
+  }
+  50% {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.85)) drop-shadow(0 0 38px rgba(253, 230, 138, 0.6));
+  }
+}
+
+@keyframes waveFlow {
+  0% {
+    transform: translateY(0) scaleY(1) skewX(0deg);
+  }
+  25% {
+    transform: translateY(-2px) scaleY(1.03) skewX(-1.5deg);
+  }
+  50% {
+    transform: translateY(2px) scaleY(0.97) skewX(1.5deg);
+  }
+  75% {
+    transform: translateY(-1.5px) scaleY(1.02) skewX(-1deg);
+  }
+  100% {
+    transform: translateY(0) scaleY(1) skewX(0deg);
+  }
+}
+
+@keyframes waterShimmer {
+  0%, 100% {
+    opacity: 0.88;
+    filter: drop-shadow(0 4px 12px rgba(14, 165, 233, 0.35));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 6px 18px rgba(37, 99, 235, 0.55));
+  }
+}
+
+.animate-flame-glow {
+  animation: flameGlow 2.8s ease-in-out infinite;
+}
+
+.animate-wave-flow {
+  animation: waveFlow 3.2s ease-in-out infinite, waterShimmer 2.4s ease-in-out infinite;
+}
+
