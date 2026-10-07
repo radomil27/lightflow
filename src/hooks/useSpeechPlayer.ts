@@ -14,38 +14,45 @@ export interface UseSpeechPlayerResult {
 }
 
 /**
- * Teilt Text an Satzgrenzen in handliche Chunks (140-200 Zeichen) auf,
- * um den bekannten Mobile-Browser-Bug (Abbruch nach 15s) zu umgehen.
+ * Teilt Text an Absätzen und Satzenden (. ! ? : ;) in natürliche Sinneinheiten auf,
+ * damit zwischen den Sätzen spürbare, ruhige Atempause entstehen.
  */
 function splitTextIntoSentences(text: string): string[] {
-  const clean = text.replace(/\s+/g, ' ').trim();
+  if (!text) return [];
+
+  // Bereinige Markdown-Reste wie **fett**, # Überschriften, Listenstriche
+  const clean = text
+    .replace(/[*#_`~>]/g, '')
+    .replace(/\r\n/g, '\n')
+    .trim();
+
   if (!clean) return [];
 
-  // Matcht Sätze anhand von Satzzeichen (. ! ?)
-  const regex = /[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g;
-  const matches = clean.match(regex);
-  if (!matches) return [clean];
+  // Teile zunächst an Zeilenumbrüchen (Absätze)
+  const paragraphs = clean.split(/\n+/);
+  const units: string[] = [];
 
-  const chunks: string[] = [];
-  let currentChunk = '';
+  for (const para of paragraphs) {
+    const trimmedPara = para.trim();
+    if (!trimmedPara) continue;
 
-  for (const part of matches) {
-    const trimmed = part.trim();
-    if (!trimmed) continue;
+    // Regex für Satzenden inkl. Doppelpunkt und Semikolon für andächtigen Sprachfluss
+    const sentenceRegex = /[^.!?:]+[.!?:]+(\s+|$)|[^.!?:]+$/g;
+    const matches = trimmedPara.match(sentenceRegex);
 
-    if (currentChunk.length + trimmed.length < 180) {
-      currentChunk += (currentChunk ? ' ' : '') + trimmed;
+    if (matches) {
+      for (const m of matches) {
+        const sentence = m.trim();
+        if (sentence.length > 0) {
+          units.push(sentence);
+        }
+      }
     } else {
-      if (currentChunk) chunks.push(currentChunk);
-      currentChunk = trimmed;
+      units.push(trimmedPara);
     }
   }
 
-  if (currentChunk) {
-    chunks.push(currentChunk);
-  }
-
-  return chunks;
+  return units;
 }
 
 export function useSpeechPlayer(): UseSpeechPlayerResult {
@@ -56,23 +63,52 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
   const isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
 
   // Queue von Chunks: Jeder Eintrag hat den vorzulesenden Text und den zugehörigen Posten (1-7)
-  const queueRef = useRef<{ text: string; step: number }[]>([]);
+  const queueRef = useRef<{ text: string; step: number; isHeader?: boolean }[]>([]);
   const currentIndexRef = useRef<number>(0);
   const isPlayingRef = useRef<boolean>(false);
   const selectedVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const breathTimeoutRef = useRef<any>(null);
 
-  // Wähle die beste deutsche Stimme aus dem System
+  // Wähle die beste deutsche Stimme aus dem System (iOS Siri/Anna/Helena/Enhanced, Android Google/Natural)
   const pickGermanVoice = useCallback(() => {
     if (!isSupported) return;
     const voices = window.speechSynthesis.getVoices();
-    // Priorität: Deutsche Stimmen, bevorzugt natürliche/hochwertige
-    const germanVoices = voices.filter((v) => v.lang.startsWith('de'));
-    if (germanVoices.length > 0) {
-      const preferred = germanVoices.find((v) =>
-        /natural|google|siri|premium|anna|helena|katja|martin/i.test(v.name)
-      );
-      selectedVoiceRef.current = preferred || germanVoices[0];
-    }
+    // Priorität: Deutsche Stimmen (de-DE, de-CH, de-AT)
+    const germanVoices = voices.filter(
+      (v) => v.lang.startsWith('de') || v.lang.startsWith('de-')
+    );
+
+    if (germanVoices.length === 0) return;
+
+    // Bewertungs-Score für höchste Natürlichkeit:
+    // Höchste Punkte für Premium / Enhanced / Siri / bekannte hochwertige deutsche Stimmen
+    const scoreVoice = (v: SpeechSynthesisVoice): number => {
+      let score = 0;
+      const name = v.name.toLowerCase();
+
+      // iOS & macOS Premium/Enhanced Stimmen
+      if (name.includes('enhanced') || name.includes('premium')) score += 30;
+      if (name.includes('siri')) score += 25;
+      if (name.includes('anna') || name.includes('helena') || name.includes('katja') || name.includes('martin')) score += 20;
+
+      // Google Natural & Google Stimmen (Android / Chrome)
+      if (name.includes('natural')) score += 22;
+      if (name.includes('google')) score += 15;
+
+      // Standard de-DE bevorzugen
+      if (v.lang === 'de-DE') score += 5;
+
+      // Lokale Stimmen (kein Netzwerk-Delay) bevorzugen
+      if (v.localService) score += 3;
+
+      // Unliebsame monotone Stimmen de-priorisieren
+      if (name.includes('compact') || name.includes('robotic')) score -= 15;
+
+      return score;
+    };
+
+    const sorted = [...germanVoices].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+    selectedVoiceRef.current = sorted[0];
   }, [isSupported]);
 
   useEffect(() => {
@@ -82,15 +118,18 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
       window.speechSynthesis.onvoiceschanged = pickGermanVoice;
     }
 
-    // Unmount Cleanup: Sofort stoppen
+    // Unmount Cleanup: Sofort stoppen & Timeout leeren
     return () => {
+      if (breathTimeoutRef.current) {
+        clearTimeout(breathTimeoutRef.current);
+      }
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
   }, [isSupported, pickGermanVoice]);
 
-  // Spielt den nächsten Chunk aus der Queue
+  // Spielt den nächsten Chunk aus der Queue mit natürlicher Atempause (350-450ms)
   const speakNextChunk = useCallback(() => {
     if (!isSupported || !isPlayingRef.current) return;
 
@@ -107,8 +146,10 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
     setCurrentPlayingStep(item.step);
 
     const utterance = new SpeechSynthesisUtterance(item.text);
-    utterance.lang = 'de-DE';
-    utterance.rate = 0.94;
+    utterance.lang = selectedVoiceRef.current?.lang || 'de-DE';
+    
+    // Getragenes Andachtstempo: Ruhig, bedacht & warm
+    utterance.rate = 0.90;
     utterance.pitch = 0.98;
 
     if (selectedVoiceRef.current) {
@@ -117,7 +158,13 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
 
     utterance.onend = () => {
       currentIndexRef.current += 1;
-      speakNextChunk();
+      // Natürliche Sinn- und Atempause: Nach Überschrift 500ms, nach Sätzen 380ms
+      const pauseDuration = item.isHeader ? 500 : 380;
+      breathTimeoutRef.current = setTimeout(() => {
+        if (isPlayingRef.current) {
+          speakNextChunk();
+        }
+      }, pauseDuration);
     };
 
     utterance.onerror = (e) => {
@@ -131,9 +178,13 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
     window.speechSynthesis.speak(utterance);
   }, [isSupported]);
 
-  // Stoppt alle laufenden Sprachausgaben
+  // Stoppt alle laufenden Sprachausgaben & Timer
   const stopSpeech = useCallback(() => {
     if (!isSupported) return;
+    if (breathTimeoutRef.current) {
+      clearTimeout(breathTimeoutRef.current);
+      breathTimeoutRef.current = null;
+    }
     isPlayingRef.current = false;
     queueRef.current = [];
     currentIndexRef.current = 0;
@@ -159,8 +210,8 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
       // Erstelle Chunks: Ansage des Titels, dann der Inhalt
       const sentenceChunks = splitTextIntoSentences(text);
       const queue = [
-        { text: `${title}.`, step: stepNum },
-        ...sentenceChunks.map((chunk) => ({ text: chunk, step: stepNum })),
+        { text: `${title}.`, step: stepNum, isHeader: true },
+        ...sentenceChunks.map((chunk) => ({ text: chunk, step: stepNum, isHeader: false })),
       ];
 
       queueRef.current = queue;
@@ -197,14 +248,14 @@ export function useSpeechPlayer(): UseSpeechPlayerResult {
         { step: 7, title: '7. Leuchtkraft, Herzensgebet', text: report.leuchtkraft || report.heartGarden || '' },
       ];
 
-      const fullQueue: { text: string; step: number }[] = [];
+      const fullQueue: { text: string; step: number; isHeader?: boolean }[] = [];
 
       for (const s of sections) {
         if (!s.text.trim()) continue;
-        fullQueue.push({ text: `${s.title}.`, step: s.step });
+        fullQueue.push({ text: `${s.title}.`, step: s.step, isHeader: true });
         const chunks = splitTextIntoSentences(s.text);
         for (const c of chunks) {
-          fullQueue.push({ text: c, step: s.step });
+          fullQueue.push({ text: c, step: s.step, isHeader: false });
         }
       }
 
