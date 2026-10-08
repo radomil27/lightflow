@@ -30,22 +30,22 @@ DEIN AUFTRAG & TONALITÄT:
 - Passe die Tonalität feinfühlig an ${ctx.user_daily_state} an (z. B. bei Erschöpfung entlastend und stärkend; bei Fokus direkt und herausfordernd; bei Zweifeln logisch-fundiert).
 
 STRIKTES AUSGABEFORMAT:
-Erstelle exakt die folgenden 3 Abschnitte. Halte die Satzbegrenzung zwingend ein:
+Erstelle exakt die folgenden 3 Abschnitte in vollständigen, grammatikalisch sauberen Sätzen:
 
 1. Historischer Kontext / Kultur damals:
-[Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. Genau 1 bis maximal 2 Sätze.]
+Erkläre rein sachlich und historisch präzise, was damals vor Ort geschah oder wie die Kultur dachte. Formuliere 2 bis 3 vollständige, fundierte Sätze.
 
 2. Urtext / Symbolik:
-[Den zentralen griechischen oder hebräischen Begriff oder das theologische Kernmotiv der Stelle präzise auf den Punkt bringen. Genau 1 bis maximal 2 Sätze.]
+Erkläre den zentralen griechischen oder hebräischen Begriff oder das theologische Kernmotiv der Stelle präzise auf den Punkt. Formuliere 2 bis 3 vollständige, fundierte Sätze.
 
 3. Klarblick für heute:
-[Direkte Anwendung auf den Alltag: Wo treffen heute „Falsch vs. Echt“ aufeinander? Binde dezent und bildhaft ${ctx.user_profession} und ${ctx.user_daily_state} ein. Genau 2 bis 3 Sätze.]
+Zeige die direkte Anwendung auf den Alltag: Wo treffen heute „Falsch vs. Echt“ aufeinander? Binde dezent und bildhaft ${ctx.user_profession} und ${ctx.user_daily_state} ein. Formuliere 2 bis 3 vollständige, fundierte Sätze.
 
-REGELN:
+REGELN & ABSCHLUSS:
 - Starte DIREKT mit „1. Historischer Kontext / Kultur damals:“.
 - Keine Einleitungsfloskeln („Hier ist dein Klarblick...“).
 - Keine Zusammenfassung oder Schlussworte am Ende.
-- Jeder Satz muss vollständig und grammatikalisch vollendet sein.`;
+- ABSOLUTES ABBRUCHVERBOT: Jeder der 3 Abschnitte MUSS grammatikalisch vollständig ausformuliert und mit einem Satzzeichen (. ! ?) beendet werden. Breche NIEMALS mitten im Wort, Satz oder Gedanken ab!`;
 }
 
 export function buildSystemPrompt(profile: UserProfile, passage: string, mood?: string): string {
@@ -165,10 +165,10 @@ Jesus spricht den Nutzer direkt und persönlich an.${userName ? ` Er darf den Nu
 
 ### 2. KLARBLICK
 Präziser theologischer Begleiter für „KLARBLICK (Falsch vs. Echt)“:
-1. Historischer Kontext / Kultur damals: Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. (Max. 2 Sätze)
-2. Urtext / Symbolik: Griechischen/hebräischen Begriff oder Kernmotiv erklären. (Max. 2 Sätze)
-3. Klarblick für heute: Direkte Anwendung auf den Alltag des Nutzers unter dezenter Einbindung von Berufswelt (${fullProfession}) und Tageszustand (${currentMood}). Wo treffen heute „Falsch vs. Echt“ aufeinander? (Max. 2–3 Sätze)
-Regeln: Keine Einleitungsfloskeln, keine Zusammenfassung am Ende, direkt mit Punkt 1 starten.
+1. Historischer Kontext / Kultur damals: Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. Formuliere 2 bis 3 vollständige, fundierte Sätze.
+2. Urtext / Symbolik: Griechischen/hebräischen Begriff oder Kernmotiv erklären. Formuliere 2 bis 3 vollständige, fundierte Sätze.
+3. Klarblick für heute: Direkte Anwendung auf den Alltag des Nutzers unter dezenter Einbindung von Berufswelt (${fullProfession}) und Tageszustand (${currentMood}). Wo treffen heute „Falsch vs. Echt“ aufeinander? Formuliere 2 bis 3 vollständige, fundierte Sätze.
+Regeln & Abschluss: Keine Einleitungsfloskeln, keine Zusammenfassung am Ende, direkt mit Punkt 1 starten. ABSOLUTES ABBRUCHVERBOT: Jeder Abschnitt MUSS grammatikalisch vollständig ausformuliert und mit Satzzeichen beendet werden.
 
 ### 3. TAGWERK
 Messerscharfe praktische Tat und Gehorsam im Berufsfeld (${fullProfession}) – STRENGES VERBOT VON VAGEN RATSCHLÄGEN wie 'sei aufmerksam' oder 'bemühe dich':

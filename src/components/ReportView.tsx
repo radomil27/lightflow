@@ -172,11 +172,20 @@ export const ReportView: React.FC<ReportViewProps> = ({
 
   // Erkennt die 3 strukturierten Abschnitte von "KLARBLICK (Falsch vs. Echt)"
   const renderKlarblickContent = (text: string) => {
-    const s1Match = text.match(/(?:1\.\s*Historischer Kontext[^\n:]*:?)([\s\S]*?)(?=(?:2\.\s*Urtext)|\Z)/i);
-    const s2Match = text.match(/(?:2\.\s*Urtext[^\n:]*:?)([\s\S]*?)(?=(?:3\.\s*Klarblick)|\Z)/i);
-    const s3Match = text.match(/(?:3\.\s*Klarblick[^\n:]*:?)([\s\S]*?)$/i);
+    const s1Match = text.match(/(?:(?:\r?\n|^)\s*(?:###|##|#|\*\*|)\s*1\.\s*Historischer Kontext[^\n:]*:?\*?\*?\s*)([\s\S]*?)(?=(?:\r?\n\s*(?:###|##|#|\*\*|)\s*2\.\s*Urtext)|$)/i);
+    const s2Match = text.match(/(?:(?:\r?\n|^)\s*(?:###|##|#|\*\*|)\s*2\.\s*Urtext[^\n:]*:?\*?\*?\s*)([\s\S]*?)(?=(?:\r?\n\s*(?:###|##|#|\*\*|)\s*3\.\s*Klarblick)|$)/i);
+    const s3Match = text.match(/(?:(?:\r?\n|^)\s*(?:###|##|#|\*\*|)\s*3\.\s*Klarblick[^\n:]*:?\*?\*?\s*)([\s\S]*?)$/i);
 
-    if (s1Match && s2Match && s3Match && s1Match[1].trim() && s2Match[1].trim() && s3Match[1].trim()) {
+    const cleanSection = (val?: string) => {
+      if (!val) return '';
+      return val.trim().replace(/^\*+\s*/, '').replace(/\s*\*+$/, '');
+    };
+
+    const s1 = cleanSection(s1Match?.[1]);
+    const s2 = cleanSection(s2Match?.[1]);
+    const s3 = cleanSection(s3Match?.[1]);
+
+    if (s1 && s2 && s3) {
       return (
         <div className="space-y-3.5 pt-1">
           <div className="rounded-2xl bg-stone-50/80 dark:bg-slate-900/50 p-4 border border-stone-200/60 dark:border-slate-800/60">
@@ -184,7 +193,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               🏛️ 1. Historischer Kontext & Kultur damals
             </span>
             <p className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed`}>
-              {s1Match[1].trim()}
+              {s1}
             </p>
           </div>
 
@@ -193,7 +202,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               📜 2. Urtext & Symbolik
             </span>
             <p className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed`}>
-              {s2Match[1].trim()}
+              {s2}
             </p>
           </div>
 
@@ -202,7 +211,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               ⚡ 3. Klarblick für heute (Falsch vs. Echt)
             </span>
             <p className={`${bodyTextClass} text-stone-800 dark:text-stone-100 font-medium leading-relaxed`}>
-              {s3Match[1].trim()}
+              {s3}
             </p>
           </div>
         </div>
