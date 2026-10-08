@@ -62,6 +62,7 @@ interface ReportViewProps {
   onFontSizeChange?: (size: 'sm' | 'md' | 'lg') => void;
   onEditPassage?: () => void;
   onOpenBiblePicker?: () => void;
+  onGenerateKlarblick?: (passageWithTitle: string, selectedText?: string) => void;
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({
@@ -73,6 +74,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
   onFontSizeChange,
   onEditPassage,
   onOpenBiblePicker,
+  onGenerateKlarblick,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
@@ -424,7 +426,7 @@ ${report.leuchtkraft || report.heartGarden}
       </div>
 
       {/* 3. Integrierter gemeinfreier Bibel-Volltext-Viewer (Schlachter 1951 / Luther 1912) */}
-      <BibleTextViewer passage={report.passage} />
+      <BibleTextViewer passage={report.passage} onGenerateKlarblick={onGenerateKlarblick} />
 
       {/* Notiz-Eingabefeld falls geöffnet */}
       {notesOpen && (

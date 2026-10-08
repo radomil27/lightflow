@@ -6,6 +6,7 @@ import {
   getVerseCount,
   parsePassageReference,
 } from '../data/bibleData';
+import { getChapterPericopes } from '../data/pericopesData';
 import { X, Search, ChevronLeft, Sparkles, Check, Bookmark, ArrowRight } from 'lucide-react';
 
 interface BiblePickerModalProps {
@@ -387,16 +388,53 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
         {/* ========================================================
             SCHRITT 3: VERSE
             ======================================================== */}
-        {step === 'verse' && selectedBook && selectedChapter && (
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden p-3 sm:p-5">
-            
-            {/* Scrollbarer Vers-Kacheln Bereich */}
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 select-none">
-              <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 pb-2">
-                {Array.from(
-                  { length: Math.max(1, getVerseCount(selectedBook, selectedChapter) || 35) },
-                  (_, i) => i + 1
-                ).map((v) => {
+        {step === 'verse' && selectedBook && selectedChapter && (() => {
+          const totalVerseCount = getVerseCount(selectedBook, selectedChapter) || 35;
+          const chapterPericopes = getChapterPericopes(selectedBook.bookNumber, selectedChapter, totalVerseCount, selectedBook.name);
+
+          return (
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden p-3 sm:p-5">
+              
+              {/* Sinnabschnitte / Perikopen Schnellauswahl */}
+              {chapterPericopes.length > 0 && (
+                <div className="mb-3 pb-2.5 border-b border-stone-200/70 dark:border-slate-800/70 shrink-0">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-[#E09F3E] flex items-center gap-1 mb-1.5">
+                    <Sparkles className="w-3 h-3" />
+                    Sinnabschnitte in diesem Kapitel:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
+                    {chapterPericopes.map((p, idx) => {
+                      const isSelected = startVerse === p.startVerse && endVerse === p.endVerse;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setStartVerse(p.startVerse);
+                            setEndVerse(p.endVerse);
+                          }}
+                          className={`px-2.5 py-1 rounded-xl text-xs text-left border transition-all cursor-pointer flex items-center gap-1.5 ${
+                            isSelected
+                              ? 'bg-[#E09F3E] text-slate-950 font-bold border-[#E09F3E] shadow-sm'
+                              : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-stone-300 hover:border-[#E09F3E]/60'
+                          }`}
+                        >
+                          <span className="text-[10px] font-mono opacity-80">{p.startVerse}–{p.endVerse}</span>
+                          <span className="truncate max-w-[180px]">{p.title}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollbarer Vers-Kacheln Bereich */}
+              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 select-none">
+                <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 pb-2">
+                  {Array.from(
+                    { length: Math.max(1, totalVerseCount) },
+                    (_, i) => i + 1
+                  ).map((v) => {
                   const isSelected =
                     startVerse !== null &&
                     endVerse !== null &&
@@ -445,8 +483,9 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
               </button>
             </div>
 
-          </div>
-        )}
+            </div>
+          );
+        })()}
 
       </div>
     </div>

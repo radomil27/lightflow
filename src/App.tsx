@@ -339,6 +339,10 @@ export const App: React.FC = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               onOpenBiblePicker={() => setIsPickerOpen(true)}
+              onGenerateKlarblick={(passageWithTitle) => {
+                setPassage(passageWithTitle);
+                runGenerationWithMood(passageWithTitle, selectedMood);
+              }}
             />
           </div>
         )}
