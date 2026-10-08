@@ -1,5 +1,57 @@
 // Vercel Serverless Function für Lightflow
 // Vollautomatische serverseitige KI-Generierung über Google Gemini
+
+export function sanitizePromptInput(input: unknown, maxLength = 300): string {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[<>{}\\]/g, '')
+    .trim()
+    .slice(0, maxLength);
+}
+
+export function buildKlarblickSectionPrompt(ctx: {
+  user_gender: string;
+  user_profession: string;
+  user_mindset: string;
+  user_daily_state: string;
+  bible_verse: string;
+}): string {
+  return `Rolle: Präziser theologischer Begleiter für „KLARBLICK (Falsch vs. Echt)“.
+
+BIBELTEXT:
+${ctx.bible_verse}
+
+KONTEXT DES NUTZERS (UNSICHTBARER MASSANZUG):
+- Anrede / Geschlecht: ${ctx.user_gender}
+- Berufswelt / Praxisalltag: ${ctx.user_profession}
+- Denkweise / Prägung: ${ctx.user_mindset}
+- Aktueller Tageszustand: ${ctx.user_daily_state}
+
+DEIN AUFTRAG & TONALITÄT:
+- Halte historische und sprachliche Fakten absolut objektiv, historisch präzise und frei von Frömmigkeitsfloskeln.
+- Der Praxis-Teil geht dezent und treffsicher auf die Berufswelt (${ctx.user_profession}) und den aktuellen Gemütszustand (${ctx.user_daily_state}) ein – ohne Meta-Talk (kein „Weil du ... bist“).
+- Passe die Tonalität feinfühlig an ${ctx.user_daily_state} an (z. B. bei Erschöpfung entlastend und stärkend; bei Fokus direkt und herausfordernd; bei Zweifeln logisch-fundiert).
+
+STRIKTES AUSGABEFORMAT:
+Erstelle exakt die folgenden 3 Abschnitte. Halte die Satzbegrenzung zwingend ein:
+
+1. Historischer Kontext / Kultur damals:
+[Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. Genau 1 bis maximal 2 Sätze.]
+
+2. Urtext / Symbolik:
+[Den zentralen griechischen oder hebräischen Begriff oder das theologische Kernmotiv der Stelle präzise auf den Punkt bringen. Genau 1 bis maximal 2 Sätze.]
+
+3. Klarblick für heute:
+[Direkte Anwendung auf den Alltag: Wo treffen heute „Falsch vs. Echt“ aufeinander? Binde dezent und bildhaft ${ctx.user_profession} und ${ctx.user_daily_state} ein. Genau 2 bis 3 Sätze.]
+
+REGELN:
+- Starte DIREKT mit „1. Historischer Kontext / Kultur damals:“.
+- Keine Einleitungsfloskeln („Hier ist dein Klarblick...“).
+- Keine Zusammenfassung oder Schlussworte am Ende.
+- Jeder Satz muss vollständig und grammatikalisch vollendet sein.`;
+}
+
 export default async function handler(req: any, res: any) {
   // CORS Header für PWA
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -67,7 +119,7 @@ export default async function handler(req: any, res: any) {
       },
       2: {
         title: '### 2. KLARBLICK',
-        prompt: `Reine Schrifterklärung und theologische Tiefenschärfe, abgestimmt auf den Denkstil (${profile.mindset}) und die Glaubensphase (${faithStageKey}):\n1. Was ist die historische/theologische Kernbotschaft dieses Textes?\n2. Wie hat Gott es gedacht? Welche biblische Wahrheit oder göttliche Absicht liegt zugrunde?\n3. PFLICHT ZUM GLEICHNIS / BILD JESU: Veranschauliche die geistliche Wahrheit zwingend anhand eines passenden Gleichnisses oder Bildes Jesu (z. B. Sämann, unbarmherziger Knecht, Bauleute auf Fels/Sand, Pharisäer und Zöllner, Talentegleichnis, Weinstock und Reben, treue Haushalter). Zeige den Kontrast: Wie entlarvt dieses Gleichnis unser menschliches Denken und wie offenbart es Gottes Maßstab?\n4. Wo liegt die konkrete Warnung oder der Denkfehler, den der Text aufdeckt?\nGlasklare, theologische Erklärung in 3 bis 5 vollständigen Sätzen – ohne jedes psychologische Coaching-Sprech.`
+        prompt: `Präziser theologischer Begleiter für „KLARBLICK (Falsch vs. Echt)“:\n1. Historischer Kontext / Kultur damals: Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. (Max. 2 Sätze)\n2. Urtext / Symbolik: Griechischen/hebräischen Begriff oder Kernmotiv erklären. (Max. 2 Sätze)\n3. Klarblick für heute: Direkte Anwendung auf den Alltag des Nutzers unter dezenter Einbindung von Berufswelt (${fullProfession}) und Tageszustand (${currentMood}). Wo treffen heute „Falsch vs. Echt“ aufeinander? (Max. 2–3 Sätze)\n- REGELN: Keine Einleitungsfloskeln, keine Zusammenfassung am Ende, direkt mit Punkt 1 starten.`
       },
       3: {
         title: '### 3. TAGWERK',
@@ -154,7 +206,16 @@ export default async function handler(req: any, res: any) {
      - Posten 6 (SPIEGEL): Konfrontiert das Gewissen schonungslos mit der Warnung oder dem Umkehrruf.
      - Posten 7 (LEUCHTKRAFT): Antwortet Gott entsprechend der Textkraft (Anbetung bei Lobpreis, Flehen bei Klage, Bitte um Gehorsamskraft bei Geboten).`;
 
-    if (selectedPosten) {
+    if (selectedPosten === 2) {
+      maxTokens = 800;
+      prompt = buildKlarblickSectionPrompt({
+        user_gender: genderLabel,
+        user_profession: sanitizePromptInput(fullProfession, 300),
+        user_mindset: sanitizePromptInput(profile.mindset || 'Analytisch & Lösungsorientiert', 100),
+        user_daily_state: sanitizePromptInput(currentMood, 100),
+        bible_verse: sanitizePromptInput(passage, 150),
+      });
+    } else if (selectedPosten) {
       maxTokens = 1200;
       prompt = `Du bist die theologische und lebenspraktische Exegese-Engine von "Lightflow – Angeschlossen an die Quelle".
 

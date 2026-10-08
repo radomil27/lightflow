@@ -7,7 +7,46 @@
  * tiefgehende, feinfühlige Offline-Engine für sofortigen Genuss ohne API-Zwang.
  */
 
-import { UserProfile, LightflowReport, AppSettings } from '../types';
+import { UserProfile, LightflowReport, AppSettings, KlarblickPromptContext } from '../types';
+
+/**
+ * Erstellt den spezialisierten System-Prompt für die theologische Sektion "KLARBLICK (Falsch vs. Echt)"
+ */
+export function buildKlarblickSectionPrompt(ctx: KlarblickPromptContext): string {
+  return `Rolle: Präziser theologischer Begleiter für „KLARBLICK (Falsch vs. Echt)“.
+
+BIBELTEXT:
+${ctx.bible_verse}
+
+KONTEXT DES NUTZERS (UNSICHTBARER MASSANZUG):
+- Anrede / Geschlecht: ${ctx.user_gender}
+- Berufswelt / Praxisalltag: ${ctx.user_profession}
+- Denkweise / Prägung: ${ctx.user_mindset}
+- Aktueller Tageszustand: ${ctx.user_daily_state}
+
+DEIN AUFTRAG & TONALITÄT:
+- Halte historische und sprachliche Fakten absolut objektiv, historisch präzise und frei von Frömmigkeitsfloskeln.
+- Der Praxis-Teil geht dezent und treffsicher auf die Berufswelt (${ctx.user_profession}) und den aktuellen Gemütszustand (${ctx.user_daily_state}) ein – ohne Meta-Talk (kein „Weil du ... bist“).
+- Passe die Tonalität feinfühlig an ${ctx.user_daily_state} an (z. B. bei Erschöpfung entlastend und stärkend; bei Fokus direkt und herausfordernd; bei Zweifeln logisch-fundiert).
+
+STRIKTES AUSGABEFORMAT:
+Erstelle exakt die folgenden 3 Abschnitte. Halte die Satzbegrenzung zwingend ein:
+
+1. Historischer Kontext / Kultur damals:
+[Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. Genau 1 bis maximal 2 Sätze.]
+
+2. Urtext / Symbolik:
+[Den zentralen griechischen oder hebräischen Begriff oder das theologische Kernmotiv der Stelle präzise auf den Punkt bringen. Genau 1 bis maximal 2 Sätze.]
+
+3. Klarblick für heute:
+[Direkte Anwendung auf den Alltag: Wo treffen heute „Falsch vs. Echt“ aufeinander? Binde dezent und bildhaft ${ctx.user_profession} und ${ctx.user_daily_state} ein. Genau 2 bis 3 Sätze.]
+
+REGELN:
+- Starte DIREKT mit „1. Historischer Kontext / Kultur damals:“.
+- Keine Einleitungsfloskeln („Hier ist dein Klarblick...“).
+- Keine Zusammenfassung oder Schlussworte am Ende.
+- Jeder Satz muss vollständig und grammatikalisch vollendet sein.`;
+}
 
 export function buildSystemPrompt(profile: UserProfile, passage: string, mood?: string): string {
   const userGender = profile.gender === 'female' ? 'female' : 'male';
@@ -125,12 +164,11 @@ INHALTLICHE LOGIK DER 7 POSTEN:
 Jesus spricht den Nutzer direkt und persönlich an.${userName ? ` Er darf den Nutzer genau EINMAL zu Beginn mit seinem Vornamen (${userName}) ansprechen (z. B. 'Komm erst einmal an, ${userName}...').` : ''} Er fasst das Herzstück und die Hauptaussage dieses konkreten Verses (${passage}) zusammen. Keine allgemeine Seelsorge-Floskel, sondern das, was ER in diesem Text wirklich sagt – sei es ein befreiender Zuspruch, eine ernste Ermutigung oder ein Weckruf. Bei Klagepsalmen (z. B. Psalm 22) wird die Anfechtung ungeschminkt stehengelassen – kein seichtes Wegtrösten. Umfang: Genau 2 bis 3 vollständige Sätze.
 
 ### 2. KLARBLICK
-Reine Schrifterklärung und theologische Tiefenschärfe, abgestimmt auf den Denkstil (${profile.mindset}) und die Glaubensphase (${faithStageKey}):
-1. Was ist die historische/theologische Kernbotschaft dieses Textes?
-2. Wie hat Gott es gedacht? Welche biblische Wahrheit oder göttliche Absicht liegt zugrunde?
-3. PFLICHT ZUM GLEICHNIS / BILD JESU: Veranschauliche die geistliche Wahrheit zwingend anhand eines passenden Gleichnisses oder Bildes Jesu (z. B. Sämann, unbarmherziger Knecht, Bauleute auf Fels/Sand, Pharisäer und Zöllner, Talentegleichnis, Weinstock und Reben, treue Haushalter). Zeige den Kontrast: Wie entlarvt dieses Gleichnis unser menschliches Denken und wie offenbart es Gottes Maßstab?
-4. Wo liegt die konkrete Warnung oder der Denkfehler, den der Text aufdeckt?
-Glasklare, theologische Erklärung in 3 bis 5 vollständigen Sätzen – ohne jedes psychologische Coaching-Sprech.
+Präziser theologischer Begleiter für „KLARBLICK (Falsch vs. Echt)“:
+1. Historischer Kontext / Kultur damals: Rein sachlich und historisch präzise erklären, was damals vor Ort geschah oder wie die Kultur dachte. (Max. 2 Sätze)
+2. Urtext / Symbolik: Griechischen/hebräischen Begriff oder Kernmotiv erklären. (Max. 2 Sätze)
+3. Klarblick für heute: Direkte Anwendung auf den Alltag des Nutzers unter dezenter Einbindung von Berufswelt (${fullProfession}) und Tageszustand (${currentMood}). Wo treffen heute „Falsch vs. Echt“ aufeinander? (Max. 2–3 Sätze)
+Regeln: Keine Einleitungsfloskeln, keine Zusammenfassung am Ende, direkt mit Punkt 1 starten.
 
 ### 3. TAGWERK
 Messerscharfe praktische Tat und Gehorsam im Berufsfeld (${fullProfession}) – STRENGES VERBOT VON VAGEN RATSCHLÄGEN wie 'sei aufmerksam' oder 'bemühe dich':
@@ -466,7 +504,7 @@ export function generateLocalReport(
     source: 'local_fallback',
     fallbackReason: 'Lokale Exegese-Engine (Offline-Schutz)',
     lichtfunke: defaultLichtfunke,
-    klarblick: `Der Bibeltext legt das Fundament des Lebens frei: Wo menschliche Systeme auf Druck, Kontrolle und Angst vor dem Mangel setzen, offenbart Gottes Wort ein tragfähiges Gesetz des Vertrauens. Die Kausalität ist unmissverständlich: Erst kommt die feste Zusage und die Ausrichtung, daraus folgt Stabilität im Alltag. Wer diese göttliche Ordnung verinnerlicht, lässt sich von äußerem Lärm und Hektik nicht beirren.`,
+    klarblick: `1. Historischer Kontext / Kultur damals:\nIm antiken Orient und im römischen Reich bestimmten strikte Leistungs- und Kontrollsysteme den Alltag, während Jesus hier eine radikal neue Realität der Treue Gottes aufrichtet.\n\n2. Urtext / Symbolik:\nDer griechische Urtext betont mit Begriffen wie „Pistis“ (feste Verlässlichkeit) und „Aletheia“ (unverhüllte Wahrheit) das unerschütterliche Fundament gegen jede menschliche Täuschung.\n\n3. Klarblick für heute:\nIn deiner Arbeit als ${profName} zeigt sich echter Klarblick darin, ob Dinge nur nach außen glänzen oder wirklich im Kern solid gearbeitet sind. Gerade wenn du dich ${mood ? mood.toLowerCase() : 'herausgefordert'} fühlst, entlarvt Gottes Wahrheit den Blendwert und schenkt dir verlässliche Festigkeit für den Tag.`,
     tagwerk: `Einprägsames Merk-Bild für deinen Alltag als ${profName}: Jedes Mal, wenn du heute zu deinem wichtigsten Werkzeug greifst oder eine Messung vornimmst, erinnere dich daran: Ohne solides Fundament verzieht sich das ganze Werk. Konkrete Handlung: Halte heute mitten im Arbeitsfluss für einen bewussten Moment inne, bevor Hektik das Kommando übernimmt, und richte deinen Fokus neu aus. Das geistliche WARUM dahinter: Gottes Reich funktioniert nach dem Prinzip innerer Festigkeit – wer in seiner Treue gegründet bleibt, arbeitet aus einer Position der Ruhe heraus und lässt sich von äußerem Druck nicht zerreiben.`,
     freiraum: `Wenn die Arbeit getan ist, darf die Baustelle ruhen. Gottes Schutz und seine Versorgung hängen nicht daran, dass du rund um die Uhr wachsam bist. Schalte bewusst ab, lass die To-Do-Liste los und gönne deinem Körper die Ruhe, die er braucht. Feierabend ist gelebte Gnade.`,
     standpunkt: `Diese biblische Wahrheit schenkt dir in deinem persönlichen Lebensumfeld (${profile.relationshipStatus}) festen Boden unter den Füßen. Du bist unabhängig von den wechselhaften Launen und Urteilen deiner Mitmenschen fest verankert und darfst ganz du selbst sein.`,

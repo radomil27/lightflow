@@ -19,6 +19,17 @@ export interface UserProfile {
   hasCompletedOnboarding?: boolean; // Kennzeichen für abgeschlossenes Onboarding
 }
 
+/**
+ * Kontextvariablen für den zielgerichteten KLARBLICK (Falsch vs. Echt) Prompt
+ */
+export interface KlarblickPromptContext {
+  user_gender: string;      // Anrede ('Mann' | 'Frau')
+  user_profession: string;  // Berufswelt & Praxisalltag (inkl. Freitext-Details)
+  user_mindset: string;     // Denkweise & Prägung
+  user_daily_state: string; // Aktueller Tageszustand (gestresst, suchend, erschöpft, fokussiert...)
+  bible_verse: string;      // Die ausgewählte Bibelstelle
+}
+
 export interface LightflowReport {
   id: string;
   passage: string;

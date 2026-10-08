@@ -168,6 +168,52 @@ export const ReportView: React.FC<ReportViewProps> = ({
       ? 'text-xl sm:text-2xl'
       : 'text-lg sm:text-xl';
 
+  // Erkennt die 3 strukturierten Abschnitte von "KLARBLICK (Falsch vs. Echt)"
+  const renderKlarblickContent = (text: string) => {
+    const s1Match = text.match(/(?:1\.\s*Historischer Kontext[^\n:]*:?)([\s\S]*?)(?=(?:2\.\s*Urtext)|\Z)/i);
+    const s2Match = text.match(/(?:2\.\s*Urtext[^\n:]*:?)([\s\S]*?)(?=(?:3\.\s*Klarblick)|\Z)/i);
+    const s3Match = text.match(/(?:3\.\s*Klarblick[^\n:]*:?)([\s\S]*?)$/i);
+
+    if (s1Match && s2Match && s3Match && s1Match[1].trim() && s2Match[1].trim() && s3Match[1].trim()) {
+      return (
+        <div className="space-y-3.5 pt-1">
+          <div className="rounded-2xl bg-stone-50/80 dark:bg-slate-900/50 p-4 border border-stone-200/60 dark:border-slate-800/60">
+            <span className="text-[11px] font-bold tracking-wider uppercase text-amber-700 dark:text-amber-400 block mb-1">
+              🏛️ 1. Historischer Kontext & Kultur damals
+            </span>
+            <p className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed`}>
+              {s1Match[1].trim()}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-stone-50/80 dark:bg-slate-900/50 p-4 border border-stone-200/60 dark:border-slate-800/60">
+            <span className="text-[11px] font-bold tracking-wider uppercase text-amber-700 dark:text-amber-400 block mb-1">
+              📜 2. Urtext & Symbolik
+            </span>
+            <p className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed`}>
+              {s2Match[1].trim()}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 p-4 border border-amber-500/25 dark:border-amber-500/30">
+            <span className="text-[11px] font-bold tracking-wider uppercase text-amber-800 dark:text-amber-300 block mb-1">
+              ⚡ 3. Klarblick für heute (Falsch vs. Echt)
+            </span>
+            <p className={`${bodyTextClass} text-stone-800 dark:text-stone-100 font-medium leading-relaxed`}>
+              {s3Match[1].trim()}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
+        {text}
+      </div>
+    );
+  };
+
   const handleCopySection = (stepNum: number, title: string, text: string) => {
     const sectionText = `LIGHTFLOW: ${report.passage}\n${title}\n\n${text}\n\n— Angeschlossen an die Quelle\nhttps://lightflow-app-two.vercel.app`;
     navigator.clipboard.writeText(sectionText).then(() => {
@@ -584,9 +630,7 @@ ${report.leuchtkraft || report.heartGarden}
             {/* Ausgeklappter Inhalt */}
             {activeSection === 2 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
-                <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
-                  {report.klarblick || report.systemDecoded}
-                </div>
+                {renderKlarblickContent(report.klarblick || report.systemDecoded || '')}
               </div>
             )}
           </div>
