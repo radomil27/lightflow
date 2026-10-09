@@ -126,17 +126,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-7 flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] text-stone-100 rounded-3xl p-5 sm:p-7 flex flex-col max-h-[92vh] overflow-hidden animate-luxury-modal">
         
         {/* Header mit Fortschritt (4 Schritte) */}
-        <div className="pb-4 border-b border-stone-200 dark:border-slate-800">
+        <div className="pb-4 border-b border-white/[0.08]">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] uppercase font-bold tracking-wider text-[#E09F3E] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               Verbindungsprofil einrichten
             </span>
-            <span className="text-xs font-mono font-semibold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-stone-200/60 dark:border-slate-700/60">
+            <span className="text-xs font-mono font-semibold text-stone-400 bg-white/[0.06] border border-white/[0.08] px-2.5 py-0.5 rounded-full">
               Schritt {step} von 4
             </span>
           </div>

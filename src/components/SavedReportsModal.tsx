@@ -176,20 +176,20 @@ export const SavedReportsModal: React.FC<SavedReportsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[88vh] flex flex-col rounded-3xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 shadow-2xl p-5 sm:p-6 overflow-hidden max-w-full touch-pan-y">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl max-h-[88vh] flex flex-col rounded-3xl bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] text-stone-100 p-5 sm:p-6 overflow-hidden max-w-full touch-pan-y animate-luxury-modal">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-stone-200 dark:border-stone-800 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] shrink-0">
           <div className="flex items-center space-x-2">
             <Bookmark className="w-5 h-5 text-[#E09F3E]" />
-            <h2 className="text-xl font-bold font-serif text-[#1E293B] dark:text-stone-100">
+            <h2 className="text-xl font-bold font-serif text-white tracking-tight">
               Gespeicherte Lichtflüsse ({reports.length})
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

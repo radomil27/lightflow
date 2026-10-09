@@ -182,11 +182,11 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg h-[90vh] sm:h-[85vh] max-h-[90vh] flex flex-col rounded-3xl bg-stone-50 dark:bg-stone-950 border border-[#E5E0D8] dark:border-slate-800 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-lg h-[90vh] sm:h-[85vh] max-h-[90vh] flex flex-col rounded-3xl bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] text-stone-100 overflow-hidden animate-luxury-modal">
         
         {/* Modal Header & Navigation */}
-        <div className="p-4 sm:p-5 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between bg-white/70 dark:bg-slate-900/60 backdrop-blur shrink-0">
+        <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0E131F]/90 shrink-0">
           <div className="flex items-center space-x-2">
             {step !== 'book' && (
               <button
@@ -195,7 +195,7 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
                   if (step === 'verse') setStep('chapter');
                   else if (step === 'chapter') setStep('book');
                 }}
-                className="p-1.5 rounded-xl hover:bg-stone-200/60 dark:hover:bg-slate-800 text-stone-600 dark:text-stone-300 transition-colors mr-1 cursor-pointer"
+                className="p-1.5 rounded-xl hover:bg-white/[0.08] text-stone-300 transition-colors mr-1 cursor-pointer"
                 title="Zurück"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -204,12 +204,12 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
 
             <div>
               <div className="text-[11px] uppercase tracking-wider font-semibold text-[#E09F3E] flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-3.5 h-3.5" />
                 {step === 'book' && 'Schritt 1: Buch wählen'}
                 {step === 'chapter' && `${selectedBook?.name} • Kapitel wählen`}
                 {step === 'verse' && `${selectedBook?.name} ${selectedChapter} • Verse markieren`}
               </div>
-              <h2 className="text-lg sm:text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
+              <h2 className="text-lg sm:text-xl font-bold font-serif text-white tracking-tight">
                 {step === 'book' && 'Bibel-Navigator'}
                 {step === 'chapter' && selectedBook?.name}
                 {step === 'verse' && `${selectedBook?.name} Kapitel ${selectedChapter}`}
@@ -220,7 +220,7 @@ const BiblePickerModalContent: React.FC<BiblePickerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

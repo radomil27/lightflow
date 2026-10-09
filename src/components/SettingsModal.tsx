@@ -91,27 +91,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-3xl bg-stone-50 dark:bg-stone-950 border border-[#E5E0D8] dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-3xl bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] text-stone-100 overflow-hidden animate-luxury-modal">
           
           {/* Header */}
-          <div className="flex items-center justify-between p-5 pb-4 border-b border-stone-200 dark:border-slate-800 shrink-0">
-            <div className="flex items-center space-x-2.5">
-              <div className="p-2 rounded-xl bg-[#E09F3E]/15 text-[#E09F3E]">
+          <div className="flex items-center justify-between p-5 pb-4 border-b border-white/[0.08] bg-[#0E131F]/80 shrink-0">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-[#E09F3E]">
                 <Settings className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9]">
+                <h2 className="text-xl font-bold font-serif text-white tracking-tight">
                   Einstellungen
                 </h2>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                <p className="text-[11px] text-stone-400">
                   Lightflow PWA • Deine Schaltzentrale
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -126,36 +126,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onClose();
                 onOpenProfile();
               }}
-              className="w-full p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 hover:border-[#E09F3E]/60 transition-all shadow-sm flex items-center justify-between group cursor-pointer"
+              className="w-full p-3.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-amber-500/40 transition-all flex items-center justify-between group cursor-pointer"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-amber-500/10 text-[#E09F3E] group-hover:bg-[#E09F3E] group-hover:text-slate-950 transition-colors">
+                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[#E09F3E] group-hover:bg-[#E09F3E] group-hover:text-slate-950 transition-colors">
                   <User className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <div className="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                  <div className="text-sm font-semibold text-stone-100">
                     Profil bearbeiten
                   </div>
-                  <div className="text-[11px] text-stone-500 dark:text-stone-400">
+                  <div className="text-[11px] text-stone-400">
                     Beruf, Denkweise, Lebenssituation & Glaube
                   </div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-[#E09F3E] group-hover:translate-x-0.5 transition-all" />
+              <ChevronRight className="w-4 h-4 text-stone-500 group-hover:text-[#E09F3E] group-hover:translate-x-0.5 transition-all" />
             </button>
 
             {/* NEU: Lightflow weitergeben (Viral Sharing) */}
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 space-y-2.5">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
                     <Share2 className="w-4 h-4" />
                   </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-300">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-300">
                     Lightflow weitergeben
                   </span>
                 </div>
-                <span className="font-mono text-[10px] bg-stone-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-stone-500">
+                <span className="font-mono text-[10px] bg-white/[0.06] border border-white/[0.06] px-2 py-0.5 rounded-md text-stone-400">
                   Code: {referralCode}
                 </span>
               </div>
@@ -173,7 +173,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(true)}
-                  className="py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-800 dark:text-stone-200 text-xs font-semibold flex items-center justify-center gap-1.5 border border-stone-200 dark:border-slate-700 transition-all cursor-pointer"
+                  className="py-2.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-stone-200 text-xs font-semibold flex items-center justify-center gap-1.5 border border-white/[0.08] transition-all cursor-pointer"
                 >
                   <QrCode className="w-3.5 h-3.5 text-[#E09F3E]" />
                   <span>QR-Code</span>
@@ -182,8 +182,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* 2. Dark-, Lightmode oder Automatisch */}
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2">
+              <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
                 Erscheinungsbild
               </div>
               <div className="grid grid-cols-3 gap-1.5">
@@ -192,8 +192,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={() => handleSelectTheme('light')}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     settings.theme === 'light'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
                   <Sun className="w-4 h-4 text-amber-500" />
@@ -205,8 +205,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={() => handleSelectTheme('dark')}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     settings.theme === 'dark'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
                   <Moon className="w-4 h-4 text-indigo-400" />
@@ -218,20 +218,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={() => handleSelectTheme('system')}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     settings.theme === 'system'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
-                  <Monitor className="w-4 h-4 text-stone-500 dark:text-stone-400" />
+                  <Monitor className="w-4 h-4 text-stone-400" />
                   <span>Auto</span>
                 </button>
               </div>
             </div>
 
             {/* 3. Schriftgröße */}
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-stone-400">
                   <Type className="w-4 h-4 text-[#E09F3E]" />
                   <span>Schriftgröße</span>
                 </div>
@@ -248,8 +248,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
                     settings.fontSize === 'sm'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
                   <span className="text-xs font-bold">A-</span>
@@ -264,8 +264,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
                     (settings.fontSize || 'md') === 'md'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
                   <span className="text-sm font-bold">A</span>
@@ -280,8 +280,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
                     settings.fontSize === 'lg'
-                      ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                      : 'bg-stone-50 dark:bg-slate-800/60 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-700/60 hover:border-stone-300'
+                      ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                      : 'bg-white/[0.02] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                   }`}
                 >
                   <span className="text-base font-bold">A+</span>
@@ -534,13 +534,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
 
             {/* 9. Version der App */}
-            <div className="p-3 rounded-2xl bg-stone-100/70 dark:bg-slate-900/50 border border-stone-200/60 dark:border-slate-800 flex items-center justify-between text-xs text-stone-600 dark:text-stone-300">
+            <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs text-stone-400">
               <div className="flex items-center space-x-2">
-                <Info className="w-4 h-4 text-stone-400" />
+                <Info className="w-4 h-4 text-stone-500" />
                 <span>Version der App</span>
               </div>
-              <span className="font-mono text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-                v2.0.2 (Ultra-HD Wasser & Licht im Alltag)
+              <span className="font-mono text-[11px] font-semibold text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
+                v2.0.3 (Clean Luxury • Licht im Alltag)
               </span>
             </div>
 
@@ -572,7 +572,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     window.location.reload();
                   }
                 }}
-                className="w-full p-3 rounded-2xl bg-stone-100/80 hover:bg-red-500/10 text-stone-600 hover:text-red-600 dark:bg-slate-900/60 dark:hover:bg-red-500/20 dark:text-stone-400 dark:hover:text-red-400 border border-stone-200 dark:border-slate-800 hover:border-red-500/30 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer font-medium"
+                className="w-full p-3 rounded-2xl bg-white/[0.03] hover:bg-red-500/10 text-stone-400 hover:text-red-400 border border-white/[0.06] hover:border-red-500/30 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer font-medium"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>App-Cache leeren & neu laden</span>
@@ -580,21 +580,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* 11. Zu unterst: Privat & werbefrei */}
-            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
-              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start space-x-2.5 text-xs text-emerald-300">
+              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
               <div className="leading-relaxed">
-                <span className="font-semibold">Privat und werbefrei:</span> Dein Verbindungsprofil und deine Notizen bleiben geschützt auf deinem Smartphone.
+                <span className="font-semibold text-emerald-200">Privat und werbefrei:</span> Dein Verbindungsprofil und deine Notizen bleiben geschützt auf deinem Smartphone.
               </div>
             </div>
 
           </div>
 
           {/* Schließen Button */}
-          <div className="p-4 border-t border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-stone-950 shrink-0 flex justify-end">
+          <div className="p-4 border-t border-white/[0.08] bg-[#0E131F]/90 shrink-0 flex justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2.5 text-xs font-semibold bg-[#E09F3E] text-slate-950 hover:bg-[#D97706] rounded-xl transition-all cursor-pointer shadow-sm text-center"
+              className="w-full py-2.5 text-xs font-semibold bg-gradient-to-r from-[#E09F3E] via-[#F59E0B] to-[#E09F3E] text-slate-950 hover:brightness-110 rounded-xl transition-all cursor-pointer shadow-md text-center"
             >
               Fertig
             </button>

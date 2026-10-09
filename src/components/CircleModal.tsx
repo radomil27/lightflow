@@ -37,19 +37,19 @@ export const CircleModal: React.FC<CircleModalProps> = ({
   const freeSlots = Math.max(0, maxSlots - currentMembersCount);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-950/70 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-xl max-h-[90vh] bg-stone-900 border border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-stone-100"
+        className="w-full max-w-xl max-h-[90vh] bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] rounded-3xl flex flex-col overflow-hidden text-stone-100 animate-luxury-modal"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-stone-800/80 flex items-center justify-between bg-stone-900/90">
+        <div className="p-5 sm:p-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0E131F]/90">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-[#E09F3E]">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-100 flex items-center gap-2">
+              <h2 className="font-serif text-lg font-bold text-white tracking-tight flex items-center gap-2">
                 <span>{circle.name}</span>
                 <span className="text-[11px] font-sans font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-[#E09F3E] border border-amber-500/30">
                   {currentMembersCount}/{maxSlots}

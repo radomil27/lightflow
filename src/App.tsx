@@ -30,7 +30,6 @@ import { MoodPickerModal } from './components/MoodPickerModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { SplashScreen } from './components/SplashScreen';
 import { CircleModal } from './components/CircleModal';
-import { LiquidTransitionProvider } from './components/LiquidWaveTransition';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -300,10 +299,9 @@ export const App: React.FC = () => {
   };
 
   return (
-    <LiquidTransitionProvider>
-      <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-[2000ms]">
-        
-        {/* Header mit Logo, Live-Status & Profil */}
+    <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-[2000ms]">
+      
+      {/* Header mit Logo, Live-Status & Profil */}
       <Header
         profile={profile}
         darkMode={darkMode}
@@ -467,6 +465,5 @@ export const App: React.FC = () => {
       )}
 
     </div>
-    </LiquidTransitionProvider>
   );
 };

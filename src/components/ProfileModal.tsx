@@ -129,56 +129,56 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-stone-50 dark:bg-stone-950 border border-[#E5E0D8] dark:border-slate-800 shadow-2xl p-6 sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0C0F17] border border-amber-500/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] text-stone-100 p-6 sm:p-8 animate-luxury-modal">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-5 border-b border-stone-200 dark:border-slate-800">
+        <div className="flex items-center justify-between pb-5 border-b border-white/[0.08]">
           <div>
             <span className="text-xs uppercase font-bold tracking-wider text-[#E09F3E] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               Nutzer-Matrix
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#1E293B] dark:text-[#F1F5F9] mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight mt-0.5">
               Dein Verbindungsprofil
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-xs text-stone-500 dark:text-stone-400 my-4 leading-relaxed">
+        <p className="text-xs text-stone-400 my-4 leading-relaxed">
           Lightflow übersetzt Passagen exakt in deine Denkweise und dein Berufsfeld – ohne fromme Schablonen. Die Daten bleiben vollständig auf deinem Gerät im Browser gespeichert.
         </p>
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Rufname / Vorname (optional) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-300 flex items-center gap-2">
               <User className="w-4 h-4 text-[#E09F3E]" />
               Dein Rufname / Vorname (optional)
             </label>
-            <div className="flex items-center px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-[#E09F3E]/50 focus-within:border-[#E09F3E] transition-all">
+            <div className="flex items-center px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
               <input
                 type="text"
                 value={formData.displayName || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
                 placeholder="z. B. Radovan"
-                className="w-full bg-transparent text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none"
+                className="w-full bg-transparent text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none"
               />
             </div>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+            <p className="text-[11px] text-stone-400">
               Damit die Zusage dich persönlich und vertraut ansprechen kann.
             </p>
           </div>
 
           {/* Geschlecht */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-300">
               Geschlecht (Führung & Tonalität)
             </label>
             <div className="grid grid-cols-2 gap-2.5">
@@ -187,8 +187,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 onClick={() => setFormData((prev) => ({ ...prev, gender: 'male' }))}
                 className={`p-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   formData.gender === 'male' || (!formData.gender)
-                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                    : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                    ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                    : 'bg-white/[0.03] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                 }`}
               >
                 <span className="text-base">🧔</span>
@@ -199,8 +199,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 onClick={() => setFormData((prev) => ({ ...prev, gender: 'female' }))}
                 className={`p-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   formData.gender === 'female'
-                    ? 'bg-[#E09F3E]/20 text-[#B45309] dark:text-[#FDE68A] border-[#E09F3E] font-semibold'
-                    : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-slate-800'
+                    ? 'bg-amber-500/20 text-[#FDE68A] border-amber-500/40 font-semibold shadow-xs'
+                    : 'bg-white/[0.03] text-stone-400 border-white/[0.06] hover:bg-white/[0.05]'
                 }`}
               >
                 <span className="text-base">👩</span>
