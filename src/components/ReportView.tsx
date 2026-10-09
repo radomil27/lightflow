@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LightflowReport, AppSettings } from '../types';
+import { LightflowReport, AppSettings, LightSealType } from '../types';
 import { useSpeechPlayer } from '../hooks/useSpeechPlayer';
 import {
   Sparkles,
@@ -19,6 +19,7 @@ import {
   Square,
   Loader2,
   Share2,
+  Users,
 } from 'lucide-react';
 import { BibleTextViewer } from './BibleTextViewer';
 import { normalizeFaithStage } from '../services/storage';
@@ -63,6 +64,8 @@ interface ReportViewProps {
   onEditPassage?: () => void;
   onOpenBiblePicker?: () => void;
   onGenerateKlarblick?: (passageWithTitle: string, selectedText?: string) => void;
+  onShareToCircle?: (postenIndex: number, title: string, content: string) => void;
+  onToggleSeal?: (postenIndex: number, seal: LightSealType) => void;
 }
 
 export const ReportView: React.FC<ReportViewProps> = ({
@@ -75,6 +78,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
   onEditPassage,
   onOpenBiblePicker,
   onGenerateKlarblick,
+  onShareToCircle,
+  onToggleSeal,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
@@ -254,6 +259,102 @@ export const ReportView: React.FC<ReportViewProps> = ({
       setCopiedSection(stepNum);
       setTimeout(() => setCopiedSection(null), 2000);
     });
+  };
+
+  // Erkenntnis-Siegel Badge im Posten-Kopf
+  const renderSealBadge = (stepNum: number) => {
+    const seal = report.lightSeals?.[stepNum];
+    if (!seal) return null;
+    const sealConfig = {
+      clarity: { emoji: '🟡', label: 'Klarheit', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+      obedience: { emoji: '🟢', label: 'Gehorsam', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+      peace: { emoji: '🔵', label: 'Friede', color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' },
+    }[seal];
+    return (
+      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium border flex items-center gap-1 ${sealConfig.color}`}>
+        <span>{sealConfig.emoji}</span>
+        <span className="hidden sm:inline">{sealConfig.label}</span>
+      </span>
+    );
+  };
+
+  // Siegel-Wählerleiste am Ende jedes ausgeklappten Postens
+  const renderSealSelector = (stepNum: number) => {
+    const currentSeal = report.lightSeals?.[stepNum];
+    return (
+      <div className="flex items-center justify-between pt-3.5 mt-3.5 border-t border-stone-200/50 dark:border-white/[0.06] text-xs">
+        <span className="text-[11px] text-stone-400 flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-[#E09F3E]" />
+          <span>Erkenntnis-Siegel:</span>
+        </span>
+        <div className="flex items-center space-x-1 sm:space-x-1.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSeal?.(stepNum, 'clarity');
+            }}
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+              currentSeal === 'clarity'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm ring-1 ring-amber-400'
+                : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-amber-500/15 hover:text-amber-300'
+            }`}
+            title="🟡 Klarheit: Ein Irrtum wurde aufgedeckt"
+          >
+            🟡 Klarheit
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSeal?.(stepNum, 'obedience');
+            }}
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+              currentSeal === 'obedience'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm ring-1 ring-emerald-400'
+                : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-emerald-500/15 hover:text-emerald-300'
+            }`}
+            title="🟢 Gehorsam: Konkrete Tat für heute"
+          >
+            🟢 Gehorsam
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSeal?.(stepNum, 'peace');
+            }}
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+              currentSeal === 'peace'
+                ? 'bg-sky-500 text-slate-950 font-bold shadow-sm ring-1 ring-sky-400'
+                : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-sky-500/15 hover:text-sky-300'
+            }`}
+            title="🔵 Friede: Entlastung und Gnade empfangen"
+          >
+            🔵 Friede
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Button für den Circle of 4
+  const renderCircleButton = (stepNum: number, title: string, text: string) => {
+    if (!onShareToCircle) return null;
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onShareToCircle(stepNum, title, text);
+        }}
+        className="p-1.5 rounded-lg text-amber-500/80 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+        title="Diesen Abschnitt in den vertrauten Kreis (Circle of 4) teilen"
+      >
+        <Users className="w-3.5 h-3.5" />
+        <span className="text-[10px] hidden sm:inline">Kreis</span>
+      </button>
+    );
   };
 
   // Text in Zwischenablage kopieren
@@ -495,6 +596,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Sparkles className="w-4 h-4 text-[#E09F3E]" />
                   <span>1. LICHTFUNKE</span>
                   {renderSectionStatus(1, report.lichtfunke || report.coreConduit)}
+                  {renderSealBadge(1)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][1]}
@@ -519,6 +621,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 1 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -555,6 +658,7 @@ ${report.leuchtkraft || report.heartGarden}
                 <p className={`font-serif ${lichtfunkeTextClass} font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic`}>
                   „{report.lichtfunke || report.coreConduit}“
                 </p>
+                {renderSealSelector(1)}
               </div>
             )}
           </div>
@@ -584,6 +688,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Cpu className="w-4 h-4 text-[#E09F3E]" />
                   <span>2. KLARBLICK</span>
                   {renderSectionStatus(2, report.klarblick || report.systemDecoded)}
+                  {renderSealBadge(2)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][2]}
@@ -608,6 +713,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 2 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -642,6 +748,7 @@ ${report.leuchtkraft || report.heartGarden}
             {activeSection === 2 && (
               <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
                 {renderKlarblickContent(report.klarblick || report.systemDecoded || '')}
+                {renderSealSelector(2)}
               </div>
             )}
           </div>
@@ -671,6 +778,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Wrench className="w-4 h-4 text-[#E09F3E]" />
                   <span>3. TAGWERK</span>
                   {renderSectionStatus(3, report.tagwerk || report.workBench)}
+                  {renderSealBadge(3)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][3]}
@@ -695,6 +803,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 3 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -731,6 +840,7 @@ ${report.leuchtkraft || report.heartGarden}
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.tagwerk || report.workBench}
                 </div>
+                {renderSealSelector(3)}
               </div>
             )}
           </div>
@@ -760,6 +870,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Home className="w-4 h-4 text-[#E09F3E]" />
                   <span>4. FREIRAUM</span>
                   {renderSectionStatus(4, report.freiraum || report.dailyFreedom)}
+                  {renderSealBadge(4)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][4]}
@@ -784,6 +895,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 4 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -820,6 +932,7 @@ ${report.leuchtkraft || report.heartGarden}
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.freiraum || report.dailyFreedom}
                 </div>
+                {renderSealSelector(4)}
               </div>
             )}
           </div>
@@ -849,6 +962,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Briefcase className="w-4 h-4 text-[#E09F3E]" />
                   <span>5. STANDPUNKT</span>
                   {renderSectionStatus(5, report.standpunkt || report.profileSnapshot.relationshipStatus)}
+                  {renderSealBadge(5)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][5]}
@@ -873,6 +987,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 5 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -909,6 +1024,7 @@ ${report.leuchtkraft || report.heartGarden}
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.standpunkt || report.profileSnapshot.relationshipStatus}
                 </div>
+                {renderSealSelector(5)}
               </div>
             )}
           </div>
@@ -938,6 +1054,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Sprout className="w-4 h-4 text-[#E09F3E]" />
                   <span>6. SPIEGEL</span>
                   {renderSectionStatus(6, report.spiegel)}
+                  {renderSealBadge(6)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][6]}
@@ -948,8 +1065,8 @@ ${report.leuchtkraft || report.heartGarden}
                   <button
                     type="button"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(6, '6. Spiegel', report.spiegel || '');
+                       e.stopPropagation();
+                       playSection(6, '6. Spiegel', report.spiegel || '');
                     }}
                     className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
                       currentPlayingStep === 6
@@ -962,6 +1079,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 6 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(6, '6. SPIEGEL', report.spiegel || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -998,6 +1116,7 @@ ${report.leuchtkraft || report.heartGarden}
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.spiegel}
                 </div>
+                {renderSealSelector(6)}
               </div>
             )}
           </div>
@@ -1029,6 +1148,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <Wind className="w-4 h-4 text-[#E09F3E]" />
                   <span>7. LEUCHTKRAFT</span>
                   {renderSectionStatus(7, report.leuchtkraft || report.heartGarden)}
+                  {renderSealBadge(7)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][7]}
@@ -1053,6 +1173,7 @@ ${report.leuchtkraft || report.heartGarden}
                     <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 7 ? 'Stopp' : 'Audio'}</span>
                   </button>
                 )}
+                {renderCircleButton(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '')}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1094,6 +1215,7 @@ ${report.leuchtkraft || report.heartGarden}
                   <span>Tief einatmen. Angekommen an der Quelle.</span>
                   <span className="text-[#B45309] dark:text-[#FDE68A] font-semibold">Du darfst sein.</span>
                 </div>
+                {renderSealSelector(7)}
               </div>
             )}
           </div>

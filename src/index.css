@@ -90,6 +90,23 @@
   }
 }
 
+@keyframes ambientPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+    filter: blur(18px);
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.85;
+    filter: blur(24px);
+  }
+}
+
+.animate-ambient-pulse {
+  animation: ambientPulse 7s ease-in-out infinite;
+}
+
 .animate-light-pulse {
   animation: lightPulse 2.8s ease-in-out infinite;
 }

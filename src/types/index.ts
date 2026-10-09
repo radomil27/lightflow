@@ -61,6 +61,42 @@ export interface LightflowReport {
   fallbackReason?: string;
   // Status für sequentielle Generierung (1..7): 'loading' | 'ready' | 'error'
   sectionLoadingStates?: Record<number, 'loading' | 'ready' | 'error'>;
+  // Emotionale Licht-Siegel für Aha-Momente (Posten-Index 1..7 -> Siegel-Typ)
+  lightSeals?: Record<number, LightSealType>;
+}
+
+export type LightSealType = 'clarity' | 'obedience' | 'peace';
+
+export interface CircleMember {
+  id: string;
+  name: string;
+  avatarColor: string;
+  role: 'host' | 'member';
+  joinedAt: string;
+}
+
+export interface CircleShare {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorColor: string;
+  passage: string;
+  sectionIndex: number;
+  sectionTitle: string;
+  content: string;
+  userNote?: string;
+  seal?: LightSealType;
+  createdAt: string;
+  reactions?: { id: string; authorName: string; emoji: string }[];
+}
+
+export interface CircleGroup {
+  id: string;
+  name: string;
+  inviteCode: string;
+  createdAt: string;
+  members: CircleMember[];
+  shares: CircleShare[];
 }
 
 export interface AppSettings {

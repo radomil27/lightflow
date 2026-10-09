@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserProfile, LightflowReport, AppSettings } from './types';
+import { UserProfile, LightflowReport, AppSettings, LightSealType } from './types';
 import {
   getStoredProfile,
   saveStoredProfile,
@@ -13,6 +13,7 @@ import {
   setStoredReferredBy,
 } from './services/storage';
 import { syncCurrentUser } from './services/adminService';
+import { shareInsightToCircle } from './services/circleService';
 import {
   generateLocalReport,
   generateInitialPostenReport,
@@ -28,6 +29,7 @@ import { BiblePickerModal } from './components/BiblePickerModal';
 import { MoodPickerModal } from './components/MoodPickerModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { SplashScreen } from './components/SplashScreen';
+import { CircleModal } from './components/CircleModal';
 import { Sparkles, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -61,6 +63,7 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
   const [isMoodPickerOpen, setIsMoodPickerOpen] = useState<boolean>(false);
+  const [isCircleOpen, setIsCircleOpen] = useState<boolean>(false);
 
   // PWA Install Prompt Event
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -236,6 +239,36 @@ export const App: React.FC = () => {
     setSavedReports(getStoredReports());
   };
 
+  // Erkenntnis-Siegel umschalten (Aha-Momente visuell verankern)
+  const handleToggleSeal = (postenIndex: number, seal: LightSealType) => {
+    if (!currentReport) return;
+    const currentSeals = currentReport.lightSeals ? { ...currentReport.lightSeals } : {};
+    if (currentSeals[postenIndex] === seal) {
+      delete currentSeals[postenIndex];
+    } else {
+      currentSeals[postenIndex] = seal;
+    }
+    const updated = { ...currentReport, lightSeals: currentSeals };
+    setCurrentReport(updated);
+    saveReport(updated);
+    setSavedReports(getStoredReports());
+  };
+
+  // Erkenntnis in den vertrauten Kreis (Circle of 4) teilen
+  const handleShareToCircle = (postenIndex: number, title: string, content: string) => {
+    if (!currentReport) return;
+    const seal = currentReport.lightSeals?.[postenIndex];
+    shareInsightToCircle({
+      passage: currentReport.passage,
+      sectionIndex: postenIndex,
+      sectionTitle: title,
+      content,
+      seal,
+      authorName: profile.displayName || 'Du',
+    });
+    setIsCircleOpen(true);
+  };
+
   // Gespeicherten Report auswählen
   const handleSelectReport = (report: LightflowReport) => {
     setCurrentReport(report);
@@ -276,6 +309,7 @@ export const App: React.FC = () => {
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenSaved={() => setIsSavedOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenCircle={() => setIsCircleOpen(true)}
         savedCount={savedReports.length}
       />
 
@@ -334,6 +368,8 @@ export const App: React.FC = () => {
               }}
               onToggleFavorite={handleToggleFavorite}
               onSaveNotes={handleSaveNotes}
+              onShareToCircle={handleShareToCircle}
+              onToggleSeal={handleToggleSeal}
               onEditPassage={() => {
                 setIsEditingPassage(true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -414,6 +450,13 @@ export const App: React.FC = () => {
         onSelectMood={(mood) => {
           runGenerationWithMood(passage, mood);
         }}
+      />
+
+      {/* Circle of 4: Vertrauter Kreis Modal */}
+      <CircleModal
+        isOpen={isCircleOpen}
+        onClose={() => setIsCircleOpen(false)}
+        onSelectPassage={handleSelectPassageFromPicker}
       />
 
       {/* Splash Screen Intro: Bei jedem Start aktiv, per Tap überspringbar */}
