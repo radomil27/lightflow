@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { getCircadianTheme, TimeOfDay } from '../services/circadianService';
 
 export interface LiquidOrigin {
-  x: number;
+  x: number; // Percentage (0-100) or pixel coordinates
   y: number;
 }
 
@@ -23,223 +23,296 @@ interface LiquidTransitionProviderProps {
 }
 
 export const LiquidTransitionProvider: React.FC<LiquidTransitionProviderProps> = ({ children }) => {
-  const [phase, setPhase] = useState<'idle' | 'rising' | 'switching' | 'settling'>('idle');
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
-  const [origin, setOrigin] = useState<LiquidOrigin>({ x: 50, y: 100 });
-  const timersRef = useRef<number[]>([]);
+  const [impactCoord, setImpactCoord] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
 
-  const clearTimers = () => {
-    timersRef.current.forEach((t) => window.clearTimeout(t));
-    timersRef.current = [];
-  };
-
-  const triggerTransition = useCallback((action: () => void, clickOrigin?: LiquidOrigin) => {
-    clearTimers();
-
-    // Circadiane Stimmung synchronisieren
-    const currentTheme = getCircadianTheme();
-    setTimeOfDay(currentTheme.timeOfDay);
-
-    // Klickursprung (default: unten Mitte)
-    if (clickOrigin) {
-      setOrigin(clickOrigin);
-    } else {
-      setOrigin({ x: 50, y: 100 });
-    }
-
-    // 1. Welle startet: Aufsteigen (rising)
-    setPhase('rising');
-
-    // 2. View/Modal-Wechsel ausführen, wenn die Welle den Screen verhüllt (~600ms)
-    const switchTimer = window.setTimeout(() => {
-      setPhase('switching');
-      try {
-        action();
-      } catch (err) {
-        console.error('Error during liquid transition action:', err);
-      }
-
-      // 3. Welle glättet und beruhigt sich über die nächsten 2.4 Sekunden (settling)
-      const settleTimer = window.setTimeout(() => {
-        setPhase('settling');
-      }, 50);
-      timersRef.current.push(settleTimer);
-
-      // 4. Nach insgesamt 3.0 Sekunden ist das Wasser vollkommen beruhigt und transparent
-      const finishTimer = window.setTimeout(() => {
-        setPhase('idle');
-      }, 2400);
-      timersRef.current.push(finishTimer);
-
-    }, 600);
-    timersRef.current.push(switchTimer);
-
-  }, []);
+  // Canvas Ref für High-End physikalisches Refraktions-Rendering
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const actionTimeoutRef = useRef<number | null>(null);
 
   // Farbschemata abgestimmt auf die Circadian-Stimmung
-  const getGradients = () => {
+  const getThemePalette = () => {
     switch (timeOfDay) {
       case 'morning':
         return {
-          primary: 'linear-gradient(180deg, rgba(251, 191, 36, 0.94) 0%, rgba(217, 119, 6, 0.96) 60%, rgba(180, 83, 9, 0.98) 100%)',
-          secondary: 'linear-gradient(180deg, rgba(253, 230, 138, 0.85) 0%, rgba(245, 158, 11, 0.88) 100%)',
-          accent: '#FDE68A',
-          foam: 'rgba(254, 243, 199, 0.85)',
-          glow: 'rgba(245, 158, 11, 0.45)',
+          causticColor: 'rgba(253, 230, 138, 0.45)', // Bernsteingold-Glanz
+          deepWater: 'rgba(245, 158, 11, 0.12)',
+          ringColor: 'rgba(251, 191, 36, 0.65)',
+          crestGlow: 'rgba(254, 243, 199, 0.75)',
+          bubbleColor: 'rgba(254, 240, 138, 0.5)',
         };
       case 'evening':
         return {
-          primary: 'linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.98) 60%, rgba(10, 15, 26, 0.99) 100%)',
-          secondary: 'linear-gradient(180deg, rgba(180, 83, 9, 0.75) 0%, rgba(15, 23, 42, 0.92) 100%)',
-          accent: '#E09F3E',
-          foam: 'rgba(224, 159, 62, 0.65)',
-          glow: 'rgba(224, 159, 62, 0.3)',
+          causticColor: 'rgba(224, 159, 62, 0.35)', // Warme Dämmerung auf Obsidian
+          deepWater: 'rgba(15, 23, 42, 0.25)',
+          ringColor: 'rgba(217, 119, 6, 0.55)',
+          crestGlow: 'rgba(253, 230, 138, 0.5)',
+          bubbleColor: 'rgba(224, 159, 62, 0.4)',
         };
       case 'day':
       default:
         return {
-          primary: 'linear-gradient(180deg, rgba(14, 165, 233, 0.94) 0%, rgba(2, 132, 199, 0.96) 50%, rgba(30, 58, 138, 0.98) 100%)',
-          secondary: 'linear-gradient(180deg, rgba(56, 189, 248, 0.85) 0%, rgba(14, 165, 233, 0.88) 100%)',
-          accent: '#38BDF8',
-          foam: 'rgba(224, 242, 254, 0.85)',
-          glow: 'rgba(14, 165, 233, 0.45)',
+          causticColor: 'rgba(186, 230, 253, 0.55)', // Klares Quellblau
+          deepWater: 'rgba(14, 165, 233, 0.14)',
+          ringColor: 'rgba(56, 189, 248, 0.7)',
+          crestGlow: 'rgba(255, 255, 255, 0.85)',
+          bubbleColor: 'rgba(224, 242, 254, 0.6)',
         };
     }
   };
 
-  const gradients = getGradients();
-  const isActive = phase !== 'idle';
+  const palette = getThemePalette();
+
+  const triggerTransition = useCallback((action: () => void, clickOrigin?: LiquidOrigin) => {
+    // Circadiane Stimmung synchronisieren
+    const currentTheme = getCircadianTheme();
+    setTimeOfDay(currentTheme.timeOfDay);
+
+    const x = clickOrigin ? clickOrigin.x : 50;
+    const y = clickOrigin ? clickOrigin.y : 50;
+    setImpactCoord({ x, y });
+    setIsTransitioning(true);
+
+    startTimeRef.current = performance.now();
+
+    // Bei T = 450ms (wenn die ersten Wellenringe die Umgebung erfassen):
+    // Den Ansichtswechsel bzw. das Öffnen des Modals ausführen
+    if (actionTimeoutRef.current) {
+      window.clearTimeout(actionTimeoutRef.current);
+    }
+
+    actionTimeoutRef.current = window.setTimeout(() => {
+      try {
+        action();
+      } catch (err) {
+        console.error('Fehler bei LiquidTransition action():', err);
+      }
+    }, 450);
+
+  }, []);
+
+  // 60fps Ultra-HD Wasseroberflächen-Canvas Shader & Refraktions-Simulation
+  useEffect(() => {
+    if (!isTransitioning) return;
+
+    let canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Retina / High-DPI Skalierung für gestochen scharfe Ultra-HD Kaustik
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const impactPxX = (impactCoord.x / 100) * width;
+    const impactPxY = (impactCoord.y / 100) * height;
+
+    const DURATION = 3200; // Gesamte Abklingdauer: 3.2 Sekunden
+
+    const render = (now: number) => {
+      const elapsed = now - startTimeRef.current;
+      const progress = Math.min(elapsed / DURATION, 1);
+
+      // Sanfte Ausklingkurve (physikalische Dämpfung der Oberflächenspannung)
+      const dampening = Math.pow(1 - progress, 1.8);
+
+      ctx.clearRect(0, 0, width, height);
+
+      if (progress < 1) {
+        // 1. ZENTRALER EINSCHLAG-TROPFEN & SPÜL-PULSE
+        // Der Fokuspunkt selbst bleibt absolut scharf (wird im Canvas freigehalten)
+        const centerDistance = 45; // Pixel-Radius des geschützten Zentrums
+
+        // 2. ZEICHNE DIE ULTRA-HD WELLENRINGE (Wasserkaustik & Lichtbrechung)
+        // Geschwindigkeit: Wellenausbreitung c = ~650 px/s
+        const waveSpeed = 650;
+        const currentDistance = (elapsed / 1000) * waveSpeed;
+
+        const ringCount = 7;
+        for (let i = 0; i < ringCount; i++) {
+          const ringDist = currentDistance - i * 65;
+          if (ringDist > centerDistance && ringDist < 2400) {
+            // Wellenamplitude nimmt mit Entfernung 1/sqrt(r) und Zeit ab
+            const amp = Math.max(0, (1 - ringDist / 2200) * dampening);
+            if (amp <= 0.01) continue;
+
+            const ringWidth = 28 + i * 8;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(impactPxX, impactPxY, ringDist, 0, Math.PI * 2);
+
+            // Lichtkante auf dem Wellenberg (Lichtbrechung nach oben)
+            const gradient = ctx.createRadialGradient(
+              impactPxX,
+              impactPxY,
+              Math.max(0, ringDist - ringWidth / 2),
+              impactPxX,
+              impactPxY,
+              ringDist + ringWidth / 2
+            );
+
+            // Dreidimensionaler Wellenberg:
+            // Wellental (dunkler/tief) -> Wellenberg (strahlende Lichtbrechung) -> Wellental
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            gradient.addColorStop(0.3, palette.deepWater);
+            gradient.addColorStop(0.5, palette.crestGlow.replace('0.85', (0.55 * amp).toFixed(3)));
+            gradient.addColorStop(0.7, palette.ringColor.replace('0.7', (0.45 * amp).toFixed(3)));
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = ringWidth;
+            ctx.shadowColor = palette.causticColor;
+            ctx.shadowBlur = 12 * amp;
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        // 3. FEINE KREUZ-KAPPILLARE & WASSER-KAUSTIK (Sonnenlicht auf Gewässergrund)
+        if (progress > 0.05 && progress < 0.85) {
+          const causticAmp = dampening * 0.35;
+          ctx.save();
+          ctx.globalAlpha = causticAmp;
+          ctx.fillStyle = palette.causticColor;
+
+          // Mikro-Lichtreflexe, die sich auf den Wellen brechen
+          const causticRings = 4;
+          for (let c = 1; c <= causticRings; c++) {
+            const cRadius = (currentDistance * 0.75 + c * 80) % (Math.max(width, height) * 0.9);
+            if (cRadius > centerDistance) {
+              ctx.beginPath();
+              ctx.arc(impactPxX, impactPxY, cRadius, 0, Math.PI * 2);
+              ctx.strokeStyle = palette.crestGlow.replace('0.85', (0.25 * causticAmp).toFixed(2));
+              ctx.lineWidth = 2.5;
+              ctx.setLineDash([12, 28, 8, 36]);
+              ctx.stroke();
+            }
+          }
+          ctx.restore();
+        }
+
+        // 4. SANFTE WOGUNG DES GESAMTEN HINTERGRUNDS (Displacement-Effekt)
+        // Animiert den SVG-Turbulence-Filter im DOM
+        const svgDisp = document.getElementById('water-refraction-displacement') as any;
+        if (svgDisp) {
+          // Wellenamplitude schwingt an und klingt organisch ab
+          const scale = Math.sin(progress * Math.PI) * 14 * dampening;
+          svgDisp.setAttribute('scale', scale.toFixed(2));
+        }
+
+        animFrameRef.current = requestAnimationFrame(render);
+      } else {
+        // Wasser ist vollkommen zur Ruhe gekommen
+        const svgDisp = document.getElementById('water-refraction-displacement') as any;
+        if (svgDisp) {
+          svgDisp.setAttribute('scale', '0');
+        }
+        setIsTransitioning(false);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(render);
+
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, [isTransitioning, impactCoord, palette]);
 
   return (
-    <LiquidTransitionContext.Provider value={{ triggerTransition, isTransitioning: isActive }}>
-      {children}
+    <LiquidTransitionContext.Provider value={{ triggerTransition, isTransitioning }}>
+      {/* 
+        SVG FE-TURBULENCE & DISPLACEMENT-MAP FILTER
+        Dieser physikalische Shader bricht das Licht der darunterliegenden Benutzeroberfläche
+        wie echtes Wasser mit Brechungsindex n=1.333
+      */}
+      <svg className="hidden pointer-events-none" width="0" height="0">
+        <defs>
+          <filter id="ultra-hd-water-refraction" x="-10%" y="-10%" width="120%" height="120%">
+            {/* Feine konzentrische Wellenturbulenz */}
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.018 0.024"
+              numOctaves="3"
+              result="waterNoise"
+            />
+            {/* Optische Lichtbrechung / Displacement auf das DOM */}
+            <feDisplacementMap
+              id="water-refraction-displacement"
+              in="SourceGraphic"
+              in2="waterNoise"
+              scale="0"
+              xChannelSelector="R"
+              yChannelSelector="G"
+              result="refractedOutput"
+            />
+          </filter>
+        </defs>
+      </svg>
 
-      {/* Flüssiges Wasser-Overlay */}
-      {isActive && (
-        <div
-          className={`fixed inset-0 z-[100] pointer-events-none overflow-hidden transition-opacity duration-1000 ${
-            phase === 'settling' ? 'opacity-0' : 'opacity-100'
-          }`}
+      {/* 
+        DOM Wrapper: Erhält bei laufender Wassertransition den Refraktionsfilter,
+        während der direkte Klickfokus durch die Canvas-Geometrie freigehalten wird
+      */}
+      <div
+        id="lightflow-water-surface"
+        className="w-full min-h-screen relative"
+        style={{
+          filter: isTransitioning ? 'url(#ultra-hd-water-refraction)' : 'none',
+          willChange: isTransitioning ? 'filter' : 'auto',
+          transform: 'translate3d(0,0,0)',
+        }}
+      >
+        {children}
+      </div>
+
+      {/* 
+        Ultra-HD Photorealistischer Wasseroberflächen-Canvas
+        Rendert die physikalischen Wellenberge, Lichtbrechungen & Kaustiken im Overlay
+      */}
+      {isTransitioning && (
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 pointer-events-none z-[9999]"
           style={{
-            willChange: 'transform, opacity',
-            perspective: '1000px',
+            mixBlendMode: 'screen',
+            willChange: 'transform',
+          }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 
+        Zentraler physikalischer Einschlagskern (Drop Ripple) an der Koordinate (x, y)
+        Erzeugt einen subtilen, hochauflösenden Tropfen-Ring, während das Element scharf bleibt
+      */}
+      {isTransitioning && (
+        <div
+          className="fixed pointer-events-none z-[10000]"
+          style={{
+            left: `${impactCoord.x}%`,
+            top: `${impactCoord.y}%`,
+            transform: 'translate(-50%, -50%)',
           }}
           aria-hidden="true"
         >
-          {/* Organischer Ausbreitungskern (Radial Wave Surge vom Klickpunkt) */}
+          {/* Kleiner feiner Wassertropfen-Impuls */}
           <div
-            className="absolute rounded-full transition-transform duration-700 ease-out"
+            className="w-12 h-12 rounded-full border border-white/60 animate-ping opacity-60"
             style={{
-              left: `${origin.x}%`,
-              top: `${origin.y}%`,
-              transform: phase === 'rising' ? 'translate(-50%, -50%) scale(25)' : 'translate(-50%, -50%) scale(30)',
-              width: '60px',
-              height: '60px',
-              background: `radial-gradient(circle, ${gradients.glow} 0%, rgba(255,255,255,0) 70%)`,
-              opacity: phase === 'settling' ? 0.2 : 0.85,
-              transition: 'transform 700ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1800ms ease-out',
+              borderColor: palette.crestGlow,
+              animationDuration: '1.2s',
             }}
           />
-
-          {/* Haupt-Wellenkörper (Hintergrund-Wasserflut) */}
-          <div
-            className="absolute inset-0 transition-transform cubic-bezier(0.16, 1, 0.3, 1)"
-            style={{
-              background: gradients.primary,
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              transform: phase === 'rising' ? 'translate3d(0, 0, 0)' : phase === 'switching' ? 'translate3d(0, 0, 0)' : 'translate3d(0, 100%, 0)',
-              transitionDuration: phase === 'rising' ? '600ms' : '2200ms',
-              transitionTimingFunction: phase === 'rising' ? 'cubic-bezier(0.2, 0.8, 0.2, 1)' : 'cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          />
-
-          {/* Organischer SVG Wave Mesh Header mit Sinus-Wellen */}
-          <div
-            className="absolute left-0 right-0 h-48 sm:h-64 pointer-events-none transition-transform"
-            style={{
-              top: phase === 'rising' ? '-40px' : '0px',
-              transform: phase === 'rising' ? 'translate3d(0, 0, 0)' : 'translate3d(0, 100vh, 0)',
-              transitionDuration: phase === 'rising' ? '600ms' : '2400ms',
-              transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 1440 320"
-              preserveAspectRatio="none"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Sekundäre Tiefenwelle */}
-              <path
-                className="animate-wave-flow"
-                d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,218.7C960,235,1056,245,1152,229.3C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-                fill={gradients.accent}
-                fillOpacity="0.45"
-              />
-
-              {/* Haupt-Flüssigkeitswelle */}
-              <path
-                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,138.7C672,149,768,203,864,208C960,213,1056,171,1152,149.3C1248,128,1344,128,1392,128L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-                fill="url(#liquid-wave-grad)"
-              />
-
-              {/* Lichtkräuselung / Schaumkante */}
-              <path
-                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,138.7C672,149,768,203,864,208C960,213,1056,171,1152,149.3C1248,128,1344,128,1392,128"
-                stroke={gradients.foam}
-                strokeWidth="4"
-                strokeLinecap="round"
-                filter="url(#wave-glow)"
-              />
-
-              <defs>
-                <linearGradient id="liquid-wave-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={gradients.accent} stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="rgba(15, 23, 42, 0.95)" stopOpacity="0.95" />
-                </linearGradient>
-                <filter id="wave-glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-            </svg>
-          </div>
-
-          {/* Aufsteigende Lichtbläschen & Lebenswasser-Partikel */}
-          <div className="absolute inset-0 pointer-events-none flex justify-around items-end pb-24 overflow-hidden">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white/40 shadow-lg shadow-white/30"
-                style={{
-                  animation: `oxygenBubble ${2 + (i % 3) * 0.5}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.2}s`,
-                  opacity: phase === 'settling' ? 0.1 : 0.6,
-                  transition: 'opacity 1500ms ease',
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Zentraler spiritueller Licht-Impuls beim Durchfluten */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div
-              className="text-center transition-all duration-700"
-              style={{
-                opacity: phase === 'switching' ? 1 : 0,
-                transform: phase === 'switching' ? 'scale(1)' : 'scale(0.85)',
-              }}
-            >
-              <div className="font-serif italic text-white/90 text-lg sm:text-2xl drop-shadow-md">
-                „Ströme lebendigen Wassers“
-              </div>
-              <div className="text-[11px] tracking-widest uppercase text-white/70 font-semibold mt-1">
-                Lightflow v2.0
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </LiquidTransitionContext.Provider>

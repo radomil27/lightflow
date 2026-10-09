@@ -234,3 +234,16 @@
   }
 }
 
+/* Ultra-HD Wasser-Refraktion & Stabilitäts-Klassen */
+#lightflow-water-surface {
+  transition: filter 300ms ease-out;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.water-focus-stable {
+  position: relative;
+  z-index: 10001 !important;
+  transform: translateZ(0);
+}
+
