@@ -21,7 +21,7 @@ import {
 } from './services/lightflowEngine';
 import { Header } from './components/Header';
 import { InputSection } from './components/InputSection';
-import { ReportView } from './components/ReportView';
+import { LeatherEtuiReportView } from './components/LeatherEtuiReportView';
 import { ProfileModal } from './components/ProfileModal';
 import { SavedReportsModal } from './components/SavedReportsModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -354,10 +354,10 @@ export const App: React.FC = () => {
           onCancelEdit={() => setIsEditingPassage(false)}
         />
 
-        {/* Auswertungs-Report */}
+        {/* Auswertungs-Report: Das haptische Leder-Etui & 3D-Staffelkarten (v3.0) */}
         {currentReport && (
           <div id="lightflow-report">
-            <ReportView
+            <LeatherEtuiReportView
               report={currentReport}
               settings={settings}
               fontSize={settings.fontSize || 'md'}

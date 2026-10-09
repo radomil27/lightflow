@@ -540,7 +540,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Version der App</span>
               </div>
               <span className="font-mono text-[11px] font-semibold text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-                v2.0.4 (Maßgeschneiderte Posten-Icons & Clean Focus)
+                v3.0.0 (Haptisches Leder-Etui & 3D-Kartenfächer)
               </span>
             </div>
 

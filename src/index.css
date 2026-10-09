@@ -247,3 +247,63 @@
   animation: luxuryModalFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ========================================================
+   LIGHTFLOW v3.0: SKEUOMORPHIC LUXURY (Leder-Etui & 3D Cards)
+   ======================================================== */
+
+/* Ledertextur mit SVG-Filter */
+.leather-wallet-surface {
+  background: radial-gradient(circle at 50% 20%, #20130B 0%, #120A05 60%, #0A0502 100%);
+  position: relative;
+}
+
+.leather-wallet-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  filter: url(#leather-grain);
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+}
+
+/* Handgenähte Steppnaht (Champagner-Gold) */
+.leather-stitching {
+  border: 1px dashed rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.9), inset 0 0 1px rgba(0, 0, 0, 0.9);
+}
+
+/* Massives geprägtes Messingschild */
+.brass-embossed-plaque {
+  background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 35%, #AA771C 70%, #F5DEB3 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.65),
+    inset 0 -1.5px 2px rgba(80, 50, 10, 0.75),
+    0 4px 12px rgba(0, 0, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.45), 0 -1px 1px rgba(60, 40, 10, 0.7);
+}
+
+/* 3D-Karten-Container Perspektive */
+.card-stack-perspective {
+  perspective: 1400px;
+  perspective-origin: center 20%;
+  transform-style: preserve-3d;
+}
+
+/* Sanftes Schweben der Karten */
+@keyframes cardSheen {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-card-sheen {
+  animation: cardSheen 4s ease-in-out infinite;
+}
+
+
