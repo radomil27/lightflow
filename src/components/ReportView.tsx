@@ -3,26 +3,27 @@ import { LightflowReport, AppSettings, LightSealType } from '../types';
 import { useSpeechPlayer } from '../hooks/useSpeechPlayer';
 import {
   Sparkles,
-  Wrench,
-  Cpu,
-  Home,
-  Sprout,
-  Wind,
   Bookmark,
   Copy,
   Check,
   Volume2,
   FileText,
-  Briefcase,
-  ChevronDown,
-  ChevronUp,
   Square,
-  Loader2,
   Share2,
   Users,
+  ChevronDown,
 } from 'lucide-react';
 import { BibleTextViewer } from './BibleTextViewer';
 import { normalizeFaithStage } from '../services/storage';
+import {
+  IconLichtfunke,
+  IconKlarblick,
+  IconTagwerk,
+  IconFreiraum,
+  IconStandpunkt,
+  IconSpiegel,
+  IconLeuchtkraft,
+} from './PostenIcons';
 
 export const POSTEN_SUBTITLES: Record<'seeker' | 'disciple' | 'exhausted', Record<number, string>> = {
   seeker: {
@@ -139,25 +140,10 @@ export const ReportView: React.FC<ReportViewProps> = ({
   };
 
   // Statusanzeige für sequentielle Hintergrund-Generierung (1 bis 7)
-  const renderSectionStatus = (stepNum: number, textVal?: string) => {
+  // Der grüne Haken ist entfernt (Clean Luxury). Nur bei aktivem Laden wird ein dezenter Hinweis gegeben.
+  const isSectionLoading = (stepNum: number, textVal?: string) => {
     const state = report.sectionLoadingStates?.[stepNum];
-    if (state === 'loading' || (!textVal && state !== 'ready' && report.sectionLoadingStates)) {
-      return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-[#B45309] dark:text-[#FDE68A] border border-amber-500/20 animate-pulse">
-          <Loader2 className="w-3 h-3 animate-spin text-[#E09F3E]" />
-          <span>Wird geladen...</span>
-        </span>
-      );
-    }
-    if (state === 'ready' || (textVal && textVal.trim().length > 0)) {
-      return (
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-          <Check className="w-3 h-3 text-emerald-500" />
-          <span className="hidden sm:inline">Bereit</span>
-        </span>
-      );
-    }
-    return null;
+    return state === 'loading' || (!textVal && state !== 'ready' && Boolean(report.sectionLoadingStates));
   };
 
   // Dynamische CSS-Klassen für Schriftgröße (Feierabend-Ergonomie)
@@ -583,81 +569,91 @@ ${report.leuchtkraft || report.heartGarden}
             1
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#211B14] dark:via-[#18202A] dark:to-[#18202A] border border-[#E09F3E]/40 shadow-lg shadow-[#E09F3E]/5 relative overflow-hidden backdrop-blur-md transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(1)}
+            className={`rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#211B14] dark:via-[#18202A] dark:to-[#18202A] border border-[#E09F3E]/40 shadow-lg shadow-[#E09F3E]/5 relative overflow-hidden backdrop-blur-md transition-all duration-300 cursor-pointer ${
+              isSectionLoading(1, report.lichtfunke || report.coreConduit)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-[#E09F3E]/70'
+            }`}
+          >
             <div className="absolute top-0 right-0 w-36 h-36 bg-[#E09F3E]/10 rounded-full blur-2xl pointer-events-none"></div>
 
-            {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(1)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
-            >
+            {/* Akkordeon-Header: Minimalistisch, sauber, keine Icons rechts wenn zugeklappt */}
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none group-hover:bg-amber-500/5 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
-                  <Sparkles className="w-4 h-4 text-[#E09F3E]" />
+                  <IconLichtfunke className="w-4 h-4 text-[#E09F3E]" />
                   <span>1. LICHTFUNKE</span>
-                  {renderSectionStatus(1, report.lichtfunke || report.coreConduit)}
                   {renderSealBadge(1)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][1]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(1, '1. Lichtfunke', report.lichtfunke || report.coreConduit || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 1
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 1 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 1 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 1 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Zuspruch per WhatsApp / Telegram teilen"
-                >
-                  <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Zuspruch kopieren"
-                >
-                  {copiedSection === 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 1 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {/* Statusindikator falls noch am Sammeln */}
+              {isSectionLoading(1, report.lichtfunke || report.coreConduit) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Ausgeklappter Inhalt */}
+            {/* Ausgeklappter Inhalt: Erst hier sind Teilen, Audio und Kopieren ersichtlich und bedienbar */}
             {activeSection === 1 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-500/15">
+              <div 
+                onClick={(e) => e.stopPropagation()} 
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-500/15 cursor-default"
+              >
                 <p className={`font-serif ${lichtfunkeTextClass} font-medium text-stone-900 dark:text-stone-100 leading-relaxed italic`}>
                   „{report.lichtfunke || report.coreConduit}“
                 </p>
+
+                {/* Edle Aktionsleiste (Audio, Kreis, Teilen, Kopieren) */}
+                <div className="mt-5 pt-3.5 border-t border-amber-500/15 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(1, '1. Lichtfunke', report.lichtfunke || report.coreConduit || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 1
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 1 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 1 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 1 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Per WhatsApp / Telegram teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(1, '1. LICHTFUNKE', report.lichtfunke || report.coreConduit || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="In Zwischenablage kopieren"
+                    >
+                      {copiedSection === 1 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 1 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(1)}
               </div>
             )}
@@ -677,77 +673,86 @@ ${report.leuchtkraft || report.heartGarden}
             2
           </div>
 
-          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
-            {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(2)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
-            >
+          <div 
+            onClick={() => toggleSection(2)}
+            className={`rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300 cursor-pointer ${
+              isSectionLoading(2, report.klarblick || report.systemDecoded)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-[#E09F3E]/60'
+            }`}
+          >
+            {/* Akkordeon-Header: Minimalistisch & sauber */}
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Cpu className="w-4 h-4 text-[#E09F3E]" />
+                  <IconKlarblick className="w-4 h-4 text-[#E09F3E]" />
                   <span>2. KLARBLICK</span>
-                  {renderSectionStatus(2, report.klarblick || report.systemDecoded)}
                   {renderSealBadge(2)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][2]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(2, '2. Klarblick', report.klarblick || report.systemDecoded || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 2
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 2 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 2 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 2 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt kopieren"
-                >
-                  {copiedSection === 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 2 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 2 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(2, report.klarblick || report.systemDecoded) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 2 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+              <div 
+                onClick={(e) => e.stopPropagation()} 
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60 cursor-default"
+              >
                 {renderKlarblickContent(report.klarblick || report.systemDecoded || '')}
+
+                {/* Edle Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-white/[0.08] dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(2, '2. Klarblick', report.klarblick || report.systemDecoded || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 2
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 2 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 2 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 2 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(2, '2. KLARBLICK', report.klarblick || report.systemDecoded || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt kopieren"
+                    >
+                      {copiedSection === 2 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 2 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(2)}
               </div>
             )}
@@ -767,79 +772,88 @@ ${report.leuchtkraft || report.heartGarden}
             3
           </div>
 
-          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(3)}
+            className={`rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300 cursor-pointer ${
+              isSectionLoading(3, report.tagwerk || report.workBench)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-amber-500/40'
+            }`}
+          >
             {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(3)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
-            >
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Wrench className="w-4 h-4 text-[#E09F3E]" />
+                  <IconTagwerk className="w-4 h-4 text-[#E09F3E]" />
                   <span>3. TAGWERK</span>
-                  {renderSectionStatus(3, report.tagwerk || report.workBench)}
                   {renderSealBadge(3)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][3]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(3, '3. Tagwerk', report.tagwerk || report.workBench || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 3
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 3 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 3 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 3 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(3, '3. TAGWERK', report.tagwerk || report.workBench || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt kopieren"
-                >
-                  {copiedSection === 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 3 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 3 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(3, report.tagwerk || report.workBench) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 3 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60 cursor-default"
+              >
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.tagwerk || report.workBench}
                 </div>
+
+                {/* Innenliegende Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-stone-200/50 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(3, '3. Tagwerk', report.tagwerk || report.workBench || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 3
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 3 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 3 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 3 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(3, '3. TAGWERK', report.tagwerk || report.workBench || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt kopieren"
+                    >
+                      {copiedSection === 3 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 3 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(3)}
               </div>
             )}
@@ -859,79 +873,88 @@ ${report.leuchtkraft || report.heartGarden}
             4
           </div>
 
-          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(4)}
+            className={`rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300 cursor-pointer ${
+              isSectionLoading(4, report.freiraum || report.dailyFreedom)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-amber-500/40'
+            }`}
+          >
             {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(4)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
-            >
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Home className="w-4 h-4 text-[#E09F3E]" />
+                  <IconFreiraum className="w-4 h-4 text-[#E09F3E]" />
                   <span>4. FREIRAUM</span>
-                  {renderSectionStatus(4, report.freiraum || report.dailyFreedom)}
                   {renderSealBadge(4)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][4]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(4, '4. Freiraum', report.freiraum || report.dailyFreedom || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 4
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 4 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 4 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 4 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt kopieren"
-                >
-                  {copiedSection === 4 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 4 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 4 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(4, report.freiraum || report.dailyFreedom) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 4 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60 cursor-default"
+              >
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.freiraum || report.dailyFreedom}
                 </div>
+
+                {/* Innenliegende Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-stone-200/50 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(4, '4. Freiraum', report.freiraum || report.dailyFreedom || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 4
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 4 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 4 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 4 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(4, '4. FREIRAUM', report.freiraum || report.dailyFreedom || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt kopieren"
+                    >
+                      {copiedSection === 4 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 4 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(4)}
               </div>
             )}
@@ -951,79 +974,88 @@ ${report.leuchtkraft || report.heartGarden}
             5
           </div>
 
-          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(5)}
+            className={`rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300 cursor-pointer ${
+              isSectionLoading(5, report.standpunkt || report.profileSnapshot.relationshipStatus)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-amber-500/40'
+            }`}
+          >
             {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(5)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
-            >
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Briefcase className="w-4 h-4 text-[#E09F3E]" />
+                  <IconStandpunkt className="w-4 h-4 text-[#E09F3E]" />
                   <span>5. STANDPUNKT</span>
-                  {renderSectionStatus(5, report.standpunkt || report.profileSnapshot.relationshipStatus)}
                   {renderSealBadge(5)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][5]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(5, '5. Standpunkt', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 5
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 5 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 5 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 5 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt kopieren"
-                >
-                  {copiedSection === 5 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 5 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 5 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(5, report.standpunkt || report.profileSnapshot.relationshipStatus) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 5 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60 cursor-default"
+              >
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.standpunkt || report.profileSnapshot.relationshipStatus}
                 </div>
+
+                {/* Innenliegende Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-stone-200/50 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(5, '5. Standpunkt', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 5
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 5 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 5 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 5 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(5, '5. STANDPUNKT', report.standpunkt || report.profileSnapshot.relationshipStatus || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt kopieren"
+                    >
+                      {copiedSection === 5 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 5 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(5)}
               </div>
             )}
@@ -1043,79 +1075,88 @@ ${report.leuchtkraft || report.heartGarden}
             6
           </div>
 
-          <div className="rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(6)}
+            className={`rounded-3xl bg-white/85 dark:bg-[#18202A]/85 border border-stone-200/90 dark:border-slate-800 shadow-md backdrop-blur-md overflow-hidden transition-all duration-300 cursor-pointer ${
+              isSectionLoading(6, report.spiegel)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-amber-500/40'
+            }`}
+          >
             {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(6)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors"
-            >
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none hover:bg-stone-50 dark:hover:bg-slate-800/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <Sprout className="w-4 h-4 text-[#E09F3E]" />
+                  <IconSpiegel className="w-4 h-4 text-[#E09F3E]" />
                   <span>6. SPIEGEL</span>
-                  {renderSectionStatus(6, report.spiegel)}
                   {renderSealBadge(6)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][6]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                       e.stopPropagation();
-                       playSection(6, '6. Spiegel', report.spiegel || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 6
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 6 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
-                  >
-                    {currentPlayingStep === 6 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 6 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(6, '6. SPIEGEL', report.spiegel || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(6, '6. SPIEGEL', report.spiegel || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(6, '6. SPIEGEL', report.spiegel || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt kopieren"
-                >
-                  {copiedSection === 6 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 6 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 6 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(6, report.spiegel) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 6 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-stone-100 dark:border-slate-800/60 cursor-default"
+              >
                 <div className={`${bodyTextClass} text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line`}>
                   {report.spiegel}
                 </div>
+
+                {/* Innenliegende Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-stone-200/50 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(6, '6. Spiegel', report.spiegel || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 6
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 6 ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                      >
+                        {currentPlayingStep === 6 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 6 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(6, '6. SPIEGEL', report.spiegel || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(6, '6. SPIEGEL', report.spiegel || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(6, '6. SPIEGEL', report.spiegel || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt kopieren"
+                    >
+                      {copiedSection === 6 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 6 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {renderSealSelector(6)}
               </div>
             )}
@@ -1135,80 +1176,88 @@ ${report.leuchtkraft || report.heartGarden}
             7
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md transition-all duration-300">
+          <div 
+            onClick={() => toggleSection(7)}
+            className={`rounded-3xl bg-gradient-to-br from-amber-100/60 via-amber-50/40 to-white dark:from-[#2B2114]/90 dark:via-[#1E2024] dark:to-[#2B2114]/50 border border-[#E09F3E]/50 shadow-xl shadow-[#E09F3E]/10 relative overflow-hidden backdrop-blur-md transition-all duration-300 cursor-pointer ${
+              isSectionLoading(7, report.leuchtkraft || report.heartGarden)
+                ? 'opacity-60 saturate-50 animate-posten-gathering'
+                : 'hover:border-[#E09F3E]/80'
+            }`}
+          >
             <div className="absolute bottom-0 right-0 w-44 h-44 bg-[#F59E0B]/15 rounded-full blur-3xl pointer-events-none"></div>
 
             {/* Akkordeon-Header */}
-            <div 
-              onClick={() => toggleSection(7)}
-              className="p-5 sm:p-6 flex items-center justify-between cursor-pointer select-none group-hover:bg-amber-500/5 transition-colors"
-            >
+            <div className="p-5 sm:p-6 flex items-center justify-between select-none group-hover:bg-amber-500/5 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-wider text-[#B45309] dark:text-[#FDE68A]">
-                  <Wind className="w-4 h-4 text-[#E09F3E]" />
+                  <IconLeuchtkraft className="w-4 h-4 text-[#E09F3E]" />
                   <span>7. LEUCHTKRAFT</span>
-                  {renderSectionStatus(7, report.leuchtkraft || report.heartGarden)}
                   {renderSealBadge(7)}
                 </div>
                 <span className="text-[11px] font-normal italic text-stone-500 dark:text-stone-400 pl-6.5 sm:pl-0">
                   • {POSTEN_SUBTITLES[activeFaithStage][7]}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                {isAudioAvailable && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSection(7, '7. Leuchtkraft, Herzensgebet', report.leuchtkraft || report.heartGarden || '');
-                    }}
-                    className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer ${
-                      currentPlayingStep === 7
-                        ? 'bg-amber-500 text-slate-950 font-semibold animate-pulse shadow-sm'
-                        : 'text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10'
-                    }`}
-                    title={currentPlayingStep === 7 ? 'Vorlesen anhalten' : 'Dieses Gebet vorlesen'}
-                  >
-                    {currentPlayingStep === 7 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] hidden sm:inline">{currentPlayingStep === 7 ? 'Stopp' : 'Audio'}</span>
-                  </button>
-                )}
-                {renderCircleButton(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '')}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShareSection(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Diesen Abschnitt teilen (WhatsApp / Telegram)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">Teilen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '');
-                  }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                  title="Dieses Gebet kopieren"
-                >
-                  {copiedSection === 7 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{copiedSection === 7 ? 'Kopiert' : 'Kopieren'}</span>
-                </button>
-                <div className="p-1 text-stone-400 dark:text-stone-500">
-                  {activeSection === 7 ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+              {isSectionLoading(7, report.leuchtkraft || report.heartGarden) && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-[#E09F3E] animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E09F3E]"></span>
+                  <span className="hidden sm:inline">Sammelt...</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ausgeklappter Inhalt */}
             {activeSection === 7 && (
-              <div className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-200/50 dark:border-amber-900/30">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="px-5 pb-6 sm:px-6 sm:pb-7 pt-1 animate-in fade-in duration-300 border-t border-amber-200/50 dark:border-amber-900/30 cursor-default"
+              >
                 <div className={`${lichtfunkeTextClass} text-stone-900 dark:text-stone-100 leading-relaxed whitespace-pre-line font-serif italic border-l-2 border-[#E09F3E] pl-4 my-2`}>
                   {report.leuchtkraft || report.heartGarden}
+                </div>
+
+                {/* Innenliegende Aktionsleiste */}
+                <div className="mt-5 pt-3.5 border-t border-amber-500/20 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    {isAudioAvailable && (
+                      <button
+                        type="button"
+                        onClick={() => playSection(7, '7. Leuchtkraft, Herzensgebet', report.leuchtkraft || report.heartGarden || '')}
+                        className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                          currentPlayingStep === 7
+                            ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
+                            : 'bg-white/40 dark:bg-white/[0.04] text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-[#E09F3E]'
+                        }`}
+                        title={currentPlayingStep === 7 ? 'Vorlesen anhalten' : 'Dieses Gebet vorlesen'}
+                      >
+                        {currentPlayingStep === 7 ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5 text-[#E09F3E]" />}
+                        <span className="text-[11px]">{currentPlayingStep === 7 ? 'Stopp' : 'Vorlesen'}</span>
+                      </button>
+                    )}
+                    {renderCircleButton(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '')}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleShareSection(7, '7. LEUCHTKRAFT', report.leuchtkraft || report.heartGarden || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Diesen Abschnitt teilen"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#E09F3E]" />
+                      <span className="text-[11px]">Teilen</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySection(7, '7. LEUCHTKRAFT (Gebet)', report.leuchtkraft || report.heartGarden || '')}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-[#E09F3E] transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                      title="Dieses Gebet kopieren"
+                    >
+                      {copiedSection === 7 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="text-[11px]">{copiedSection === 7 ? 'Kopiert' : 'Kopieren'}</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/30 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
