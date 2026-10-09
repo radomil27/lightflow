@@ -540,7 +540,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Version der App</span>
               </div>
               <span className="font-mono text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A] bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-                v2.0.0 (Licht im Alltag)
+                v2.0.1 (Liquid Wave & Licht im Alltag)
               </span>
             </div>
 

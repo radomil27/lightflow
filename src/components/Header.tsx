@@ -2,6 +2,7 @@ import React from 'react';
 import { UserProfile } from '../types';
 import { Moon, Sun, User, Bookmark, Settings, Users, Flame } from 'lucide-react';
 import { getCircadianTheme } from '../services/circadianService';
+import { useLiquidTransition } from './LiquidWaveTransition';
 
 interface HeaderProps {
   profile: UserProfile;
@@ -25,6 +26,18 @@ export const Header: React.FC<HeaderProps> = ({
   savedCount,
 }) => {
   const circadian = getCircadianTheme();
+  const { triggerTransition } = useLiquidTransition();
+
+  const handleNav = (action: () => void, e?: React.MouseEvent) => {
+    let origin;
+    if (e) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
+      const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+      origin = { x, y };
+    }
+    triggerTransition(action, origin);
+  };
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-2xl bg-stone-50/85 dark:bg-[#0B0F15]/85 border-b border-stone-200/70 dark:border-white/[0.06] transition-colors duration-[2000ms] safe-area-header">
@@ -68,11 +81,11 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Rechte Navigation & Interaktions-Buttons */}
+        {/* Rechte Navigation & Interaktions-Buttons mit Liquid Water Wave Transition */}
         <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Circle of 4: Vertrauter Kreis */}
           <button
-            onClick={onOpenCircle}
+            onClick={(e) => handleNav(onOpenCircle, e)}
             className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-[#B45309] dark:text-[#FDE68A] border border-amber-500/25 transition-all cursor-pointer"
             title="Vertrauter Kreis (Circle of 4)"
           >
@@ -82,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Profil Button */}
           <button
-            onClick={onOpenProfile}
+            onClick={(e) => handleNav(onOpenProfile, e)}
             className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium bg-stone-200/60 dark:bg-white/[0.05] hover:bg-[#E09F3E]/15 dark:hover:bg-white/[0.1] text-stone-700 dark:text-stone-200 border border-stone-300/60 dark:border-white/[0.08] transition-all cursor-pointer"
             title="Verbindungsprofil anpassen"
           >
@@ -94,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Gespeicherte Berichte */}
           <button
-            onClick={onOpenSaved}
+            onClick={(e) => handleNav(onOpenSaved, e)}
             className="relative p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
             title="Gespeicherte Lichtfluss-Berichte"
           >
@@ -117,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Einstellungen */}
           <button
-            onClick={onOpenSettings}
+            onClick={(e) => handleNav(onOpenSettings, e)}
             className="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
             title="Einstellungen & API-Schlüssel"
           >
@@ -129,3 +142,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

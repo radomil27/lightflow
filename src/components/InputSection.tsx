@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Sparkles, RefreshCw, ChevronUp, Compass, ArrowRight } from 'lucide-react';
 import { UserProfile } from '../types';
 import { getCircadianTheme } from '../services/circadianService';
+import { useLiquidTransition } from './LiquidWaveTransition';
 
 interface InputSectionProps {
   passage: string;
@@ -29,6 +30,18 @@ export const InputSection: React.FC<InputSectionProps> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(hasActiveReport && !isEditing);
   const circadian = getCircadianTheme();
+  const { triggerTransition } = useLiquidTransition();
+
+  const handleNav = (action: () => void, e?: React.MouseEvent) => {
+    let origin;
+    if (e) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
+      const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+      origin = { x, y };
+    }
+    triggerTransition(action, origin);
+  };
 
   // Synchronisiere Collapse-Status
   React.useEffect(() => {
@@ -98,13 +111,13 @@ export const InputSection: React.FC<InputSectionProps> = ({
                 value={passage}
                 onChange={(e) => setPassage(e.target.value)}
                 readOnly
-                onClick={onOpenPicker}
+                onClick={(e) => handleNav(onOpenPicker, e)}
                 placeholder="Bibelstelle wählen (z. B. Lukas 7,11)..."
                 className="w-full py-2.5 text-base sm:text-lg bg-transparent border-none focus:outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 font-serif cursor-pointer"
               />
               <button
                 type="button"
-                onClick={onOpenPicker}
+                onClick={(e) => handleNav(onOpenPicker, e)}
                 className="shrink-0 p-2 rounded-xl text-stone-400 hover:text-[#E09F3E] hover:bg-amber-500/10 transition-colors"
                 title="Bibel-Navigator öffnen"
               >
@@ -151,9 +164,9 @@ export const InputSection: React.FC<InputSectionProps> = ({
         {/* Das Wort des Tages: Radikal reduzierter, einzelner Leitvers */}
         <div className="pt-1">
           <div 
-            onClick={() => {
+            onClick={(e) => {
               setPassage(impulse.passage);
-              onOpenMoodPicker();
+              handleNav(onOpenMoodPicker, e);
             }}
             className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#111622]/60 border border-stone-200/70 dark:border-white/[0.06] hover:border-amber-500/40 hover:bg-white dark:hover:bg-[#111622]/90 backdrop-blur-md transition-all group cursor-pointer shadow-sm"
           >
@@ -184,3 +197,4 @@ export const InputSection: React.FC<InputSectionProps> = ({
     </section>
   );
 };
+

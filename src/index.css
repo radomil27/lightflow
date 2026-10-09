@@ -213,3 +213,24 @@
   animation: waveFlow 3.2s ease-in-out infinite, waterShimmer 2.4s ease-in-out infinite;
 }
 
+/* Liquid Water Wave Transition Keyframes */
+@keyframes waveSurgeUp {
+  0% {
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes waveCalmDown {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 15%, 0);
+  }
+}
+
