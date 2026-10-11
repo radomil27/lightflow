@@ -63,8 +63,8 @@ export const IconKlarblick: React.FC<IconProps> = ({ className = 'w-4 h-4', size
 
 /**
  * 3. TAGWERK ICON
- * Fleisch vs. Geist (Die Tat) / Handwerk, Pflug & Werkbank für den Herrn
- * Zwei gekreuzte Edelhämmer / Werkzeuge der Schöpfung mit Weizenkorn
+ * Die Tat, Handwerk & Schöpfungswerkzeuge für den Herrn
+ * Klassischer, massiver Zimmermannshammer
  */
 export const IconTagwerk: React.FC<IconProps> = ({ className = 'w-4 h-4', size }) => (
   <svg
@@ -79,12 +79,13 @@ export const IconTagwerk: React.FC<IconProps> = ({ className = 'w-4 h-4', size }
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    {/* Zimmermanns-Hammer & Meißel der Schöpfung */}
-    <path d="M14.5 2.5L21.5 9.5M16 4L19 7M16.5 4.5L8.5 12.5C7.5 13.5 6.5 14 5 14L2 14L2 17L5 17C6.5 17 7.5 17.5 8.5 18.5L9.5 19.5" />
-    <path d="M7 17L3 21" strokeWidth="2" />
-    {/* Amboss-Horizontale der Beständigkeit */}
-    <path d="M10 10L14 14" strokeWidth="1.5" />
-    <circle cx="18" cy="6" r="1.5" fill="currentColor" />
+    {/* Hammerkopf */}
+    <path d="M15 2L21 8L18 11L16 9L9 16L7 14L14 7L12 5L15 2Z" fill="currentColor" fillOpacity="0.15" />
+    <path d="M15 2L21 8" strokeWidth="2" />
+    <path d="M18 11L12 5" />
+    {/* Hammerstiel */}
+    <path d="M9 16L3 22" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M8 15L2 21" strokeWidth="1.2" strokeOpacity="0.5" />
   </svg>
 );
 
@@ -118,7 +119,7 @@ export const IconFreiraum: React.FC<IconProps> = ({ className = 'w-4 h-4', size 
 /**
  * 5. STANDPUNKT ICON
  * Fels statt Wind / Standfestigkeit, Fundament & Ausrichtung
- * Der Felsen von Horeb / Ein unerschütterlicher Eckstein mit Anker
+ * Der feste Anker der Seele (Hebräer 6,19)
  */
 export const IconStandpunkt: React.FC<IconProps> = ({ className = 'w-4 h-4', size }) => (
   <svg
@@ -133,10 +134,18 @@ export const IconStandpunkt: React.FC<IconProps> = ({ className = 'w-4 h-4', siz
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    {/* Massiver Eckstein / Schild-Fundament */}
-    <path d="M12 2L4 6V12C4 17.5 7.5 21 12 22C16.5 21 20 17.5 20 12V6L12 2Z" />
-    {/* Fundament-Kreuz im Felsen */}
-    <path d="M12 7V16M8.5 10.5H15.5" strokeWidth="1.8" strokeLinecap="round" />
+    {/* Anker-Ring oben */}
+    <circle cx="12" cy="5" r="2.5" strokeWidth="1.8" />
+    {/* Schaft des Ankers */}
+    <path d="M12 7.5V21" strokeWidth="2" />
+    {/* Querstrebe des Ankers */}
+    <path d="M7 10.5H17" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="7" cy="10.5" r="1" fill="currentColor" />
+    <circle cx="17" cy="10.5" r="1" fill="currentColor" />
+    {/* Geschwungener Ankerbogen mit Flunken */}
+    <path d="M4 14C4 18.4 7.6 22 12 22C16.4 22 20 18.4 20 14" strokeWidth="2" strokeLinecap="round" />
+    <path d="M2.5 15L4 14L5.5 15" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M18.5 15L20 14L21.5 15" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -169,8 +178,7 @@ export const IconSpiegel: React.FC<IconProps> = ({ className = 'w-4 h-4', size }
 
 /**
  * 7. LEUCHTKRAFT ICON
- * Feste Entscheidung & Hingabe / Ewige Flamme, Herzensaltar & Leuchtturm
- * Die brennende Bundesflamme & Menora-Feuer auf dem Wasser
+ * Herzensgebet & Hingabe / Betende Hände vor Gott (Gebetsicon)
  */
 export const IconLeuchtkraft: React.FC<IconProps> = ({ className = 'w-4 h-4', size }) => (
   <svg
@@ -185,11 +193,16 @@ export const IconLeuchtkraft: React.FC<IconProps> = ({ className = 'w-4 h-4', si
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    {/* Die lebendige Bundesflamme */}
-    <path d="M12 2C12 2 15.5 6.5 15.5 10.5C15.5 12.5 14.5 14.5 12 15C9.5 14.5 8.5 12.5 8.5 10.5C8.5 7.5 10.5 4.5 12 2Z" fill="currentColor" fillOpacity="0.2" />
-    {/* Äußere Flammenkrone */}
-    <path d="M12 2C8.5 6 6 10.5 6 14.5C6 18.5 9 22 12 22C15 22 18 18.5 18 14.5C18 10 15 6 12 2Z" />
-    {/* Glühender Flammenkern */}
-    <path d="M12 16V19" strokeWidth="2" strokeLinecap="round" />
+    {/* Betende Hände (Folded / Praying Hands) */}
+    <path
+      d="M12 3C11.5 4 11 6 10 9L8 13C7 15 7.5 17 9 19L12 21L15 19C16.5 17 17 15 16 13L14 9C13 6 12.5 4 12 3Z"
+      fill="currentColor"
+      fillOpacity="0.12"
+    />
+    <path d="M12 3V21" strokeWidth="1.8" />
+    <path d="M10 9L7 14C6 16 6.5 18 8 20L12 21" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M14 9L17 14C18 16 17.5 18 16 20L12 21" strokeWidth="1.8" strokeLinecap="round" />
+    {/* Lichtstrahlen / Aura des Gebets über den Händen */}
+    <path d="M12 1V2.5M7.5 3.5L8.5 4.5M16.5 3.5L15.5 4.5" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );

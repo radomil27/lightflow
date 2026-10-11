@@ -10,7 +10,6 @@ import {
   Square,
   Share2,
   Users,
-  Sparkles,
   ChevronDown,
   Layers,
   ChevronUp,
@@ -221,19 +220,15 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
   const renderSealSelector = (stepNum: number) => {
     const currentSeal = report.lightSeals?.[stepNum];
     return (
-      <div className="flex items-center justify-between pt-3.5 mt-3.5 border-t border-stone-200/50 dark:border-white/[0.06] text-xs">
-        <span className="text-[11px] text-stone-400 flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-[#E09F3E]" />
-          <span>Erkenntnis-Siegel:</span>
-        </span>
-        <div className="flex items-center space-x-1 sm:space-x-1.5">
+      <div className="flex items-center justify-center pt-3.5 mt-3.5 border-t border-stone-200/50 dark:border-white/[0.06] text-xs">
+        <div className="flex items-center space-x-1.5 sm:space-x-2">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onToggleSeal?.(stepNum, 'clarity');
             }}
-            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
               currentSeal === 'clarity'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-sm ring-1 ring-amber-400'
                 : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-amber-500/15 hover:text-amber-300'
@@ -248,7 +243,7 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
               e.stopPropagation();
               onToggleSeal?.(stepNum, 'obedience');
             }}
-            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
               currentSeal === 'obedience'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm ring-1 ring-emerald-400'
                 : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-emerald-500/15 hover:text-emerald-300'
@@ -263,7 +258,7 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
               e.stopPropagation();
               onToggleSeal?.(stepNum, 'peace');
             }}
-            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
               currentSeal === 'peace'
                 ? 'bg-sky-500 text-slate-950 font-bold shadow-sm ring-1 ring-sky-400'
                 : 'bg-stone-100 dark:bg-white/[0.05] text-stone-500 dark:text-stone-400 hover:bg-sky-500/15 hover:text-sky-300'
@@ -286,11 +281,11 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
           e.stopPropagation();
           onShareToCircle(stepNum, title, text);
         }}
-        className="px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+        className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all text-xs flex items-center justify-center cursor-pointer"
         title="Diesen Abschnitt in den Kreis (Circle of 4) teilen"
+        aria-label="Kreis"
       >
-        <Users className="w-3.5 h-3.5 text-[#E09F3E]" />
-        <span className="text-[11px]">Kreis</span>
+        <Users className="w-4 h-4 text-[#E09F3E]" />
       </button>
     );
   };
@@ -637,11 +632,11 @@ https://lightflow-app-two.vercel.app`;
                   style={{
                     transform: `translate3d(0, ${stackTranslateY}px, 0) scale(${stackScale}) rotateX(${stackRotateX}deg)`,
                     zIndex: isActive ? 40 : 20 - index,
-                    transition: 'all 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+                    transition: 'all 240ms cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
-                  className={`group relative rounded-2xl sm:rounded-3xl border transition-all duration-500 overflow-hidden backdrop-blur-md cursor-pointer ${
+                  className={`group relative rounded-2xl sm:rounded-3xl border transition-all duration-200 overflow-hidden backdrop-blur-md cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-b from-[#1C130D] via-[#140C07] to-[#0D0804] border-amber-500/60 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_rgba(224,159,62,0.18)]'
+                      ? 'bg-gradient-to-b from-[#1C130D] via-[#140C07] to-[#0D0804] border-amber-500/60 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_rgba(224,159,62,0.18)] animate-card-deck-pull'
                       : 'bg-[#18110B]/90 hover:bg-[#22160F] border-[#3D2514] hover:border-amber-500/40 shadow-md'
                   } ${isLoading ? 'opacity-60 saturate-50 animate-posten-gathering' : ''}`}
                   onClick={() => {
@@ -652,49 +647,56 @@ https://lightflow-app-two.vercel.app`;
                   {/* Metallene Lichtkante oben */}
                   <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent pointer-events-none" />
 
-                  {/* Karten-Kopfzeile */}
-                  <div className="p-4 sm:p-5.5 flex items-center justify-between select-none">
-                    <div className="flex items-center space-x-3.5">
-                      {/* Nummerierte Plakette */}
-                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-serif font-black shadow-inner border border-amber-500/30 ${
-                        isActive
-                          ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold'
-                          : 'bg-black/50 text-[#FDE68A]'
-                      }`}>
-                        {posten.num}
+                  {/* Karten-Kopfzeile: Wenn geschlossen NUR edles Icon mittig. Wenn geöffnet: Icon + Titel + Untertitel */}
+                  {!isActive ? (
+                    <div className="py-3 sm:py-3.5 px-4 flex items-center justify-center relative select-none">
+                      <div className="flex items-center justify-center p-1 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                        <PostenIcon className="w-5 h-5 text-amber-400 drop-shadow-[0_2px_8px_rgba(224,159,62,0.4)]" />
                       </div>
 
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                        <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#FDE68A]">
-                          <PostenIcon className="w-4 h-4 text-amber-400" />
-                          <span>{posten.title}</span>
-                          {renderSealBadge(posten.num)}
-                        </div>
-                        <span className="text-[11px] font-normal italic text-stone-400 pl-6 sm:pl-0">
-                          • {POSTEN_SUBTITLES[activeFaithStage][posten.num]}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
+                      {/* Dezenter Lade-Indikator, falls noch generiert wird */}
                       {isLoading && (
-                        <div className="flex items-center gap-1 text-[11px] font-medium text-amber-400 animate-pulse">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                          <span className="hidden sm:inline">Sammelt...</span>
+                        <div className="absolute right-4 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
                         </div>
                       )}
 
+                      {/* Ausgewähltes Siegel als dezente Randnotiz bei geschlossener Karte */}
+                      {report.lightSeals?.[posten.num] && (
+                        <div className="absolute right-3.5">
+                          {renderSealBadge(posten.num)}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-4 sm:p-5 flex items-center justify-between select-none border-b border-[#3D2514]/80">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-500/40 flex items-center justify-center shadow-inner">
+                          <PostenIcon className="w-4 h-4 text-amber-300" />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center space-x-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#FDE68A]">
+                            <span>{posten.title}</span>
+                            {renderSealBadge(posten.num)}
+                          </div>
+                          <span className="text-[11px] font-normal italic text-stone-400">
+                            {POSTEN_SUBTITLES[activeFaithStage][posten.num]}
+                          </span>
+                        </div>
+                      </div>
+
                       <div className="text-stone-400 group-hover:text-amber-400 transition-colors">
-                        {isActive ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        <ChevronUp className="w-4 h-4" />
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Ausgeklappter Text & Lesemodus */}
                   {isActive && (
                     <div 
                       onClick={(e) => e.stopPropagation()} 
-                      className="px-4 pb-5 sm:px-6 sm:pb-6 pt-1 animate-in fade-in duration-300 border-t border-[#3D2514]/80 cursor-default"
+                      className="px-4 pb-5 sm:px-6 sm:pb-6 pt-3 animate-in fade-in duration-200 cursor-default"
                     >
                       {posten.num === 2 ? (
                         renderKlarblickContent(posten.content || '')
@@ -708,26 +710,26 @@ https://lightflow-app-two.vercel.app`;
                         </div>
                       )}
 
-                      {/* Innenliegende Aktionsleiste */}
+                      {/* Innenliegende Aktionsleiste (Nur Icons, keine Text-Labels) */}
                       <div className="mt-5 pt-3.5 border-t border-[#3D2514]/90 flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center space-x-2">
                           {isAudioAvailable && (
                             <button
                               type="button"
                               onClick={() => playSection(posten.num, posten.title, posten.content || '')}
-                              className={`px-2.5 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1.5 cursor-pointer border ${
+                              className={`p-2 rounded-xl transition-all text-xs flex items-center justify-center cursor-pointer border ${
                                 currentPlayingStep === posten.num
                                   ? 'bg-[#E09F3E] text-slate-950 border-[#E09F3E] font-semibold animate-pulse shadow-sm'
                                   : 'bg-black/40 text-stone-300 border-white/[0.08] hover:border-amber-500/40 hover:text-amber-300'
                               }`}
                               title={currentPlayingStep === posten.num ? 'Vorlesen anhalten' : 'Diesen Posten vorlesen'}
+                              aria-label="Vorlesen"
                             >
                               {currentPlayingStep === posten.num ? (
                                 <Square className="w-3.5 h-3.5 fill-current" />
                               ) : (
                                 <Volume2 className="w-3.5 h-3.5 text-amber-400" />
                               )}
-                              <span className="text-[11px]">{currentPlayingStep === posten.num ? 'Stopp' : 'Vorlesen'}</span>
                             </button>
                           )}
                           {renderCircleButton(posten.num, posten.title, posten.content || '')}
@@ -737,24 +739,24 @@ https://lightflow-app-two.vercel.app`;
                           <button
                             type="button"
                             onClick={() => handleShareSection(posten.num, posten.title, posten.content || '')}
-                            className="px-2.5 py-1.5 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                            className="p-2 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all cursor-pointer"
                             title="Diesen Abschnitt teilen"
+                            aria-label="Teilen"
                           >
                             <Share2 className="w-3.5 h-3.5 text-amber-400" />
-                            <span className="text-[11px]">Teilen</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleCopySection(posten.num, posten.title, posten.content || '')}
-                            className="px-2.5 py-1.5 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                            className="p-2 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 text-stone-300 hover:text-amber-300 transition-all cursor-pointer"
                             title="Diesen Abschnitt kopieren"
+                            aria-label="Kopieren"
                           >
                             {copiedSection === posten.num ? (
                               <Check className="w-3.5 h-3.5 text-emerald-400" />
                             ) : (
                               <Copy className="w-3.5 h-3.5" />
                             )}
-                            <span className="text-[11px]">{copiedSection === posten.num ? 'Kopiert' : 'Kopieren'}</span>
                           </button>
                         </div>
                       </div>
