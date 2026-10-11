@@ -12,8 +12,9 @@ import {
   Share2,
   Users,
   ChevronDown,
+  BookOpen,
 } from 'lucide-react';
-import { BibleTextViewer } from './BibleTextViewer';
+import { BibleReaderModal } from './BibleReaderModal';
 import { normalizeFaithStage } from '../services/storage';
 import {
   IconLichtfunke,
@@ -86,6 +87,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
   const [copiedSection, setCopiedSection] = useState<number | null>(null);
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState(report.notes || '');
+  const [isBibleReaderOpen, setIsBibleReaderOpen] = useState(false);
 
   // Audio-Player ist standardmäßig deaktiviert (komplett unsichtbar).
   // Erst wenn Sprachausgabe in den Einstellungen aktiv ist UND ein gültiger API-Key hinterlegt wurde,
@@ -404,6 +406,17 @@ ${report.leuchtkraft || report.heartGarden}
                 {report.passage}
               </h2>
             )}
+            {/* Nachschlagen Button */}
+            <button
+              type="button"
+              onClick={() => setIsBibleReaderOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#B45309] dark:text-[#FDE68A] border border-[#E09F3E]/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+              title="Bibeltext direkt nachschlagen & lesen"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#E09F3E]" />
+              <span>Nachschlagen</span>
+            </button>
+
             {report.mood && (
               <span className="px-2.5 py-1 rounded-xl bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] text-xs font-medium border border-[#E09F3E]/25">
                 🌿 {report.mood}
@@ -520,9 +533,6 @@ ${report.leuchtkraft || report.heartGarden}
           </button>
         </div>
       </div>
-
-      {/* 3. Integrierter gemeinfreier Bibel-Volltext-Viewer (Schlachter 1951 / Luther 1912) */}
-      <BibleTextViewer passage={report.passage} onGenerateKlarblick={onGenerateKlarblick} />
 
       {/* Notiz-Eingabefeld falls geöffnet */}
       {notesOpen && (
@@ -1271,6 +1281,14 @@ ${report.leuchtkraft || report.heartGarden}
         </div>
 
       </div>
+
+      {/* Volltext-Bibel-Reader & Nachschlage-Modal */}
+      <BibleReaderModal
+        isOpen={isBibleReaderOpen}
+        onClose={() => setIsBibleReaderOpen(false)}
+        initialPassage={report.passage}
+        onSelectPassageAndGenerate={onGenerateKlarblick}
+      />
 
     </section>
   );

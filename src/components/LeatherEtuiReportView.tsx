@@ -14,8 +14,9 @@ import {
   ChevronDown,
   Layers,
   ChevronUp,
+  BookOpen,
 } from 'lucide-react';
-import { BibleTextViewer } from './BibleTextViewer';
+import { BibleReaderModal } from './BibleReaderModal';
 import { normalizeFaithStage } from '../services/storage';
 import {
   IconLichtfunke,
@@ -58,6 +59,9 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
   // Fächer-Zustand: Wenn true, sind die 7 Karten herausgefächert
   const [isFannedOut, setIsFannedOut] = useState<boolean>(true);
   
+  // Bibeltext-Reader Modal (Nachschlagen & im Text lesen)
+  const [isBibleReaderOpen, setIsBibleReaderOpen] = useState<boolean>(false);
+
   // Aktive ausgeklappte Karte für vollen Lesefokus
   const [activeCard, setActiveCard] = useState<number | null>(1);
 
@@ -436,8 +440,8 @@ https://lightflow-app-two.vercel.app`;
         {/* Etui-Kopf: Massives Messingschild mit Bibelstelle & Tool-Leiste */}
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#3D2514]/90">
           
-          {/* Massives geprägtes Gold-Messingschild */}
-          <div className="flex items-center gap-3">
+          {/* Massives geprägtes Gold-Messingschild & Nachschlage-Aktion */}
+          <div className="flex flex-wrap items-center gap-2.5">
             <div 
               onClick={handlePassageClick}
               className="brass-embossed-plaque px-4 py-2 rounded-2xl cursor-pointer group flex items-center gap-2.5 transition-transform active:scale-95"
@@ -450,6 +454,17 @@ https://lightflow-app-two.vercel.app`;
               <ChevronDown className="w-3.5 h-3.5 text-[#351D05]/80 group-hover:translate-y-0.5 transition-transform" />
               <div className="w-2 h-2 rounded-full bg-[#52340B] shadow-inner" />
             </div>
+
+            {/* Nachschlage-Button: Öffnet direkt den Volltext-Leser mit allen Büchern & Abschnitten */}
+            <button
+              type="button"
+              onClick={() => setIsBibleReaderOpen(true)}
+              className="px-3 py-1.5 rounded-2xl bg-black/50 hover:bg-amber-500/20 border border-amber-500/35 hover:border-amber-500/60 text-[#FDE68A] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm group active:scale-95"
+              title="Bibeltext direkt nachschlagen & lesen"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#E09F3E] group-hover:scale-110 transition-transform" />
+              <span>Nachschlagen</span>
+            </button>
 
             {report.mood && (
               <span className="px-3 py-1 rounded-full bg-black/40 border border-amber-500/20 text-[#FDE68A] text-xs font-serif italic backdrop-blur-sm">
@@ -570,11 +585,6 @@ https://lightflow-app-two.vercel.app`;
               <span className="hidden sm:inline">{isFannedOut ? 'Fächer schließen' : 'Auffächern'}</span>
             </button>
           </div>
-        </div>
-
-        {/* Bibel-Volltext-Viewer integriert im Leder-Etui */}
-        <div className="relative z-10 my-4">
-          <BibleTextViewer passage={report.passage} onGenerateKlarblick={onGenerateKlarblick} />
         </div>
 
         {/* Notizen-Feld falls geöffnet */}
@@ -760,6 +770,14 @@ https://lightflow-app-two.vercel.app`;
         </div>
 
       </div>
+
+      {/* Volltext-Bibel-Reader & Nachschlage-Modal */}
+      <BibleReaderModal
+        isOpen={isBibleReaderOpen}
+        onClose={() => setIsBibleReaderOpen(false)}
+        initialPassage={report.passage}
+        onSelectPassageAndGenerate={onGenerateKlarblick}
+      />
 
     </section>
   );
