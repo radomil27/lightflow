@@ -123,6 +123,17 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
       ? 'text-xl sm:text-2xl'
       : 'text-lg sm:text-xl';
 
+  // Feiner haptischer Impuls für iPhone (Taptic Engine) & Android
+  const triggerHapticFeedback = (durationMs: number = 18) => {
+    try {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(durationMs);
+      }
+    } catch {
+      // Stiller Fallback falls Haptik im System deaktiviert ist
+    }
+  };
+
   // Erkennt die 3 strukturierten Abschnitte von "KLARBLICK"
   const renderKlarblickContent = (text: string) => {
     const s1Match = text.match(/(?:(?:\r?\n|^)\s*(?:###|##|#|\*\*|)\s*1\.\s*Historischer Kontext[^\n:]*:?\*?\*?\s*)([\s\S]*?)(?=(?:\r?\n\s*(?:###|##|#|\*\*|)\s*2\.\s*Urtext)|$)/i);
@@ -587,7 +598,10 @@ https://lightflow-app-two.vercel.app`;
             {/* 3D-Fächer Umschalter (Popup Card Holder Toggle) */}
             <button
               type="button"
-              onClick={() => setIsFannedOut(!isFannedOut)}
+              onClick={() => {
+                triggerHapticFeedback(14);
+                setIsFannedOut(!isFannedOut);
+              }}
               className="px-3 py-2 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/20 to-amber-700/20 text-[#FDE68A] hover:border-amber-500/60 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
               title="Kartenetui auffächern / schließen"
             >
@@ -655,6 +669,7 @@ https://lightflow-app-two.vercel.app`;
                       : 'bg-[#18110B]/90 hover:bg-[#22160F] border-[#3D2514] hover:border-amber-500/40 shadow-md'
                   } ${isLoading ? 'opacity-60 saturate-50 animate-posten-gathering' : ''}`}
                   onClick={() => {
+                    triggerHapticFeedback(22);
                     setActiveCard(isActive ? null : posten.num);
                     if (!isFannedOut) setIsFannedOut(true);
                   }}
