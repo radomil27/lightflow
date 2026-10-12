@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LightflowReport, AppSettings, LightSealType } from '../types';
 import { useSpeechPlayer } from '../hooks/useSpeechPlayer';
+import { useGyroscopeParallax } from '../hooks/useGyroscopeParallax';
 import {
   Bookmark,
   Copy,
@@ -55,6 +56,10 @@ export const LeatherEtuiReportView: React.FC<LeatherEtuiReportViewProps> = ({
   onShareToCircle,
   onToggleSeal,
 }) => {
+  // Ref für das physikalische Leder-Etui & 60fps Gyroskop-Parallax
+  const etuiRef = useRef<HTMLDivElement | null>(null);
+  const { requestOrientationPermission } = useGyroscopeParallax(etuiRef);
+
   // Fächer-Zustand: Wenn true, sind die 7 Karten herausgefächert
   const [isFannedOut, setIsFannedOut] = useState<boolean>(true);
   
@@ -422,32 +427,42 @@ https://lightflow-app-two.vercel.app`;
       </svg>
 
       {/* ========================================================
-          DAS HAUPTELEMENT: EDLES LEDER-PORTEMONNAIE / ETUI
+          DAS HAUPTELEMENT: EDLES LEDER-PORTEMONNAIE / ETUI (3D GYRO-PARALLAX)
           ======================================================== */}
-      <div className="relative rounded-[32px] sm:rounded-[36px] leather-wallet-surface border border-[#3D2514]/80 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(212,175,55,0.18)] p-4 sm:p-7 overflow-hidden transition-all duration-500">
+      <div 
+        ref={etuiRef}
+        onTouchStart={requestOrientationPermission}
+        className="relative rounded-[32px] sm:rounded-[36px] leather-wallet-surface border border-[#3D2514]/80 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(212,175,55,0.18)] p-4 sm:p-7 overflow-hidden transition-all duration-500 parallax-layer-leather"
+      >
         
         {/* Handgenähte Steppnaht (gestrichelte Ziernaht in Champagner-Gold) */}
         <div className="absolute inset-2 sm:inset-3 rounded-[26px] sm:rounded-[30px] leather-stitching pointer-events-none" />
 
-        {/* Sanfte Lichtreflektion auf dem Leder */}
+        {/* Live-Lichteinfall (Specular Gloss / Gyro Glare): Wandert organisch mit der iPhone-Neigung */}
+        <div className="absolute inset-0 rounded-[32px] sm:rounded-[36px] leather-gyro-glare pointer-events-none" />
+
+        {/* Zusätzlicher sanfter Umgebungslicht-Schein */}
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Etui-Kopf: Massives Messingschild mit Bibelstelle & Tool-Leiste */}
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#3D2514]/90">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#3D2514]/90 parallax-layer-brass">
           
           {/* Massives geprägtes Gold-Messingschild & Nachschlage-Aktion */}
           <div className="flex flex-wrap items-center gap-2.5">
             <div 
               onClick={handlePassageClick}
-              className="brass-embossed-plaque px-4 py-2 rounded-2xl cursor-pointer group flex items-center gap-2.5 transition-transform active:scale-95"
+              className="brass-embossed-plaque relative px-4 py-2 rounded-2xl cursor-pointer group flex items-center gap-2.5 transition-transform active:scale-95 overflow-hidden shadow-lg"
               title="Bibelstelle wechseln"
             >
-              <div className="w-2 h-2 rounded-full bg-[#52340B] shadow-inner" />
-              <span className="font-serif font-black text-sm sm:text-base tracking-wider text-[#351D05] uppercase">
+              {/* Live Specular Gloss auf dem Messingschild */}
+              <div className="absolute inset-0 brass-specular-glare pointer-events-none" />
+
+              <div className="relative z-10 w-2 h-2 rounded-full bg-[#52340B] shadow-inner" />
+              <span className="relative z-10 font-serif font-black text-sm sm:text-base tracking-wider text-[#351D05] uppercase">
                 {report.passage}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#351D05]/80 group-hover:translate-y-0.5 transition-transform" />
-              <div className="w-2 h-2 rounded-full bg-[#52340B] shadow-inner" />
+              <ChevronDown className="relative z-10 w-3.5 h-3.5 text-[#351D05]/80 group-hover:translate-y-0.5 transition-transform" />
+              <div className="relative z-10 w-2 h-2 rounded-full bg-[#52340B] shadow-inner" />
             </div>
 
             {/* Nachschlage-Button: Öffnet direkt den Volltext-Leser mit allen Büchern & Abschnitten */}
@@ -613,7 +628,7 @@ https://lightflow-app-two.vercel.app`;
         {/* ========================================================
             DER POPUP CARD HOLDER: DIE 7 GESTAFFELTEN KARTEN (3D)
             ======================================================== */}
-        <div className="relative z-10 mt-6 pt-2 card-stack-perspective">
+        <div className="relative z-10 mt-6 pt-2 card-stack-perspective parallax-layer-cards">
           
           <div className="flex flex-col space-y-4">
             {postenList.map((posten, index) => {
