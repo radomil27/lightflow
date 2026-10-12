@@ -6,8 +6,7 @@ import { getCircadianTheme } from '../services/circadianService';
 interface InputSectionProps {
   passage: string;
   setPassage: (val: string) => void;
-  selectedMood: string;
-  onOpenMoodPicker: () => void;
+  onSubmitPassage: (targetPassage?: string) => void;
   isLoading: boolean;
   profile?: UserProfile;
   onOpenPicker: () => void;
@@ -19,8 +18,7 @@ interface InputSectionProps {
 export const InputSection: React.FC<InputSectionProps> = ({
   passage,
   setPassage,
-  selectedMood: _selectedMood,
-  onOpenMoodPicker,
+  onSubmitPassage,
   isLoading,
   onOpenPicker,
   hasActiveReport = false,
@@ -52,7 +50,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
   const handleCtaClick = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPassage || isLoading) return;
-    onOpenMoodPicker();
+    onSubmitPassage(passage);
   };
 
   // Wenn ein aktiver Report vorliegt und der Nutzer den Bereich eingeklappt hat:
@@ -140,7 +138,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Weiter →</span>
+                    <span>Beleuchten →</span>
                   </>
                 )}
               </button>
@@ -153,7 +151,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
           <div 
             onClick={() => {
               setPassage(impulse.passage);
-              onOpenMoodPicker();
+              onSubmitPassage(impulse.passage);
             }}
             className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#111622]/60 border border-stone-200/70 dark:border-white/[0.06] hover:border-amber-500/40 hover:bg-white dark:hover:bg-[#111622]/90 backdrop-blur-md transition-all group cursor-pointer shadow-sm"
           >

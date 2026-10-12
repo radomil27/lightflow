@@ -26,7 +26,6 @@ import { ProfileModal } from './components/ProfileModal';
 import { SavedReportsModal } from './components/SavedReportsModal';
 import { SettingsModal } from './components/SettingsModal';
 import { BiblePickerModal } from './components/BiblePickerModal';
-import { MoodPickerModal } from './components/MoodPickerModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { SplashScreen } from './components/SplashScreen';
 import { CircleModal } from './components/CircleModal';
@@ -62,7 +61,6 @@ export const App: React.FC = () => {
   const [isSavedOpen, setIsSavedOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
-  const [isMoodPickerOpen, setIsMoodPickerOpen] = useState<boolean>(false);
   const [isCircleOpen, setIsCircleOpen] = useState<boolean>(false);
 
   // PWA Install Prompt Event
@@ -212,11 +210,11 @@ export const App: React.FC = () => {
     }
   };
 
-  // Auswahl aus dem interaktiven Bibel-Navigator: Übernimmt Passage und öffnet direkt das Mood-Modal
+  // Auswahl aus dem interaktiven Bibel-Navigator: Übernimmt Passage und generiert direkt den vollständigen Report
   const handleSelectPassageFromPicker = (selectedPassage: string, autoProceed: boolean = true) => {
     setPassage(selectedPassage);
     if (autoProceed) {
-      setIsMoodPickerOpen(true);
+      runGenerationWithMood(selectedPassage, selectedMood || profile.dailyMood || 'Suche Klarheit');
     }
   };
 
@@ -344,8 +342,11 @@ export const App: React.FC = () => {
         <InputSection
           passage={passage}
           setPassage={setPassage}
-          selectedMood={selectedMood}
-          onOpenMoodPicker={() => setIsMoodPickerOpen(true)}
+          onSubmitPassage={(targetPassage) => {
+            const finalPassage = targetPassage || passage;
+            setPassage(finalPassage);
+            runGenerationWithMood(finalPassage, selectedMood || profile.dailyMood || 'Suche Klarheit');
+          }}
           isLoading={isLoading}
           profile={profile}
           onOpenPicker={() => setIsPickerOpen(true)}
@@ -425,15 +426,6 @@ export const App: React.FC = () => {
         onClose={() => setIsPickerOpen(false)}
         onSelectPassage={handleSelectPassageFromPicker}
         currentPassage={passage}
-      />
-
-      <MoodPickerModal
-        isOpen={isMoodPickerOpen}
-        onClose={() => setIsMoodPickerOpen(false)}
-        passage={passage}
-        onSelectMood={(mood) => {
-          runGenerationWithMood(passage, mood);
-        }}
       />
 
       {/* Circle of 4: Vertrauter Kreis Modal */}
