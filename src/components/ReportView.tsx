@@ -416,12 +416,6 @@ ${report.leuchtkraft || report.heartGarden}
               <BookOpen className="w-3.5 h-3.5 text-[#E09F3E]" />
               <span>Nachschlagen</span>
             </button>
-
-            {report.mood && (
-              <span className="px-2.5 py-1 rounded-xl bg-[#E09F3E]/15 text-[#B45309] dark:text-[#FDE68A] text-xs font-medium border border-[#E09F3E]/25">
-                🌿 {report.mood}
-              </span>
-            )}
           </div>
         </div>
 

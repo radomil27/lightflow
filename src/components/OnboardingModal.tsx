@@ -107,7 +107,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         profession: finalProfession,
         professionDetail: '',
         relationshipStatus: relationshipStatus.trim(),
-        dailyMood: 'Unter Druck / Erschöpft',
+        dailyMood: 'Suche Klarheit',
         hasCompletedOnboarding: true,
       };
       onComplete(finalProfile);

@@ -486,12 +486,6 @@ https://lightflow-app-two.vercel.app`;
               <BookOpen className="w-3.5 h-3.5 text-[#E09F3E] group-hover:scale-110 transition-transform" />
               <span>Nachschlagen</span>
             </button>
-
-            {report.mood && (
-              <span className="px-3 py-1 rounded-full bg-black/40 border border-amber-500/20 text-[#FDE68A] text-xs font-serif italic backdrop-blur-sm">
-                🌿 {report.mood}
-              </span>
-            )}
           </div>
 
           {/* Steuerung & Aktionen */}

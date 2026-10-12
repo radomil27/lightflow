@@ -26,7 +26,7 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   professionDetail: '',
   mindset: 'Lösungsorientiert & Pragmatisch',
   relationshipStatus: 'Single / Alleinlebend',
-  dailyMood: 'Unter Druck / Erschöpft',
+  dailyMood: 'Suche Klarheit',
   hasCompletedOnboarding: false,
 };
 

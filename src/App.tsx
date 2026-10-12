@@ -45,10 +45,10 @@ export const App: React.FC = () => {
 
   // Eingaben & Auswertung
   const [passage, setPassage] = useState<string>('Matthäus 12:1-14');
-  const [selectedMood, setSelectedMood] = useState<string>(profile.dailyMood || 'Unter Druck / Erschöpft');
+  const [selectedMood, setSelectedMood] = useState<string>(profile.dailyMood || 'Suche Klarheit');
   const [currentReport, setCurrentReport] = useState<LightflowReport | null>(() => {
     // Startet direkt mit einem passgenauen Report zu Matthäus 12:1-14
-    return generateLocalReport('Matthäus 12:1-14', getStoredProfile(), 'Unter Druck / Erschöpft');
+    return generateLocalReport('Matthäus 12:1-14', getStoredProfile(), 'Suche Klarheit');
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEditingPassage, setIsEditingPassage] = useState<boolean>(false);
