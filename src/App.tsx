@@ -30,7 +30,7 @@ import { MoodPickerModal } from './components/MoodPickerModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { SplashScreen } from './components/SplashScreen';
 import { CircleModal } from './components/CircleModal';
-import { Sparkles, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Splash Screen Intro bei jedem App-Start / Reload
@@ -384,22 +384,6 @@ export const App: React.FC = () => {
         )}
 
       </main>
-
-      {/* Footer mit Marken-Leitbild */}
-      <footer className="border-t border-stone-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur py-8 safe-area-footer text-center text-xs text-stone-500 dark:text-stone-400">
-        <div className="max-w-4xl mx-auto px-4 flex flex-col items-center space-y-2">
-          <div className="flex items-center space-x-2 text-[#B45309] dark:text-[#FDE68A] font-serif font-semibold text-sm">
-            <Sparkles className="w-3.5 h-3.5 text-[#E09F3E]" />
-            <span>Lightflow – Angeschlossen an die Quelle</span>
-          </div>
-          <p className="max-w-md text-[11px] leading-relaxed">
-            Keine moralischen Belehrungen. Keine starren Dogmen. Frischer Sauerstoff direkt in deine Realität als {profile.profession}.
-          </p>
-          <div className="text-[10px] text-stone-400 dark:text-stone-500 pt-2">
-            PWA Offline-Ready • Lokale Browser-Verschlüsselung • Daten bleiben privat
-          </div>
-        </div>
-      </footer>
 
       {/* Modale Dialoge */}
       <OnboardingModal
