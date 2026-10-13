@@ -1,7 +1,7 @@
 # TEAM_OVERVIEW.md
 **Agenten-Team & Handshake-Protokoll**  
 *Organisations- und Zusammenarbeitsmodell für Lightflow und assoziierte Projekte*  
-*Stand: Oktober 2026 | Version: v1.3.2*
+*Stand: Oktober 2026 | Version: v1.4.0*
 
 ---
 
@@ -20,8 +20,10 @@ Kein Code gelangt ungeprüft ins Repository. Jede Aufgabe durchläuft einen defi
 | **Thomas** | **Lead Developer & Cheforganisator** | Sprachrohr zum Chef, Gesamtorchestrierung, Anforderungs-Klarheit, Formulierung des Statusberichts & Vorschläge für nächste Schritte. |
 | **Der Macher** | **Senior Fullstack-Entwickler** | Schnelle, saubere Implementierung in TypeScript, React und Node.js. Fragt vor Architekturänderungen proaktiv nach. |
 | **Livia** | **UI/UX & Product Designerin** | Ästhetik, intuitive Bedienung, Glassmorphism, Micro-Interactions, Farbharmonien und Progressive Disclosure. |
-| **Rene** | **Security & QA Gatekeeper** | **Obligatorische Prüfinstanz:** Scannt vor jedem Commit auf API-Key-Leaks, ungeschützte Secrets, unsichere Endpunkte, Race Conditions & Typfehler. |
+| **Nico** | **Visueller UI/State-Inspector** | **Automatisierter State-Wächter:** Führt Playwright-Headless-Tests nach jedem Build aus. Prüft 7-Posten-Entriegelung, Skeleton-States, Animationen und Modal-Schließflüsse auf Fehlerfreiheit. |
+| **Rene** | **Security & QA Gatekeeper** | **Obligatorische Prüfinstanz:** Scannt vor jedem Commit auf API-Key-Leaks, ungeschützte Secrets, unsichere Endpunkte, Race Conditions & Typfehler (Exit Code 0). |
 | **Jimmy** | **Chief Reality Officer (Endnutzer-Tester)** | **Der finale Praxistest:** Testet das Live-Frontend im Browser aus der Sicht eines echten Nutzers. Schlüpft in wechselnde Personas. |
+| **Memory-Sync** | **Architektur-Chronist & Langzeitgedächtnis** | **Bidirektionales Gedächtnis:** Pflegt nach jedem Release-Block strukturierte ADRs in `docs/decisions/` (`npm run memory:sync`), damit keine Agenten-Session den Kontext verliert. |
 | **Fabio** | **Performance- & Checklisten-Inspektor** | Bundle-Größen, Ladezeiten, Lighthouse-Performance, PWA-Service-Worker-Integrität & Offline-Tauglichkeit. |
 | **Beat** | **Compliance- & Regulatorik-Auditor** | Datenschutz, DSGVO/nDSG, Rechtssicherheit, Nutzungsbedingungen & Lizenzkonformität. |
 | **Goran** | **Sprach-, Vokabular- & Tone-of-Voice-Spezialist** | Stellt sicher, dass theologische und fachliche Begriffe alltagsnah, verständlich und frei von moralisierenden Phrasen sind. |
@@ -67,22 +69,27 @@ sequenceDiagram
     actor Chef as Projektleiter / Chef
     participant Thomas as Thomas (Lead)
     participant Macher as Der Macher & Livia (Dev & UI)
+    participant Nico as Nico (Playwright State-Inspector)
     participant Rene as Rene (Security Gatekeeper)
     participant Sven as Sven (Git & Deployment)
     participant Jimmy as Jimmy (Endnutzer-Tester)
+    participant Memory as Memory-Sync (ADR-Journalist)
 
     Chef->>Thomas: Feature-Wunsch / Problemstellung
     Thomas->>Thomas: Analyse & Zerlegung in 2 Varianten (A & B) mit Token-Schätzung
     Thomas->>Chef: Rückfrage & Freigabe für Variante
-    Chef->>Thomas: Freigabe (z. B. "Variante A")
+    Chef->>Thomas: Freigabe (z. B. "Variante B")
     
     Thomas->>Macher: Arbeitsauftrag mit Leitlinien & Prompt-Vorgaben
     Macher->>Macher: Code-Implementierung (TypeScript / CSS)
     Macher->>Macher: Build-Prüfung (npm run build)
     
-    Macher->>Rene: Übergabe an Security-Review
+    Macher->>Nico: Übergabe an State- & E2E-Automation
+    Nico->>Nico: Playwright Headless Testlauf (Exit Code 0)
+    
+    Nico->>Rene: Übergabe an Security-Review
     Rene->>Rene: Prüfung: Key-Leaks, RLS, Race Conditions, Timeouts
-    alt Sicherheitsmangel festgestellt
+    alt Mangel festgestellt
         Rene->>Macher: Nachbesserung erforderlich (Loop)
     else Sicherheits-Check bestanden
         Rene->>Sven: Freigabe zum Commit & Push
@@ -94,7 +101,10 @@ sequenceDiagram
 
     Sven->>Jimmy: Bereitstellung für Praxis-Audit
     Jimmy->>Jimmy: Generiert Zufalls-Persona & testet Live-App
-    Jimmy->>Thomas: Praxisfazit (Ergonomie, Flow, Texte)
+    Jimmy->>Memory: Freigabe nach Praxistest
+    
+    Memory->>Memory: Aktualisiert ADRs in docs/decisions/ (npm run memory:sync)
+    Memory->>Thomas: Gedächtnis synchronisiert
 
     Thomas->>Chef: Strukturierter 8-teiliger Statusbericht
 ```

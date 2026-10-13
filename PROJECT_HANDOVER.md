@@ -1,7 +1,7 @@
 # PROJECT_HANDOVER.md
 **Lightflow – Angeschlossen an die Quelle**  
 *Umfassende Architektur- und Projektdokumentation für den externen Chef-Architekten (AI)*  
-*Stand: Oktober 2026 | Version: v1.3.2*
+*Stand: Oktober 2026 | Version: v1.4.0*
 
 ---
 
@@ -185,7 +185,7 @@ Jeder Bericht nach Änderungen muss zwingend folgende Reihenfolge einhalten:
 
 ## 5. Aktueller Status
 
-### 5.1 Fertiggestellt (Live in v1.3.2)
+### 5.1 Fertiggestellt (Live in v1.4.0)
 - [x] **7-Posten-Auslegungs-Architektur:** Vollständige Umstellung von der alten 6-Stufen-Logik auf die neuen 7 Bausteine.
 - [x] **Profil mit Freitext:** Grobauswahl kombiniert mit freiem Berufsalltags-Feld (`professionDetail`).
 - [x] **Progressive Enthüllung (Variante A):** Posten 1 erscheint sofort; Posten 2 bis 7 schalten sich im 550ms-Takt mit animierten Lade-Skeletten frei.
@@ -195,6 +195,8 @@ Jeder Bericht nach Änderungen muss zwingend folgende Reihenfolge einhalten:
 - [x] **Persistenz & Archiv:** Speichern von Favoriten, persönlichen Notizen und lokaler Verlauf im LocalStorage.
 - [x] **Integrierte Vorlesefunktion (TTS):** Sprachausgabe via Web Speech API mit Stop/Start-Steuerung.
 - [x] **Gemini 3.8/3.7 Kaskade:** Vercel-Serverless-Funktion mit Priorität auf Gemini 3.8/3.7 und 0%-Fehler-Ausfallsicherung.
+- [x] **Automatisierter UI/State-Tester („Nico“):** Playwright E2E- und State-Testsuite (`npm run test:e2e`) für Headless-Testing von 7-Posten Progressive Reveal, Modal-States, Themes und PWA-Responsive Viewport.
+- [x] **Bidirektionales Architektur-Gedächtnis (ADR-System):** Vollständige Einführung von Architecture Decision Records in `docs/decisions/` mit automatisiertem Sync-Skript (`npm run memory:sync`).
 
 ### 5.2 In Arbeit / Nächste Schritte
 - [ ] **Echtes Token-Streaming (SSE):** Streaming der Tokens via Server-Sent Events direkt aus der Vercel Function für noch kürzere wahrgenommene Ladezeit.
