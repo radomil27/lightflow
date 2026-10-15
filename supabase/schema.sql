@@ -110,7 +110,7 @@ create index if not exists idx_users_referred_by on public.users(referred_by_cod
 create index if not exists idx_users_last_active on public.users(last_active_at);
 
 -- ==============================================================================
--- 4. Tabelle: Feedback-Kanal (v1.9.0)
+-- 4. Tabelle: Feedback-Kanal (v1.9.0) - Gehärtetes RLS
 -- ==============================================================================
 create table if not exists public.feedbacks (
   id uuid primary key default gen_random_uuid(),
@@ -123,19 +123,25 @@ create table if not exists public.feedbacks (
 -- RLS für feedbacks aktivieren
 alter table public.feedbacks enable row level security;
 
+-- 1. Feedback einreichen: Jeder (anonym) darf Nachrichten absenden
 create policy "Jeder kann Feedback einreichen"
   on public.feedbacks for insert
   with check (true);
 
-create policy "Jeder kann Feedbacks einsehen (oder über Service Role)"
+-- 2. Datenschutz-Schutz: Anonyme Clients dürfen fremde Feedbacks NICHT lesen
+-- Nur der Admin über Service-Role oder autorisierte Sitzungen darf Feedbacks abrufen
+create policy "Nur Service-Role und Admins können Feedbacks einsehen"
   on public.feedbacks for select
-  using (true);
+  using (auth.role() = 'service_role');
 
-create policy "Status von Feedbacks aktualisieren"
+-- 3. Nur Service-Role darf Status aktualisieren
+create policy "Nur Service-Role kann Feedback-Status aktualisieren"
   on public.feedbacks for update
-  using (true);
+  using (auth.role() = 'service_role');
 
-create policy "Feedbacks löschen"
+-- 4. Nur Service-Role darf Feedbacks löschen
+create policy "Nur Service-Role kann Feedbacks löschen"
   on public.feedbacks for delete
-  using (true);
+  using (auth.role() = 'service_role');
+
 

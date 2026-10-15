@@ -197,6 +197,7 @@ Jeder Bericht nach Änderungen muss zwingend folgende Reihenfolge einhalten:
 - [x] **Gemini 3.8/3.7 Kaskade:** Vercel-Serverless-Funktion mit Priorität auf Gemini 3.8/3.7 und 0%-Fehler-Ausfallsicherung.
 - [x] **Automatisierter UI/State-Tester („Nico“):** Playwright E2E- und State-Testsuite (`npm run test:e2e`) für Headless-Testing von 7-Posten Progressive Reveal, Modal-States, Themes und PWA-Responsive Viewport.
 - [x] **Bidirektionales Architektur-Gedächtnis (ADR-System):** Vollständige Einführung von Architecture Decision Records in `docs/decisions/` mit automatisiertem Sync-Skript (`npm run memory:sync`).
+- [x] **Sicherheits-Audit & RLS-Härtung (v1.4.1):** 100% Audit aller Vercel- & Supabase-Strukturen, Härtung der `feedbacks`-RLS-Policies gegen Datenlecks und Bereinigung der Git-Historie.
 
 ### 5.2 In Arbeit / Nächste Schritte
 - [ ] **Echtes Token-Streaming (SSE):** Streaming der Tokens via Server-Sent Events direkt aus der Vercel Function für noch kürzere wahrgenommene Ladezeit.

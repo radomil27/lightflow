@@ -14,6 +14,7 @@ Jeder Agent (Livia, Der Macher, Rene, Thomas, Nico) liest dieses Verzeichnis zu 
 | [ADR-0002-progressive-disclosure-timer](file:///Users/mira/Documents/antigravity/bold-bohr/docs/decisions/ADR-0002-progressive-disclosure-timer.md) | 2. Re-Render-resistente Timer mit useRef & 4s-Notanker |  | 2026-10-13 | Der Macher, Livia, Rene |
 | [ADR-0003-serverless-cascade-and-fallback](file:///Users/mira/Documents/antigravity/bold-bohr/docs/decisions/ADR-0003-serverless-cascade-and-fallback.md) | 3. Gemini 3.8/3.7 Cloud-Kaskade & Zero-Error Offline-Heuristik |  | 2026-10-13 | Rene (Security), Marco (Token-Controller), Der Macher |
 | [ADR-0004-automated-visual-testing-and-memory-sync](file:///Users/mira/Documents/antigravity/bold-bohr/docs/decisions/ADR-0004-automated-visual-testing-and-memory-sync.md) | 4. Playwright Visual/State-Testing & Autonomer Memory-Sync |  | 2026-10-13 | Chef, Thomas (Lead), Rene (Security Gatekeeper) |
+| [ADR-0005-security-audit-and-rls-hardening](file:///Users/mira/Documents/antigravity/bold-bohr/docs/decisions/ADR-0005-security-audit-and-rls-hardening.md) | 5. Sicherheits-Audit & Supabase RLS Härtung |  | 2026-10-15 | Chef, Rene (Security Gatekeeper), Thomas (Lead Developer) |
 
 ---
 
