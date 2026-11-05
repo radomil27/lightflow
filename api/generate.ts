@@ -52,12 +52,35 @@ REGELN & ABSCHLUSS:
 - ABSOLUTES ABBRUCHVERBOT: Jeder der 3 Abschnitte MUSS grammatikalisch vollständig ausformuliert und mit einem Satzzeichen (. ! ?) beendet werden. Breche NIEMALS mitten im Wort, Satz oder Gedanken ab!`;
 }
 
+// Rate-Limiter für IP-Schutz (max. 15 Anfragen pro Minute)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+function checkRateLimit(ip: string, limit = 15, windowMs = 60000): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  if (record.count >= limit) return false;
+  record.count += 1;
+  return true;
+}
+
 export default async function handler(req: any, res: any) {
-  // CORS Header für PWA
+  // CORS Header: Auf eigene Produktions-Domains, Vercel & Localhost beschränken
+  const origin = req.headers['origin'] || '';
+  const isAllowedOrigin = !origin || 
+    origin.includes('localhost') || 
+    origin.includes('127.0.0.1') || 
+    origin.includes('lightflow') || 
+    origin.endsWith('.vercel.app');
+
+  if (isAllowedOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, x-app-secret, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -65,6 +88,26 @@ export default async function handler(req: any, res: any) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // IP-Rate-Limiting prüfen
+  const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (!checkRateLimit(clientIp, 15, 60000)) {
+    res.setHeader('Retry-After', '60');
+    return res.status(429).json({ error: 'Zu viele Anfragen. Bitte in 1 Minute erneut versuchen.' });
+  }
+
+  // App-Secret Validierung (falls in Vercel X_APP_SECRET gesetzt ist)
+  const expectedSecret = process.env.X_APP_SECRET?.trim();
+  const providedSecret = (
+    (req.headers['x-app-secret'] as string) ||
+    (typeof req.headers['authorization'] === 'string' && req.headers['authorization'].startsWith('Bearer ')
+      ? req.headers['authorization'].slice(7)
+      : '')
+  )?.trim();
+
+  if (expectedSecret && providedSecret !== expectedSecret) {
+    return res.status(401).json({ error: 'Ungültiges oder fehlendes App-Secret (X_APP_SECRET)' });
   }
 
   const { passage, profile, mood } = req.body || {};
@@ -80,8 +123,8 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ useFallback: true, error: 'GEMINI_API_KEY_NOT_CONFIGURED' });
   }
 
-  console.log('[api/generate] Request empfangen für Passage:', passage, '| Key vorhanden (Länge:', apiKey.length, ')');
-  console.log('RECEIVED_PROFILE:', JSON.stringify(profile));
+  // Anonymes, datensparsames Logging (keine PII / keine sensiblen Profildaten im Serverlog)
+  console.log('[api/generate] Request empfangen für Passage:', passage, '| Profil-Kategorie:', profile.profession || 'Standard');
 
   try {
     const userGender = profile.gender === 'female' ? 'female' : 'male';

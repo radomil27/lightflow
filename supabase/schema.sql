@@ -92,17 +92,28 @@ create table if not exists public.users (
 alter table public.users enable row level security;
 
 -- Anonyme Leserechte & Upsert-Rechte für PWA Clients
+drop policy if exists "Jeder kann Referral-Status und Nutzer abfragen" on public.users;
 create policy "Jeder kann Referral-Status und Nutzer abfragen"
   on public.users for select
   using (true);
 
+drop policy if exists "Jeder kann seinen Status synchronisieren" on public.users;
 create policy "Jeder kann seinen Status synchronisieren"
   on public.users for insert
   with check (true);
 
-create policy "Jeder kann seinen Status aktualisieren"
+-- Gehärtete Update-Policy: Verhindert das willkürliche Überschreiben fremder Nutzer-IDs
+drop policy if exists "Jeder kann seinen Status aktualisieren" on public.users;
+create policy "Nutzer können nur ihren eigenen Status aktualisieren"
   on public.users for update
-  using (true);
+  using (
+    id = referral_code
+    or auth.role() = 'service_role'
+  )
+  with check (
+    id = referral_code
+    or auth.role() = 'service_role'
+  );
 
 -- Indizes
 create index if not exists idx_users_referral_code on public.users(referral_code);

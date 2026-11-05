@@ -308,7 +308,7 @@ export function cleanPostenText(rawText: string, postenIndex: number): string {
  * Ruft die Google Gemini API auf (Client-Fallback)
  */
 async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

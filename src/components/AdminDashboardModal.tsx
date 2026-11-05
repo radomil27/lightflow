@@ -25,8 +25,6 @@ interface AdminDashboardModalProps {
   onClose: () => void;
 }
 
-const ADMIN_PIN = '7777'; // Feste Admin-PIN für geschützten Zugang
-
 export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   isOpen,
   onClose,
@@ -34,6 +32,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'users' | 'feedback'>('users');
   const [users, setUsers] = useState<AppUser[]>([]);
@@ -62,14 +62,44 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput.trim() === ADMIN_PIN) {
-      setIsAuthenticated(true);
-      setPinError(false);
-    } else {
+    if (!pinInput.trim() || isVerifying) return;
+
+    setIsVerifying(true);
+    setPinError(false);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/verify-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-app-secret': (import.meta as any).env?.VITE_APP_SECRET || ''
+        },
+        body: JSON.stringify({ password: pinInput.trim() })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setIsAuthenticated(true);
+          setPinError(false);
+          setPinInput('');
+          return;
+        }
+      }
+
+      const errData = await res.json().catch(() => ({}));
       setPinError(true);
+      setErrorMessage(errData.error || 'Ungültiges Admin-Passwort');
       setPinInput('');
+    } catch (err: any) {
+      setPinError(true);
+      setErrorMessage(err.message || 'Verbindungsfehler zum Server');
+      setPinInput('');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -161,36 +191,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-semibold text-stone-800 dark:text-stone-100">
-                Admin-Zugangscode eingeben
+                Admin-Authentifizierung
               </h3>
               <p className="text-xs text-stone-500 mt-1">
-                Dieser Bereich ist den Initiatoren von Lightflow vorbehalten (PIN: 7777).
+                Dieser Bereich ist autorisierten Administratoren von Lightflow vorbehalten.
               </p>
             </div>
 
             <form onSubmit={handlePinSubmit} className="flex flex-col items-center gap-3 w-full max-w-xs">
               <input
                 type="password"
-                maxLength={8}
                 value={pinInput}
                 onChange={(e) => {
                   setPinInput(e.target.value);
                   setPinError(false);
                 }}
-                placeholder="PIN eingeben..."
+                placeholder="Admin-Passwort eingeben..."
                 autoFocus
-                className="w-full text-center text-lg tracking-widest font-mono py-2.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#E09F3E]"
+                disabled={isVerifying}
+                className="w-full text-center text-sm font-mono py-2.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#E09F3E] disabled:opacity-50"
               />
               {pinError && (
                 <div className="text-xs text-rose-500 font-medium">
-                  Falsche PIN. Bitte erneut versuchen.
+                  {errorMessage || 'Ungültiges Passwort. Bitte erneut versuchen.'}
                 </div>
               )}
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-[#E09F3E] text-slate-950 font-semibold text-xs hover:bg-[#D97706] transition-all cursor-pointer shadow-sm"
+                disabled={isVerifying}
+                className="w-full py-2.5 rounded-xl bg-[#E09F3E] text-slate-950 font-semibold text-xs hover:bg-[#D97706] transition-all cursor-pointer shadow-sm disabled:opacity-50"
               >
-                Entsperren
+                {isVerifying ? 'Überprüfe...' : 'Entsperren'}
               </button>
             </form>
           </div>
